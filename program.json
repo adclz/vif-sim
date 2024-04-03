@@ -1,0 +1,190 @@
+{
+  "monitor": [],
+  "file:///Main": {
+    "ty": "ob",
+    "src": {
+      "interface": {
+        "ty": "interface",
+        "src": {}
+      },
+      "body": [
+        {
+          "ty": "call",
+          "src": {
+            "interface": {
+              "ty": "call_interface",
+              "src": {}
+            },
+            "call": {
+              "ty": "global",
+              "src": {
+                "path": [
+                  "MyFb_Instance"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "file:///MyFb": {
+    "ty": "fb",
+    "src": {
+      "interface": {
+        "ty": "interface",
+        "src": {
+          "static": {
+            "TONInstance": {
+              "ty": "udt_impl",
+              "src": {
+                "of": "TONInstance",
+                "interface": {}
+              }
+            },
+            "ET": {
+              "ty": "Time",
+              "src": {}
+            },
+            "Q": {
+              "ty": "Bool",
+              "src": {}
+            }
+          }
+        }
+      },
+      "body": [
+        {
+          "ty": "resolve_template",
+          "src": {
+            "of": "TON",
+            "inner": {
+              "ty": "local",
+              "src": {
+                "path": [
+                  "TONInstance"
+                ]
+              }
+            },
+            "call_interface": {
+              "ty": "call_interface",
+              "src": {
+                "input": {
+                  "IN": {
+                    "ty": "Bool",
+                    "src": {
+                      "value": true
+                    }
+                  },
+                  "PT": {
+                    "ty": "Time",
+                    "src": {
+                      "value": 5000
+                    }
+                  }
+                },
+                "output": {
+                  "ET": {
+                    "ty": "local",
+                    "src": {
+                      "path": [
+                        "ET"
+                      ]
+                    }
+                  },
+                  "Q": {
+                    "ty": "local",
+                    "src": {
+                      "path": [
+                        "Q"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "ty": "unit_log",
+          "src": {
+            "message": "Elapsed: {}",
+            "format": [
+              {
+                "ty": "local",
+                "src": {
+                  "path": [
+                    "ET"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "ty": "unit_block",
+          "src": {
+            "block": [
+              {
+                "ty": "if",
+                "src": {
+                  "_if": {
+                    "ty": "compare",
+                    "src": {
+                      "compare": {
+                        "ty": "local",
+                        "src": {
+                          "path": [
+                            "Q"
+                          ]
+                        }
+                      },
+                      "operator": "=",
+                      "with": {
+                        "ty": "Implicit",
+                        "src": {
+                          "value": true
+                        }
+                      }
+                    }
+                  },
+                  "then": [
+                    {
+                      "ty": "unit_test",
+                      "src": {
+                        "expect": {
+                          "ty": "local",
+                          "src": {
+                            "path": [
+                              "ET"
+                            ]
+                          }
+                        },
+                        "with": {
+                          "ty": "Time",
+                          "src": {
+                            "value": 5000
+                          }
+                        },
+                        "operator": "=",
+                        "description": "[When Q is true] ET should be 5s"
+                      }
+                    }
+                  ],
+                  "_else": []
+                }
+              }
+            ],
+            "description": "Trigger when Q is true"
+          }
+        }
+      ]
+    }
+  },
+  "file:///MyFb_Instance": {
+    "ty": "instance_db",
+    "src": {
+      "of": "MyFb"
+    }
+  }
+}

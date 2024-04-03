@@ -1,0 +1,7 @@
+.idea
+.vscode
+.pkg
+.pkg_web
+.pkg_node
+target
+build_old.ps1

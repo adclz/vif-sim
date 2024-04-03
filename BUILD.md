@@ -1,0 +1,2 @@
+- Build: powershell -File build.ps1
+- Publish: powershell -File publish.ps1

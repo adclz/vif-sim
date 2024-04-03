@@ -1,0 +1,1230 @@
+{
+  "name": "@adclz/standard-pack",
+  "protocol": "vif-comp-s7",
+  "exclude_sections": {
+    "output": [
+      "IEC_TIMER",
+      "IEC_COUNTER"
+    ],
+    "temp": [
+      "Instance",
+      "IEC_TIMER",
+      "IEC_COUNTER"
+    ],
+    "constant": [
+      "Instance",
+      "Udt",
+      "Struct",
+      "Array",
+      "IEC_TIMER",
+      "IEC_COUNTER"
+    ],
+    "return": [
+      "Instance",
+      "Struct",
+      "Array",
+      "IEC_TIMER",
+      "IEC_COUNTER"
+    ]
+  },
+  "type_aliases": {
+    "Custom": "Word"
+  },
+  "override_return": {
+    "sub": {
+      "Time": [["Tod", "Tod"]],
+      "LTime": [["LTod", "LTod"]]
+    }
+  },
+  "filter_operations": {
+    "eq": {
+      "AnyInteger": ["AnyInteger", "AnyBinary", "AnyFloat"],
+      "AnyBinary": ["AnyInteger", "AnyBinary", "AnyFloat"],
+      "AnyFloat": ["AnyInteger", "AnyBinary", "AnyFloat"],
+      "Time": ["LTime", "Time"],
+      "Date": ["Date"]
+    },
+    "cmp": {
+      "AnyInteger": ["AnyInteger", "AnyBinary", "AnyFloat"],
+      "AnyBinary": ["AnyInteger", "AnyBinary", "AnyFloat"],
+      "AnyFloat": ["AnyInteger", "AnyBinary", "AnyFloat"],
+      "Time": ["LTime", "Time"],
+      "Date": ["Date"]
+    },
+    "mul": {
+      "AnyInteger": ["AnyInteger", "AnyBinary", "AnyFloat"],
+      "AnyBinary": ["AnyInteger", "AnyBinary", "AnyFloat"],
+      "AnyFloat": ["AnyInteger", "AnyBinary", "AnyFloat"],
+      "Time": ["AnyInteger"],
+      "LTime": ["AnyInteger"]
+    },
+    "div": {
+      "AnyInteger": ["AnyInteger", "AnyBinary", "AnyFloat"],
+      "AnyBinary": ["AnyInteger", "AnyBinary", "AnyFloat"],
+      "AnyFloat": ["AnyInteger", "AnyBinary", "AnyFloat"],
+      "Time": ["AnyInteger"],
+      "LTime": ["AnyInteger"]
+    },
+    "add": {
+      "AnyInteger": ["AnyInteger", "AnyBinary", "AnyFloat"],
+      "AnyBinary": ["AnyInteger", "AnyBinary", "AnyFloat"],
+      "AnyFloat": ["AnyInteger", "AnyBinary", "AnyFloat"],
+      "Time": ["Time", "DInt"],
+      "LTime": ["Time", "LTime", "LInt"],
+      "Tod": ["Time", "DInt"],
+      "LTod": ["Time", "LTime", "LInt"],
+      "Date": ["Tod", "LTod"]
+    },
+    "sub": {
+      "AnyInteger": ["AnyInteger", "AnyBinary", "AnyFloat"],
+      "AnyBinary": ["AnyInteger", "AnyBinary", "AnyFloat"],
+      "AnyFloat": ["AnyInteger", "AnyBinary", "AnyFloat"],
+      "Time": ["Time", "DInt"],
+      "LTime": ["Time", "LTime", "LInt"],
+      "Tod": ["Time", "DInt"],
+      "LTod": ["Time", "LTime", "LInt"],
+      "Date": ["Date"]
+    }
+  },
+  "file:///F_TRIG": {
+    "ty": "fb",
+    "src": {
+      "trace": {
+        "file": "src\\resources\\operations\\bit-logic\\F_trig.ts",
+        "column": 28,
+        "line": 35
+      },
+      "interface": {
+        "ty": "interface",
+        "src": {
+          "input": {
+            "CLK": {
+              "ty": "Bool",
+              "src": {}
+            }
+          },
+          "output": {
+            "Q": {
+              "ty": "Bool",
+              "src": {}
+            }
+          },
+          "static": {
+            "Stat_Bit": {
+              "ty": "Bool",
+              "src": {}
+            }
+          }
+        }
+      },
+      "body": [
+        {
+          "ty": "if",
+          "src": {
+            "_if": {
+              "ty": "compare",
+              "src": {
+                "compare": {
+                  "ty": "local",
+                  "src": {
+                    "path": [
+                      "CLK"
+                    ]
+                  }
+                },
+                "operator": "<>",
+                "with": {
+                  "ty": "local",
+                  "src": {
+                    "path": [
+                      "Stat_Bit"
+                    ]
+                  }
+                },
+                "cont": "AND",
+                "cont_with": {
+                  "ty": "compare",
+                  "src": {
+                    "compare": {
+                      "ty": "local",
+                      "src": {
+                        "path": [
+                          "CLK"
+                        ]
+                      }
+                    },
+                    "operator": "=",
+                    "with": {
+                      "ty": "Implicit",
+                      "src": {
+                        "value": false
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "then": [
+              {
+                "ty": "asg",
+                "src": {
+                  "assign": {
+                    "ty": "local",
+                    "src": {
+                      "path": [
+                        "Q"
+                      ]
+                    }
+                  },
+                  "to": {
+                    "ty": "Implicit",
+                    "src": {
+                      "value": true
+                    }
+                  }
+                }
+              }
+            ],
+            "_else": [
+              {
+                "ty": "asg",
+                "src": {
+                  "assign": {
+                    "ty": "local",
+                    "src": {
+                      "path": [
+                        "Q"
+                      ]
+                    }
+                  },
+                  "to": {
+                    "ty": "Implicit",
+                    "src": {
+                      "value": false
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "ty": "asg",
+          "src": {
+            "assign": {
+              "ty": "local",
+              "src": {
+                "path": [
+                  "Stat_Bit"
+                ]
+              }
+            },
+            "to": {
+              "ty": "local",
+              "src": {
+                "path": [
+                  "CLK"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "file:///R_TRIG": {
+    "ty": "fb",
+    "src": {
+      "trace": {
+        "file": "src\\resources\\operations\\bit-logic\\R_trig.ts",
+        "column": 28,
+        "line": 35
+      },
+      "interface": {
+        "ty": "interface",
+        "src": {
+          "input": {
+            "CLK": {
+              "ty": "Bool",
+              "src": {}
+            }
+          },
+          "output": {
+            "Q": {
+              "ty": "Bool",
+              "src": {}
+            }
+          },
+          "static": {
+            "Stat_Bit": {
+              "ty": "Bool",
+              "src": {}
+            }
+          }
+        }
+      },
+      "body": [
+        {
+          "ty": "if",
+          "src": {
+            "_if": {
+              "ty": "compare",
+              "src": {
+                "compare": {
+                  "ty": "local",
+                  "src": {
+                    "path": [
+                      "CLK"
+                    ]
+                  }
+                },
+                "operator": "<>",
+                "with": {
+                  "ty": "local",
+                  "src": {
+                    "path": [
+                      "Stat_Bit"
+                    ]
+                  }
+                },
+                "cont": "AND",
+                "cont_with": {
+                  "ty": "compare",
+                  "src": {
+                    "compare": {
+                      "ty": "local",
+                      "src": {
+                        "path": [
+                          "CLK"
+                        ]
+                      }
+                    },
+                    "operator": "=",
+                    "with": {
+                      "ty": "Implicit",
+                      "src": {
+                        "value": true
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "then": [
+              {
+                "ty": "asg",
+                "src": {
+                  "assign": {
+                    "ty": "local",
+                    "src": {
+                      "path": [
+                        "Q"
+                      ]
+                    }
+                  },
+                  "to": {
+                    "ty": "Implicit",
+                    "src": {
+                      "value": true
+                    }
+                  }
+                }
+              }
+            ],
+            "_else": [
+              {
+                "ty": "asg",
+                "src": {
+                  "assign": {
+                    "ty": "local",
+                    "src": {
+                      "path": [
+                        "Q"
+                      ]
+                    }
+                  },
+                  "to": {
+                    "ty": "Implicit",
+                    "src": {
+                      "value": false
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "ty": "asg",
+          "src": {
+            "assign": {
+              "ty": "local",
+              "src": {
+                "path": [
+                  "Stat_Bit"
+                ]
+              }
+            },
+            "to": {
+              "ty": "local",
+              "src": {
+                "path": [
+                  "CLK"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "file:///TP": {
+    "ty": "template",
+    "src": {
+      "body": [
+        {
+          "ty": "#timer_sm",
+          "src": {
+            "start": {
+              "ty": "compare",
+              "src": {
+                "compare": {
+                  "ty": "#inner",
+                  "src": {
+                    "path": [
+                      "IN"
+                    ]
+                  }
+                },
+                "operator": "=",
+                "with": {
+                  "ty": "Implicit",
+                  "src": {
+                    "value": true
+                  }
+                }
+              }
+            },
+            "preset_var": {
+              "ty": "#inner",
+              "src": {
+                "path": [
+                  "PT"
+                ]
+              }
+            },
+            "timer_var": {
+              "ty": "#inner",
+              "src": {
+                "path": [
+                  "ET"
+                ]
+              }
+            },
+            "on_timer_start": [
+              {
+                "ty": "asg",
+                "src": {
+                  "assign": {
+                    "ty": "#inner",
+                    "src": {
+                      "path": [
+                        "Q"
+                      ]
+                    }
+                  },
+                  "to": {
+                    "ty": "Implicit",
+                    "src": {
+                      "value": true
+                    }
+                  }
+                }
+              }
+            ],
+            "on_timer_elapsed": [
+              {
+                "ty": "asg",
+                "src": {
+                  "assign": {
+                    "ty": "#inner",
+                    "src": {
+                      "path": [
+                        "Q"
+                      ]
+                    }
+                  },
+                  "to": {
+                    "ty": "Implicit",
+                    "src": {
+                      "value": false
+                    }
+                  }
+                }
+              },
+              {
+                "ty": "#reset",
+                "src": {
+                  "reset": [
+                    {
+                      "ty": "#inner",
+                      "src": {
+                        "path": [
+                          "ET"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "on_timer_reset": []
+          }
+        }
+      ]
+    }
+  },
+  "file:///TON": {
+    "ty": "template",
+    "src": {
+      "body": [
+        {
+          "ty": "#timer_sm",
+          "src": {
+            "start": {
+              "ty": "compare",
+              "src": {
+                "compare": {
+                  "ty": "#inner",
+                  "src": {
+                    "path": [
+                      "IN"
+                    ]
+                  }
+                },
+                "operator": "=",
+                "with": {
+                  "ty": "Implicit",
+                  "src": {
+                    "value": true
+                  }
+                }
+              }
+            },
+            "reset": {
+              "ty": "compare",
+              "src": {
+                "compare": {
+                  "ty": "#inner",
+                  "src": {
+                    "path": [
+                      "IN"
+                    ]
+                  }
+                },
+                "operator": "=",
+                "with": {
+                  "ty": "Implicit",
+                  "src": {
+                    "value": false
+                  }
+                }
+              }
+            },
+            "preset_var": {
+              "ty": "#inner",
+              "src": {
+                "path": [
+                  "PT"
+                ]
+              }
+            },
+            "timer_var": {
+              "ty": "#inner",
+              "src": {
+                "path": [
+                  "ET"
+                ]
+              }
+            },
+            "on_timer_start": [
+              {
+                "ty": "asg",
+                "src": {
+                  "assign": {
+                    "ty": "#inner",
+                    "src": {
+                      "path": [
+                        "Q"
+                      ]
+                    }
+                  },
+                  "to": {
+                    "ty": "Implicit",
+                    "src": {
+                      "value": false
+                    }
+                  }
+                }
+              }
+            ],
+            "on_timer_elapsed": [
+              {
+                "ty": "asg",
+                "src": {
+                  "assign": {
+                    "ty": "#inner",
+                    "src": {
+                      "path": [
+                        "Q"
+                      ]
+                    }
+                  },
+                  "to": {
+                    "ty": "Implicit",
+                    "src": {
+                      "value": true
+                    }
+                  }
+                }
+              },
+              {
+                "ty": "asg",
+                "src": {
+                  "assign": {
+                    "ty": "#inner",
+                    "src": {
+                      "path": [
+                        "ET"
+                      ]
+                    }
+                  },
+                  "to": {
+                    "ty": "#inner",
+                    "src": {
+                      "path": [
+                        "PT"
+                      ]
+                    }
+                  }
+                }
+              }
+            ],
+            "on_timer_reset": [
+              {
+                "ty": "asg",
+                "src": {
+                  "assign": {
+                    "ty": "#inner",
+                    "src": {
+                      "path": [
+                        "Q"
+                      ]
+                    }
+                  },
+                  "to": {
+                    "ty": "Implicit",
+                    "src": {
+                      "value": false
+                    }
+                  }
+                }
+              },
+              {
+                "ty": "#reset",
+                "src": {
+                  "reset": [
+                    {
+                      "ty": "#inner",
+                      "src": {
+                        "path": [
+                          "ET"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "file:///TOF": {
+    "ty": "template",
+    "src": {
+      "body": [
+        {
+          "ty": "if",
+          "src": {
+            "_if": {
+              "ty": "compare",
+              "src": {
+                "compare": {
+                  "ty": "#inner",
+                  "src": {
+                    "path": [
+                      "IN"
+                    ]
+                  }
+                },
+                "operator": "=",
+                "with": {
+                  "ty": "Implicit",
+                  "src": {
+                    "value": true
+                  }
+                }
+              }
+            },
+            "then": [
+              {
+                "ty": "asg",
+                "src": {
+                  "assign": {
+                    "ty": "#inner",
+                    "src": {
+                      "path": [
+                        "Q"
+                      ]
+                    }
+                  },
+                  "to": {
+                    "ty": "Implicit",
+                    "src": {
+                      "value": true
+                    }
+                  }
+                }
+              }
+            ],
+            "_else": []
+          }
+        },
+        {
+          "ty": "#timer_sm",
+          "src": {
+            "start": {
+              "ty": "#f_trig",
+              "src": {
+                "input": {
+                  "ty": "#inner",
+                  "src": {
+                    "path": [
+                      "IN"
+                    ]
+                  }
+                }
+              }
+            },
+            "reset": {
+              "ty": "compare",
+              "src": {
+                "compare": {
+                  "ty": "#inner",
+                  "src": {
+                    "path": [
+                      "IN"
+                    ]
+                  }
+                },
+                "operator": "=",
+                "with": {
+                  "ty": "Implicit",
+                  "src": {
+                    "value": true
+                  }
+                }
+              }
+            },
+            "preset_var": {
+              "ty": "#inner",
+              "src": {
+                "path": [
+                  "PT"
+                ]
+              }
+            },
+            "timer_var": {
+              "ty": "#inner",
+              "src": {
+                "path": [
+                  "ET"
+                ]
+              }
+            },
+            "on_timer_start": [
+              {
+                "ty": "asg",
+                "src": {
+                  "assign": {
+                    "ty": "#inner",
+                    "src": {
+                      "path": [
+                        "Q"
+                      ]
+                    }
+                  },
+                  "to": {
+                    "ty": "Implicit",
+                    "src": {
+                      "value": true
+                    }
+                  }
+                }
+              }
+            ],
+            "on_timer_elapsed": [
+              {
+                "ty": "asg",
+                "src": {
+                  "assign": {
+                    "ty": "#inner",
+                    "src": {
+                      "path": [
+                        "Q"
+                      ]
+                    }
+                  },
+                  "to": {
+                    "ty": "Implicit",
+                    "src": {
+                      "value": false
+                    }
+                  }
+                }
+              },
+              {
+                "ty": "#reset",
+                "src": {
+                  "reset": [
+                    {
+                      "ty": "#inner",
+                      "src": {
+                        "path": [
+                          "ET"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "on_timer_reset": [
+              {
+                "ty": "asg",
+                "src": {
+                  "assign": {
+                    "ty": "#inner",
+                    "src": {
+                      "path": [
+                        "Q"
+                      ]
+                    }
+                  },
+                  "to": {
+                    "ty": "Implicit",
+                    "src": {
+                      "value": false
+                    }
+                  }
+                }
+              },
+              {
+                "ty": "#reset",
+                "src": {
+                  "reset": [
+                    {
+                      "ty": "#inner",
+                      "src": {
+                        "path": [
+                          "ET"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "file:///CTU": {
+    "ty": "template",
+    "src": {
+      "body": [
+        {
+          "ty": "#counter_sm",
+          "src": {
+            "increment": {
+              "ty": "compare",
+              "src": {
+                "compare": {
+                  "ty": "#r_trig",
+                  "src": {
+                    "input": {
+                      "ty": "#inner",
+                      "src": {
+                        "path": [
+                          "CU"
+                        ]
+                      }
+                    }
+                  }
+                },
+                "operator": "=",
+                "with": {
+                  "ty": "Implicit",
+                  "src": {
+                    "value": true
+                  }
+                },
+                "cont": "AND",
+                "cont_with": {
+                  "ty": "compare",
+                  "src": {
+                    "compare": {
+                      "ty": "#inner",
+                      "src": {
+                        "path": [
+                          "R"
+                        ]
+                      }
+                    },
+                    "operator": "<>",
+                    "with": {
+                      "ty": "Implicit",
+                      "src": {
+                        "value": true
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "reset": {
+              "ty": "compare",
+              "src": {
+                "compare": {
+                  "ty": "#inner",
+                  "src": {
+                    "path": [
+                      "R"
+                    ]
+                  }
+                },
+                "operator": "=",
+                "with": {
+                  "ty": "Implicit",
+                  "src": {
+                    "value": true
+                  }
+                }
+              }
+            },
+            "preset_var": {
+              "ty": "#inner",
+              "src": {
+                "path": [
+                  "PV"
+                ]
+              }
+            },
+            "counter_var": {
+              "ty": "#inner",
+              "src": {
+                "path": [
+                  "CV"
+                ]
+              }
+            },
+            "on_counter_up": [
+              {
+                "ty": "asg",
+                "src": {
+                  "assign": {
+                    "ty": "#inner",
+                    "src": {
+                      "path": [
+                        "QU"
+                      ]
+                    }
+                  },
+                  "to": {
+                    "ty": "Implicit",
+                    "src": {
+                      "value": true
+                    }
+                  }
+                }
+              }
+            ],
+            "on_counter_down": [],
+            "on_counter_reset": [
+              {
+                "ty": "asg",
+                "src": {
+                  "assign": {
+                    "ty": "#inner",
+                    "src": {
+                      "path": [
+                        "QU"
+                      ]
+                    }
+                  },
+                  "to": {
+                    "ty": "Implicit",
+                    "src": {
+                      "value": false
+                    }
+                  }
+                }
+              },
+              {
+                "ty": "#reset",
+                "src": {
+                  "reset": [
+                    {
+                      "ty": "#inner",
+                      "src": {
+                        "path": [
+                          "CV"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "file:///CTD": {
+    "ty": "template",
+    "src": {
+      "body": [
+        {
+          "ty": "#counter_sm",
+          "src": {
+            "decrement": {
+              "ty": "compare",
+              "src": {
+                "compare": {
+                  "ty": "#r_trig",
+                  "src": {
+                    "input": {
+                      "ty": "#inner",
+                      "src": {
+                        "path": [
+                          "CD"
+                        ]
+                      }
+                    }
+                  }
+                },
+                "operator": "=",
+                "with": {
+                  "ty": "Implicit",
+                  "src": {
+                    "value": true
+                  }
+                },
+                "cont": "AND",
+                "cont_with": {
+                  "ty": "compare",
+                  "src": {
+                    "compare": {
+                      "ty": "#inner",
+                      "src": {
+                        "path": [
+                          "R"
+                        ]
+                      }
+                    },
+                    "operator": "<>",
+                    "with": {
+                      "ty": "Implicit",
+                      "src": {
+                        "value": true
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "reset": {
+              "ty": "compare",
+              "src": {
+                "compare": {
+                  "ty": "#inner",
+                  "src": {
+                    "path": [
+                      "R"
+                    ]
+                  }
+                },
+                "operator": "=",
+                "with": {
+                  "ty": "Implicit",
+                  "src": {
+                    "value": true
+                  }
+                }
+              }
+            },
+            "preset_var": {
+              "ty": "#inner",
+              "src": {
+                "path": [
+                  "PV"
+                ]
+              }
+            },
+            "counter_var": {
+              "ty": "#inner",
+              "src": {
+                "path": [
+                  "CV"
+                ]
+              }
+            },
+            "on_counter_up": [],
+            "on_counter_down": [
+              {
+                "ty": "asg",
+                "src": {
+                  "assign": {
+                    "ty": "#inner",
+                    "src": {
+                      "path": [
+                        "QD"
+                      ]
+                    }
+                  },
+                  "to": {
+                    "ty": "Implicit",
+                    "src": {
+                      "value": true
+                    }
+                  }
+                }
+              }
+            ],
+            "on_counter_reset": [
+              {
+                "ty": "asg",
+                "src": {
+                  "assign": {
+                    "ty": "#inner",
+                    "src": {
+                      "path": [
+                        "QD"
+                      ]
+                    }
+                  },
+                  "to": {
+                    "ty": "Implicit",
+                    "src": {
+                      "value": false
+                    }
+                  }
+                }
+              },
+              {
+                "ty": "#reset",
+                "src": {
+                  "reset": [
+                    {
+                      "ty": "#inner",
+                      "src": {
+                        "path": [
+                          "CV"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "file:///IEC_TIMER": {
+    "ty": "udt",
+    "src": {
+      "attributes": {
+        "author": "Simatic",
+        "family": "IEC",
+        "instructionName": "IEC_TIMER",
+        "libVersion": 1,
+        "name": "IEC_TMR"
+      },
+      "name": "IEC_TIMER",
+      "interface": {
+        "IN": {
+          "ty": "Bool",
+          "src": {}
+        },
+        "PT": {
+          "ty": "Time",
+          "src": {}
+        },
+        "Q": {
+          "ty": "Bool",
+          "src": {}
+        },
+        "ET": {
+          "ty": "Time",
+          "src": {}
+        }
+      }
+    }
+  },
+  "file:///IEC_COUNTER": {
+    "ty": "udt",
+    "src": {
+      "name": "IEC_COUNTER",
+      "interface": {
+        "CU": {
+          "ty": "Bool",
+          "src": {}
+        },
+        "CD": {
+          "ty": "Bool",
+          "src": {}
+        },
+        "R": {
+          "ty": "Bool",
+          "src": {}
+        },
+        "LD": {
+          "ty": "Bool",
+          "src": {}
+        },
+        "PV": {
+          "ty": "Int",
+          "src": {}
+        },
+        "QU": {
+          "ty": "Bool",
+          "src": {}
+        },
+        "QD": {
+          "ty": "Bool",
+          "src": {}
+        },
+        "CV": {
+          "ty": "Int",
+          "src": {}
+        }
+      }
+    }
+  }
+}

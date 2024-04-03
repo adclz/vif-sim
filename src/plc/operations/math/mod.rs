@@ -1,0 +1,16 @@
+pub mod sin;
+pub mod cos;
+pub mod tan;
+pub mod exp;
+pub mod ln;
+pub mod fract;
+pub mod trunc;
+pub mod acos;
+pub mod asin;
+pub mod atan;
+pub mod sqrt;
+pub mod sqr;
+pub mod abs;
+pub mod ceil;
+pub mod floor;
+pub mod round;

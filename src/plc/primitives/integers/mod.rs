@@ -1,0 +1,9 @@
+﻿pub mod plc_integer;
+pub mod usint;
+pub mod sint;
+pub mod uint;
+pub mod int;
+pub mod udint;
+pub mod dint;
+pub mod ulint;
+pub mod lint;
