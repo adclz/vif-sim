@@ -148,6 +148,7 @@ impl BuildJsonOperation for UnitLog {
         })?;
 
         Ok(Box::new(Operation::new(
+            &"Log",
             move |channel| {
                 let mut display = String::new();
                 messages.iter().try_for_each(|m| {

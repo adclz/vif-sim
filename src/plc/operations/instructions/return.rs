@@ -54,6 +54,7 @@ impl BuildJsonOperation for Return {
         Self: Clone,
     {
         Ok(Box::new(Operation::new(
+            &"Return",
             move |_channel| Ok(()),
             None,
             false,

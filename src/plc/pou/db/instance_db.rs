@@ -85,6 +85,7 @@ impl InstanceDb {
         self.save_raw_pointers(registry, channel)?;
 
         Ok(Box::new(Operation::new(
+            &"Call InstanceDb",
             move |channel| {
                 input_actions.iter().try_for_each(|assign| {
                     assign.with_void(channel)?;

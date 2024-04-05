@@ -197,7 +197,7 @@ macro_rules! create_family {
         impl std::fmt::Display for $family {
             fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
                 match self {
-                    $($family::$primitive(a) => write!(f, "{}", &a),)+
+                    $($family::$primitive(a) => write!(f, "[{}: {}]", stringify!($primitive), &a),)+
                 }
             }
         }

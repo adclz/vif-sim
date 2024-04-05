@@ -164,6 +164,7 @@ impl BuildJsonOperation for TimerStateMachine {
         let elapsed = box_ord_plc_primitive(&timer_var, &preset_var, &None, registry)?;
 
         Ok(Box::new(Operation::new(
+            &"Timer",
             move |channel| {
                 // If reset
                 if let Some(a) = reset.as_ref() {

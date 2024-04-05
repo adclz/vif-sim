@@ -238,6 +238,7 @@ impl BuildJsonOperation for UnitTestJson {
         }
 
         Ok(Box::new(Operation::new(
+            &"Test",
             move |channel| {
                 let curr_section = channel
                     .get_cycle_stack()

@@ -222,6 +222,7 @@ impl BuildJsonOperation for Compare {
 
                 match operator.as_str() {
                     "AND" | "&" => Ok(Box::new(Operation::new(
+                        &"Compare",
                         move |channel| {
                             other.with_plc_bool(channel, |a| {
                                 return_ptr_clone.as_ref().unwrap().with_mut_plc_bool(
@@ -239,6 +240,7 @@ impl BuildJsonOperation for Compare {
                         &self.trace
                     ))),
                     "OR" => Ok(Box::new(Operation::new(
+                        &"Compare",
                         move |channel| {
                             other.with_plc_bool(channel, |a| {
                                 return_ptr_clone.as_ref().unwrap().with_mut_plc_bool(
@@ -256,6 +258,7 @@ impl BuildJsonOperation for Compare {
                         &self.trace
                     ))),
                     "XOR" => Ok(Box::new(Operation::new(
+                        &"Compare",
                         move |channel| {
                             other.with_plc_bool(channel, |a| {
                                 return_ptr_clone.as_ref().unwrap().with_mut_plc_bool(
@@ -281,6 +284,7 @@ impl BuildJsonOperation for Compare {
                 }
             }
             None => Ok(Box::new(Operation::new(
+                &"Compare",
                 move |channel| {
                     return_ptr_clone
                         .as_ref()

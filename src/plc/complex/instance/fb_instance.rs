@@ -158,6 +158,7 @@ impl FbInstance {
         self.save_raw_pointers(registry, channel)?;
 
         Ok(Box::new(Operation::new(
+            &"Call FbInstance",
             move |channel| {
                 input_actions.iter().try_for_each(|assign| {
                     assign.with_void(channel)?;

@@ -27,7 +27,9 @@ macro_rules! primitive_links {
                                let o2_clone = variable2.clone();
                                let trace = trace.clone();
 
-                               return Ok(Box::new(Operation::new(move |channel| {
+                               return Ok(Box::new(Operation::new(
+                                       &"Assign",
+                                       move |channel| {
                                     o1_clone.[<set_$primitive>](
                                         o2_clone.[<as_$associated>](channel)?.try_into()
                                             .map_err(|_| error!(format!("Failed assignment of {} with {}", o1_clone, o2_clone)))?,

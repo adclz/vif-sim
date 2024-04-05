@@ -92,6 +92,7 @@ pub trait NewJsonOperation {
 
 #[derive(Clone)]
 pub struct Operation {
+    name: &'static str,
     return_early: bool,
     return_ptr: Option<LocalPointer>,
     trace: Option<FileTrace>,
@@ -100,12 +101,14 @@ pub struct Operation {
 
 impl Operation {
     pub fn new(
+        name: &'static str,
         closure: impl FnMut(&Broadcast) -> Result<(), Stop> + 'static,
         return_ptr: Option<LocalPointer>,
         return_early: bool,
         trace: &Option<FileTrace>
     ) -> Self {
         Self {
+            name,
             return_early,
             return_ptr: return_ptr.clone(),
             closure: Rc::new(RefCell::new(closure)),
@@ -117,8 +120,8 @@ impl Operation {
 impl Display for Operation {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match &self.return_ptr {
-            None =>  write!(f, "Operation [Void]"),
-            Some(a) =>  write!(f, "Operation [{}]", a)
+            None =>  write!(f, "{} -> Void", self.name),
+            Some(a) =>  write!(f, "{} -> {}", self.name, a)
         }
     }
 }

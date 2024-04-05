@@ -36,7 +36,9 @@ macro_rules! box_create_checked_operation_primitive {
                                let o2_clone = variable2.clone();
                                let trace = trace.clone();
 
-                               return Ok(Box::new(Operation::new(move |channel| {
+                               return Ok(Box::new(Operation::new(
+                                  &stringify!([<$op_fn:camel >]),
+                                   move |channel| {
                                     let result = (o1_clone.[<as_$primitive>](channel)?)
                                         .[<checked_$op_fn $(_$signed)?>](o2_clone.[<as_$associated>](channel)?
                                             .try_into()
@@ -72,7 +74,9 @@ macro_rules! box_create_checked_operation_primitive_on_self {
                         let o1_clone = variable1.clone();
                         let trace = trace.clone();
 
-                        return Ok(Box::new(Operation::new(move |channel| {
+                        return Ok(Box::new(Operation::new(
+                           &stringify!([<$op_fn:camel>]),
+                            move |channel| {
                             let result = o1_clone.[<as_$primitive>](channel)?.[<checked_$op_fn>]()
                             .ok_or(error!(format!("Invalid operation: Can not {} {}", stringify!($op_fn), o1_clone)))?;
 
@@ -110,7 +114,9 @@ macro_rules! box_create_operation_primitive {
                                let o2_clone = variable2.clone();
                                let trace = trace.clone();
 
-                               return Ok(Box::new(Operation::new(move |channel| {
+                               return Ok(Box::new(Operation::new(
+                                  &stringify!([<$op_fn:camel >]),
+                                   move |channel| {
                                     let result = (o1_clone.[<as_$primitive>](channel)?)
                                         .[<$op_fn $(_$signed)?>](o2_clone.[<as_$associated>](channel)?
                                             .try_into()
@@ -145,7 +151,9 @@ macro_rules! box_create_operation_primitive_on_self {
                         let o1_clone = variable1.clone();
                         let trace = trace.clone();
 
-                        return Ok(Box::new(Operation::new(move |channel| {
+                        return Ok(Box::new(Operation::new(
+                           &stringify!([<$op_fn:camel >]),
+                            move |channel| {
                             let result = o1_clone.[<as_$primitive>](channel)?.[<$op_fn>]();
 
                             return_ptr.as_ref().borrow_mut().deref_mut().[<set_$primitive>](result, channel)?;

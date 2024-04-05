@@ -153,6 +153,7 @@ impl BuildJsonOperation for CounterStateMachine {
         let load_counter = box_set_plc_primitive(&counter_var, &preset_var, &None, registry)?;
 
         Ok(Box::new(Operation::new(
+            &"Counter",
             move |channel| {
                 // If reset
                 if let Some(a) = reset.as_ref() {

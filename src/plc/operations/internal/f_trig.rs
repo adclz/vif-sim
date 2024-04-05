@@ -84,6 +84,7 @@ impl BuildJsonOperation for F_Trig {
         let return_trig_clone = return_trig.clone();
 
         Ok(Box::new(Operation::new(
+            &"Falling Edge",
             move |channel| {
                 let clk_deref = input.with_plc_bool(channel, |a| Ok(a.as_bool()?.get(channel)?))??;
                 let stat_bit_deref = *stat_bit.borrow().deref();

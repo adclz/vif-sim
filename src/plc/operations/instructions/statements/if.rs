@@ -119,6 +119,7 @@ impl BuildJsonOperation for If {
         };
 
         Ok(Box::new(Operation::new(
+            &"If",
             move |channel| {
                 _if.with_plc_bool(channel, |a| {
                     if a.as_bool().unwrap().get(channel)? {

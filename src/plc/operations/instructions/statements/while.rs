@@ -87,6 +87,7 @@ impl BuildJsonOperation for While {
 
 
         Ok(Box::new(Operation::new(
+            &"While",
             move |channel| {
                 let earlier = Instant::now();
 

@@ -220,6 +220,7 @@ impl BuildJsonOperation for BreakpointJson {
         }
         let id = self.id;
         Ok(Box::new(Operation::new(
+            &"Breakpoint",
             move |channel| {
                 if channel.is_breakpoint_enabled(id) {
                     pause_simulation(channel, Some(id))?;

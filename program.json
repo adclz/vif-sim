@@ -19,7 +19,7 @@
               "ty": "global",
               "src": {
                 "path": [
-                  "MyFb_Instance"
+                  "Tan_Fb_Instance"
                 ]
               }
             }
@@ -28,163 +28,166 @@
       ]
     }
   },
-  "file:///MyFb": {
+  "file:///Tan_Fb": {
     "ty": "fb",
     "src": {
       "interface": {
         "ty": "interface",
         "src": {
           "static": {
-            "TONInstance": {
-              "ty": "udt_impl",
+            "MyReal": {
+              "ty": "Real",
               "src": {
-                "of": "TONInstance",
-                "interface": {}
+                "value": 0.9
               }
             },
-            "ET": {
-              "ty": "Time",
-              "src": {}
-            },
-            "Q": {
-              "ty": "Bool",
-              "src": {}
+            "MyLReal": {
+              "ty": "LReal",
+              "src": {
+                "value": 0.9
+              }
             }
           }
         }
       },
       "body": [
         {
-          "ty": "resolve_template",
+          "ty": "unit_test",
           "src": {
-            "of": "TON",
-            "inner": {
-              "ty": "local",
+            "expect": {
+              "ty": "tan",
               "src": {
-                "path": [
-                  "TONInstance"
-                ]
+                "tan": {
+                  "ty": "local",
+                  "src": {
+                    "path": [
+                      "MyReal"
+                    ]
+                  }
+                }
               }
             },
-            "call_interface": {
-              "ty": "call_interface",
+            "with": {
+              "ty": "Implicit",
               "src": {
-                "input": {
-                  "IN": {
-                    "ty": "Bool",
-                    "src": {
-                      "value": true
-                    }
-                  },
-                  "PT": {
-                    "ty": "Time",
-                    "src": {
-                      "value": 5000
-                    }
-                  }
-                },
-                "output": {
-                  "ET": {
-                    "ty": "local",
-                    "src": {
-                      "path": [
-                        "ET"
-                      ]
-                    }
-                  },
-                  "Q": {
-                    "ty": "local",
-                    "src": {
-                      "path": [
-                        "Q"
-                      ]
-                    }
-                  }
-                }
+                "value": 1.260158
               }
-            }
+            },
+            "operator": "=",
+            "description": "Real tan strictly eq"
           }
         },
         {
-          "ty": "unit_log",
+          "ty": "unit_test",
           "src": {
-            "message": "Elapsed: {}",
-            "format": [
-              {
-                "ty": "local",
-                "src": {
-                  "path": [
-                    "ET"
-                  ]
+            "expect": {
+              "ty": "tan",
+              "src": {
+                "tan": {
+                  "ty": "local",
+                  "src": {
+                    "path": [
+                      "MyReal"
+                    ]
+                  }
                 }
               }
-            ]
+            },
+            "with": {
+              "ty": "Implicit",
+              "src": {
+                "value": 1.260157
+              }
+            },
+            "operator": ">=",
+            "description": "Real tan >="
           }
         },
         {
-          "ty": "unit_block",
+          "ty": "unit_test",
           "src": {
-            "block": [
-              {
-                "ty": "if",
-                "src": {
-                  "_if": {
-                    "ty": "compare",
-                    "src": {
-                      "compare": {
-                        "ty": "local",
-                        "src": {
-                          "path": [
-                            "Q"
-                          ]
-                        }
-                      },
-                      "operator": "=",
-                      "with": {
-                        "ty": "Implicit",
-                        "src": {
-                          "value": true
-                        }
-                      }
-                    }
-                  },
-                  "then": [
-                    {
-                      "ty": "unit_test",
-                      "src": {
-                        "expect": {
-                          "ty": "local",
-                          "src": {
-                            "path": [
-                              "ET"
-                            ]
-                          }
-                        },
-                        "with": {
-                          "ty": "Time",
-                          "src": {
-                            "value": 5000
-                          }
-                        },
-                        "operator": "=",
-                        "description": "[When Q is true] ET should be 5s"
-                      }
-                    }
-                  ],
-                  "_else": []
+            "expect": {
+              "ty": "tan",
+              "src": {
+                "tan": {
+                  "ty": "local",
+                  "src": {
+                    "path": [
+                      "MyReal"
+                    ]
+                  }
                 }
               }
-            ],
-            "description": "Trigger when Q is true"
+            },
+            "with": {
+              "ty": "Implicit",
+              "src": {
+                "value": 1.260159
+              }
+            },
+            "operator": "<=",
+            "description": "Real tan <="
+          }
+        },
+        {
+          "ty": "unit_test",
+          "src": {
+            "expect": {
+              "ty": "tan",
+              "src": {
+                "tan": {
+                  "ty": "local",
+                  "src": {
+                    "path": [
+                      "MyLReal"
+                    ]
+                  }
+                }
+              }
+            },
+            "with": {
+              "ty": "Implicit",
+              "src": {
+                "value": 1.26015821755032
+              }
+            },
+            "operator": ">=",
+            "description": "LReal tan >="
+          }
+        },
+        {
+          "ty": "unit_test",
+          "src": {
+            "expect": {
+              "ty": "tan",
+              "src": {
+                "tan": {
+                  "ty": "local",
+                  "src": {
+                    "path": [
+                      "MyLReal"
+                    ]
+                  }
+                }
+              }
+            },
+            "with": {
+              "ty": "Implicit",
+              "src": {
+                "value": 1.26015821755034
+              }
+            },
+            "operator": "<=",
+            "description": "LReal tan <="
           }
         }
       ]
     }
   },
-  "file:///MyFb_Instance": {
+  "file:///Tan_Fb_Instance": {
     "ty": "instance_db",
     "src": {
-      "of": "MyFb"
+      "of": "Tan_Fb"
     }
   }
 }

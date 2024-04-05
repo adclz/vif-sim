@@ -46,7 +46,7 @@ pub fn box_set_plc_complex<T: WithMutFamily + WithTypeFamily + Clone + IsFamily 
         return Err(error!(format!("Provided type is not a complex type or invalid")));
     };
 
-    Ok(Box::new(Operation::new(move |channel| {
+    Ok(Box::new(Operation::new(&"Assign", move |channel| {
         for closure in &opexs {
             closure.with_void(channel)?;
         }

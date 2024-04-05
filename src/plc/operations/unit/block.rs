@@ -76,6 +76,7 @@ impl BuildJsonOperation for UnitBlock {
         let description = self.description.clone();
 
         Ok(Box::new(Operation::new(
+            &"Unit Block",
             move |channel| {
                 let index = channel
                     .get_cycle_stack()

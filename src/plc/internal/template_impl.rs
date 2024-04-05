@@ -192,6 +192,7 @@ impl BuildJsonOperation for TemplateImpl {
 
         let name = self.of.clone();
         Ok(Box::new(Operation::new(
+            &"Template",
             move |channel| {
                 let index = channel
                     .get_cycle_stack()

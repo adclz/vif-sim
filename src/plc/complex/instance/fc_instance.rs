@@ -68,7 +68,9 @@ impl FcInstance {
         let _return = self.interface.get_return().as_ref().cloned();
         let name = self.name.clone();
 
-        Ok(Box::new(Operation::new(move |channel| {
+        Ok(Box::new(Operation::new(
+            &"Call FbInstance",
+            move |channel| {
             let index = channel
                 .get_cycle_stack()
                 .borrow_mut()

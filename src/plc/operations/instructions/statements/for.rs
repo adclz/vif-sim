@@ -125,6 +125,7 @@ impl BuildJsonOperation for For {
         };
 
         Ok(Box::new(Operation::new(
+            &"ForOf",
             move |channel| {
                 for_with.with_void(channel)?;
                 let earlier = Instant::now();

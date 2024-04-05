@@ -73,6 +73,7 @@ impl BuildJsonOperation for Reset {
             .fold(vec![], |_all, p| p.get_raw_pointers());
 
         Ok(Box::new(Operation::new(
+            &"Reset",
             move |channel| {
                 raw_pointers
                     .iter()

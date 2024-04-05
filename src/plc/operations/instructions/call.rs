@@ -181,6 +181,7 @@ impl BuildJsonOperation for Call {
                         })?;
 
                     Ok(Box::new(Operation::new(
+                        &"Call",
                         move |channel| {
                             let index = channel
                                 .get_cycle_stack()
@@ -235,6 +236,7 @@ impl BuildJsonOperation for Call {
                 })??;
 
                 Ok(Box::new(Operation::new(
+                    &"New",
                     move |channel| {
                         let index = channel
                             .get_cycle_stack()
