@@ -1,14 +1,14 @@
-﻿use crate::plc::interface::traits::DeferredBuilder;
-use crate::plc::internal::template::Template;
-use crate::plc::pou::db::db::Db::{Global, Instance};
-use crate::plc::pou::db::global_db::GlobalDb;
-use crate::plc::pou::db::instance_db::InstanceDb;
-use crate::plc::pou::fb::Fb;
-use crate::plc::pou::fc::Fc;
-use crate::plc::pou::udt::Udt;
-use crate::registry::global::pointer::GlobalPointer;
-use crate::registry::global::r#type::GlobalType;
-use crate::registry::registry::Kernel;
+﻿use crate::kernel::plc::interface::traits::DeferredBuilder;
+use crate::kernel::plc::internal::template::Template;
+use crate::kernel::plc::pou::db::db::Db::{Global, Instance};
+use crate::kernel::plc::pou::db::global_db::GlobalDb;
+use crate::kernel::plc::pou::db::instance_db::InstanceDb;
+use crate::kernel::plc::pou::fb::Fb;
+use crate::kernel::plc::pou::fc::Fc;
+use crate::kernel::plc::pou::udt::Udt;
+use crate::kernel::arch::global::pointer::GlobalPointer;
+use crate::kernel::arch::global::r#type::GlobalType;
+use crate::kernel::registry::{get_or_insert_global_string, Kernel};
 use crate::container::error::error::Stop;
 use crate::{error, key_reader};
 use serde_json::Value;
@@ -30,7 +30,7 @@ pub fn parse_provider(json: &HashMap<String, Value>, registry: &mut Kernel, chan
 
         if key.starts_with("file") {
             key_reader!(
-                "Parse program pack".to_string(),
+                "Parse provider".to_string(),
                 block_data {
                     ty => as_str,
                     src => as_object,
@@ -44,30 +44,30 @@ pub fn parse_provider(json: &HashMap<String, Value>, registry: &mut Kernel, chan
                     );
                     Ok(())
                 }
-                "ob" => Err(error!("Ob type is not allowed in provider code".to_string())),
-                "fb" => registry.resources.add_new_global(
-                    name.to_string(),
-                    GlobalPointer::new(GlobalType::Fb(Fb::default(src))),
+                "ob" => Err(error!("Ob type is not allowed in provider".to_string())),
+                "fb" => registry.provider.add_new_global(
+                    get_or_insert_global_string(&name.to_string()),
+                    GlobalPointer::new(GlobalType::Fb(Fb::default(src)))
                 ),
-                "fc" => registry.resources.add_new_global(
-                    name.to_string(),
-                    GlobalPointer::new(GlobalType::Fc(Fc::default(src))),
+                "fc" => registry.provider.add_new_global(
+                    get_or_insert_global_string(&name.to_string()),
+                    GlobalPointer::new(GlobalType::Fc(Fc::default(src)))
                 ),
-                "global_db" => registry.resources.add_new_global(
-                    name.to_string(),
+                "global_db" => registry.provider.add_new_global(
+                    get_or_insert_global_string(&name.to_string()),
                     GlobalPointer::new(GlobalType::Db(Global(GlobalDb::default(src)))),
                 ),
-                "instance_db" => registry.resources.add_new_global(
-                    name.to_string(),
-                    GlobalPointer::new(GlobalType::Db(Instance(InstanceDb::default(src)))),
+                "instance_db" => registry.provider.add_new_global(
+                    get_or_insert_global_string(&name.to_string()),
+                    GlobalPointer::new(GlobalType::Db(Instance(InstanceDb::default(src))))
                 ),
-                "udt" => registry.resources.add_new_global(
-                    name.to_string(),
-                    GlobalPointer::new(GlobalType::Udt(Udt::default(src))),
+                "udt" => registry.provider.add_new_global(
+                    get_or_insert_global_string(&name.to_string()),
+                    GlobalPointer::new(GlobalType::Udt(Udt::default(src)))
                 ),
                 _ => Err(error!(
                     format!("Unknown type provided: '{}'", ty),
-                    "Parse program pack".to_string()
+                    "Parse provider".to_string()
                 )),
             }?;
         }

@@ -1,12 +1,12 @@
-﻿use crate::registry::global::r#type::GlobalType;
-use crate::registry::registry::Kernel;
+﻿use crate::kernel::arch::global::r#type::GlobalType;
+use crate::kernel::registry::{get_or_insert_global_string, Kernel};
 use crate::container::broadcast::broadcast::Broadcast;
 use crate::container::error::error::Stop;
 use crate::container::container::{CONTAINER_PARAMS, ContainerParams, StopOn};
 use crate::{error};
 use std::ops::DerefMut;
 use ansi_term::Colour::{Blue, Green, Purple};
-use crate::plc::operations::unit::test::UnitTestStatus;
+use crate::kernel::plc::operations::unit::test::UnitTestStatus;
 
 pub struct Simulation<'a> {
     registry: &'a Kernel,
@@ -43,7 +43,9 @@ impl<'a> Simulation<'a> {
             .get_current_section()
             .unwrap();
 
-        let entry_block = self.registry.get(entry);
+        let entry = get_or_insert_global_string(&entry.to_string());
+
+        let entry_block = self.registry.get(&entry);
         if entry_block.is_some() {
             match entry_block.unwrap().as_ref().borrow_mut().deref_mut() {
                 GlobalType::Ob(ref mut ob) => {
@@ -68,7 +70,7 @@ impl<'a> Simulation<'a> {
             .insert_log(&Purple.paint("--- End of Cycle ---").to_string());
 
         self.registry
-            .resources_raw_pointers
+            .provider_raw_pointers
             .borrow_mut()
             .reset_temp(self.channel)?;
 
@@ -90,8 +92,6 @@ impl<'a> Simulation<'a> {
                     .for_each(|test| {
                         curr_section.borrow_mut().insert_log(&format!("{}", test));
                         if let UnitTestStatus::Unreached = test.get_status() { unit_tests_done = true }
-
-                        println!("{} -> {:?}", test.get_description(), test.get_status());
                     });
             }
         }

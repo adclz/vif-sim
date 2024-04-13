@@ -1,4 +1,4 @@
-﻿$version = "0.0.1-alpha.2"
+﻿$version = "0.0.1-alpha.4"
 #
 # Web
 #
@@ -22,7 +22,7 @@ $packageJson.exports."./plcsim_bg.wasm" = "./plcsim_bg.wasm"
 $packageJson.exports."./plugin" = "./dist/plugin/plugin.js"
 $packageJson.exports."./boot" = "./dist/boot/container.js"
 $packageJson.PSObject.Properties.Remove('repository')
-$packageJson.licence = "MIT"
+$packageJson.license = "MIT"
 $packageJson | ConvertTo-Json | Set-Content $packageJsonPath
 
 # Fixing weird PS json syntax
@@ -90,7 +90,7 @@ $packageJson.exports."." = @{ "import" = "./plcsim.js" }
 $packageJson.exports."./plugin" = "./dist/plugin/plugin.js"
 $packageJson.exports."./boot" = "./dist/boot/container.js"
 $packageJson.PSObject.Properties.Remove('repository')
-$packageJson.licence = "MIT"
+$packageJson.license = "MIT"
 $packageJson | ConvertTo-Json | Set-Content $packageJsonPath
 
 # Fixing weird PS json syntax

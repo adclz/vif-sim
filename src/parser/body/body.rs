@@ -1,55 +1,55 @@
 ﻿#![allow(non_snake_case)]
 
 use serde_json::{Value};
-use crate::plc::operations::expressions::calc::Calc;
-use crate::plc::operations::expressions::compare::Compare;
-use crate::plc::operations::instructions::assign::Assign;
-use crate::plc::operations::instructions::call::Call;
-use crate::plc::operations::instructions::statements::r#for::For;
-use crate::plc::operations::instructions::statements::r#while::While;
-use crate::plc::operations::instructions::statements::r#if::If;
+use crate::kernel::plc::operations::basics::calc::Calc;
+use crate::kernel::plc::operations::basics::compare::Compare;
+use crate::kernel::plc::operations::basics::assign::Assign;
+use crate::kernel::plc::operations::basics::call::Call;
+use crate::kernel::plc::operations::program_control::r#for::For;
+use crate::kernel::plc::operations::program_control::r#while::While;
+use crate::kernel::plc::operations::program_control::r#if::If;
 use crate::{error, key_reader};
 use crate::parser::body::path::parse_path;
 use crate::parser::body::json_target::JsonTarget;
-use crate::plc::internal::template_impl::TemplateImpl;
-use crate::plc::operations::instructions::counter::counter_sm::CounterStateMachine;
-use crate::plc::operations::instructions::r#return::Return;
-use crate::plc::operations::instructions::timer::timer_sm::TimerStateMachine;
-use crate::plc::operations::internal::f_trig::F_Trig;
-use crate::plc::operations::operations::{NewJsonOperation, JsonOperation};
-use crate::plc::operations::unit::block::UnitBlock;
-use crate::plc::operations::unit::log::UnitLog;
-use crate::plc::operations::unit::breakpoint::BreakpointJson;
-use crate::plc::operations::unit::test::UnitTestJson;
+use crate::kernel::plc::internal::template_impl::TemplateImpl;
+use crate::kernel::plc::operations::internal::counter_sm::CounterStateMachine;
+use crate::kernel::plc::operations::program_control::r#return::Return;
+use crate::kernel::plc::operations::internal::timer_sm::TimerStateMachine;
+use crate::kernel::plc::operations::internal::f_trig::F_Trig;
+use crate::kernel::plc::operations::operations::{NewJsonOperation, JsonOperation};
+use crate::kernel::plc::operations::unit::block::UnitBlock;
+use crate::kernel::plc::operations::unit::log::UnitLog;
+use crate::kernel::plc::operations::unit::breakpoint::BreakpointJson;
+use crate::kernel::plc::operations::unit::test::UnitTestJson;
 use crate::container::error::error::{Stop};
-use crate::plc::operations::binaries::rotate_left::RotateLeft;
-use crate::plc::operations::binaries::rotate_right::RotateRight;
-use crate::plc::operations::binaries::shl::Shl;
-use crate::plc::operations::binaries::shr::Shr;
-use crate::plc::operations::binaries::swap::Swap;
-use crate::plc::operations::internal::r_trig::R_Trig;
-use crate::plc::operations::internal::reset::Reset;
-use crate::plc::operations::math::acos::ACos;
-use crate::plc::operations::math::asin::ASin;
-use crate::plc::operations::math::atan::ATan;
-use crate::plc::operations::math::ceil::Ceil;
-use crate::plc::operations::math::cos::Cos;
-use crate::plc::operations::math::exp::Exp;
-use crate::plc::operations::math::floor::Floor;
-use crate::plc::operations::math::fract::Fract;
-use crate::plc::operations::math::ln::Ln;
-use crate::plc::operations::math::sin::Sin;
-use crate::plc::operations::math::sqr::Sqr;
-use crate::plc::operations::math::sqrt::Sqrt;
-use crate::plc::operations::math::abs::Abs;
-use crate::plc::operations::math::round::Round;
-use crate::plc::operations::math::tan::Tan;
-use crate::plc::operations::math::trunc::Trunc;
+use crate::kernel::plc::operations::binary::rotate_left::RotateLeft;
+use crate::kernel::plc::operations::binary::rotate_right::RotateRight;
+use crate::kernel::plc::operations::binary::shl::Shl;
+use crate::kernel::plc::operations::binary::shr::Shr;
+use crate::kernel::plc::operations::binary::swap::Swap;
+use crate::kernel::plc::operations::internal::r_trig::R_Trig;
+use crate::kernel::plc::operations::internal::reset::Reset;
+use crate::kernel::plc::operations::math::acos::ACos;
+use crate::kernel::plc::operations::math::asin::ASin;
+use crate::kernel::plc::operations::math::atan::ATan;
+use crate::kernel::plc::operations::math::ceil::Ceil;
+use crate::kernel::plc::operations::math::cos::Cos;
+use crate::kernel::plc::operations::math::exp::Exp;
+use crate::kernel::plc::operations::math::floor::Floor;
+use crate::kernel::plc::operations::math::fract::Fract;
+use crate::kernel::plc::operations::math::ln::Ln;
+use crate::kernel::plc::operations::math::sin::Sin;
+use crate::kernel::plc::operations::math::sqr::Sqr;
+use crate::kernel::plc::operations::math::sqrt::Sqrt;
+use crate::kernel::plc::operations::math::abs::Abs;
+use crate::kernel::plc::operations::math::round::Round;
+use crate::kernel::plc::operations::math::tan::Tan;
+use crate::kernel::plc::operations::math::trunc::Trunc;
 
 
 pub fn parse_json_target(json: &Value) -> Result<JsonTarget, Stop> {
     let as_object = json.as_object()
-        .ok_or(error!(format!("Data for operation is not of type object: {}", json), "Parse Abstract".to_string()))?;
+        .ok_or_else(move || error!(format!("Data for operation is not of type object: {}", json), "Parse Abstract".to_string()))?;
 
     key_reader!(
             format!("Parse ast"),

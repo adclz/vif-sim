@@ -5,26 +5,27 @@ use crate::container::error::error::Stop;
 use crate::{error, key_reader};
 use crate::parser::interface::interface::parse_struct_interface;
 use crate::parser::local_type::constant_type::parse_constant_type;
-use crate::plc::complex::array::PlcArray;
-use crate::plc::complex::instance::fb_instance::FbInstance;
-use crate::plc::complex::r#struct::PlcStruct;
-use crate::plc::interface::status::InterfaceStatus;
-use crate::plc::interface::traits::{Cloneable, DeferredBuilder};
-use crate::plc::primitives::binaries::plc_binary::PlcBinary;
-use crate::plc::primitives::boolean::plc_bool::PlcBool;
-use crate::plc::primitives::boxed::set::box_set_plc_primitive_default_once;
-use crate::plc::primitives::floats::plc_float::PlcFloat;
-use crate::plc::primitives::integers::plc_integer::PlcInteger;
-use crate::plc::primitives::string::plc_string::PlcString;
-use crate::plc::primitives::timers::plc_time::PlcTime;
-use crate::plc::primitives::tod::plc_tod::PlcTod;
-use crate::registry::local::r#type::{IntoLocalType, LocalType};
-use crate::registry::registry::Kernel;
+use crate::kernel::plc::types::complex::array::PlcArray;
+use crate::kernel::plc::types::complex::instance::fb_instance::FbInstance;
+use crate::kernel::plc::types::complex::r#struct::PlcStruct;
+use crate::kernel::plc::interface::status::InterfaceStatus;
+use crate::kernel::plc::interface::traits::{Cloneable, DeferredBuilder};
+use crate::kernel::plc::types::primitives::binaries::plc_binary::PlcBinary;
+use crate::kernel::plc::types::primitives::boolean::plc_bool::PlcBool;
+use crate::kernel::rust::set::box_set_plc_primitive_default_once;
+use crate::kernel::plc::types::primitives::floats::plc_float::PlcFloat;
+use crate::kernel::plc::types::primitives::integers::plc_integer::PlcInteger;
+use crate::kernel::plc::types::primitives::string::plc_string::PlcString;
+use crate::kernel::plc::types::primitives::timers::plc_time::PlcTime;
+use crate::kernel::plc::types::primitives::tod::plc_tod::PlcTod;
+use crate::kernel::arch::local::r#type::{IntoLocalType, LocalType};
+use crate::kernel::registry::{get_or_insert_global_string, Kernel};
 
 pub fn parse_local_type(
     json: &Map<String, Value>,
     registry: &Kernel,
     channel: &Broadcast,
+    previous_path: &[usize]
 ) -> Result<LocalType, Stop> {
     key_reader!(
             format!("Parse value"),
@@ -97,7 +98,7 @@ pub fn parse_local_type(
                 }
             );
 
-            let udt = registry.get(of).ok_or(error!(
+            let udt = registry.get(&get_or_insert_global_string(&of.to_string())).ok_or_else(move || error!(
                 format!("The Udt '{}' could not be found", of),
                 "Parse interface section".to_string()
             ))?;
@@ -117,16 +118,15 @@ pub fn parse_local_type(
 
                 match interface {
                     Some(a) => {
-                        println!("{}", a);
                         // Parse the received interface
-                        parse_struct_interface(a, registry, channel, &None)?
+                        parse_struct_interface(a, registry, channel, &None, &vec!())?
                             .get_pointers_with_path(&vec!(), &vec!())
                             .iter()
                             .try_for_each(|x| {
                                 box_set_plc_primitive_default_once(
                                     &udt_interface
                                         .try_get_nested(&x.0.1)
-                                        .ok_or(error!(format!("Could not find {:?} in {}", &x.0.1, udt_interface)))?, &x.0.0)?(channel)
+                                        .ok_or_else(|| error!(format!("Could not find {:?} in {}", &x.0.1, udt_interface)))?, &x.0.0)?(channel)
                             })?;
                         Ok(LocalType::PlcStruct(PlcStruct::from_interface(
                             Some(of.into()),
@@ -160,7 +160,7 @@ pub fn parse_local_type(
                 }
             );
 
-            let instance = registry.get(of).ok_or(error!(
+            let instance = registry.get(&get_or_insert_global_string(&of.to_string())).ok_or_else(move || error!(
                 format!("The Fb '{}' could not be found", of),
                 format!("Parse Fb instance")
             ))?;
@@ -179,13 +179,13 @@ pub fn parse_local_type(
                 match interface {
                     Some(a) => {
                         // Parse the received interface
-                        parse_struct_interface(a, registry, channel, &None)?
+                        parse_struct_interface(a, registry, channel, &None, &vec!())?
                             .get_pointers_with_path(&vec!(), &vec!())
                             .iter()
                             .try_for_each(|x| {
                                 box_set_plc_primitive_default_once(
                                     &fb_interface.try_get_nested(&x.0.1)
-                                        .ok_or(error!(format!("0")))?, &x.0.0)?(channel)
+                                        .ok_or_else(move || error!(format!("0")))?, &x.0.0)?(channel)
                             })?;
                         Ok(LocalType::FbInstance(
                             FbInstance::from_fb(Some(of.to_string()), fb_interface, fb_body, registry, channel)?,

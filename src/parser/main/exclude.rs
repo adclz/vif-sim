@@ -1,10 +1,10 @@
 ﻿use std::collections::HashSet;
-use crate::registry::registry::{Kernel};
+use crate::kernel::registry::{Kernel};
 use serde_json::{Map, Value};
 use crate::container::error::error::Stop;
 use crate::error;
 use crate::parser::local_type::constant_type::{create_default_constant_from_str};
-use crate::plc::interface::section::Section;
+use crate::kernel::plc::interface::section::Section;
 
 fn forbidden_alias(alias: &str) -> bool {
     matches!(alias, "Ob" | "Fb" | "Fc" |

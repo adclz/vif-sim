@@ -1,4 +1,4 @@
-﻿use plcsim::container::container::ParseStatus;
+﻿use vifsimlib::container::container::ParseStatus;
 use pollster;
 use std::fs::File;
 use std::io::Read;
@@ -16,7 +16,7 @@ async fn main() {
     let mut program_data = String::new();
     program.read_to_string(&mut program_data).unwrap();
 
-    let mut server = plcsim::container::container::boot_container(None);
+    let mut server = vifsimlib::container::container::boot_container(None);
     server.load_server_params(&"{ \"stopAfter\": 5000, \"stopOn\": 0 }");
     server.load_server_params(&"{ \"stopAfter\": 5000, \"stopOn\": 1 }");
     match server.load_provider(&provider_data) {

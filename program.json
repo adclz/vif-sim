@@ -19,7 +19,7 @@
               "ty": "global",
               "src": {
                 "path": [
-                  "Tan_Fb_Instance"
+                  "InstanceDbOfFb"
                 ]
               }
             }
@@ -28,166 +28,47 @@
       ]
     }
   },
-  "file:///Tan_Fb": {
+  "file:///MyFb": {
     "ty": "fb",
     "src": {
       "interface": {
         "ty": "interface",
         "src": {
           "static": {
-            "MyReal": {
-              "ty": "Real",
-              "src": {
-                "value": 0.9
-              }
-            },
-            "MyLReal": {
-              "ty": "LReal",
-              "src": {
-                "value": 0.9
-              }
+            "AlwaysABool": {
+              "ty": "Bool",
+              "src": {}
             }
           }
         }
       },
       "body": [
         {
-          "ty": "unit_test",
+          "ty": "asg",
           "src": {
-            "expect": {
-              "ty": "tan",
+            "assign": {
+              "ty": "local",
               "src": {
-                "tan": {
-                  "ty": "local",
-                  "src": {
-                    "path": [
-                      "MyReal"
-                    ]
-                  }
-                }
+                "path": [
+                  "AlwaysABool"
+                ]
               }
             },
-            "with": {
+            "to": {
               "ty": "Implicit",
               "src": {
-                "value": 1.260158
+                "value": 0
               }
-            },
-            "operator": "=",
-            "description": "Real tan strictly eq"
-          }
-        },
-        {
-          "ty": "unit_test",
-          "src": {
-            "expect": {
-              "ty": "tan",
-              "src": {
-                "tan": {
-                  "ty": "local",
-                  "src": {
-                    "path": [
-                      "MyReal"
-                    ]
-                  }
-                }
-              }
-            },
-            "with": {
-              "ty": "Implicit",
-              "src": {
-                "value": 1.260157
-              }
-            },
-            "operator": ">=",
-            "description": "Real tan >="
-          }
-        },
-        {
-          "ty": "unit_test",
-          "src": {
-            "expect": {
-              "ty": "tan",
-              "src": {
-                "tan": {
-                  "ty": "local",
-                  "src": {
-                    "path": [
-                      "MyReal"
-                    ]
-                  }
-                }
-              }
-            },
-            "with": {
-              "ty": "Implicit",
-              "src": {
-                "value": 1.260159
-              }
-            },
-            "operator": "<=",
-            "description": "Real tan <="
-          }
-        },
-        {
-          "ty": "unit_test",
-          "src": {
-            "expect": {
-              "ty": "tan",
-              "src": {
-                "tan": {
-                  "ty": "local",
-                  "src": {
-                    "path": [
-                      "MyLReal"
-                    ]
-                  }
-                }
-              }
-            },
-            "with": {
-              "ty": "Implicit",
-              "src": {
-                "value": 1.26015821755032
-              }
-            },
-            "operator": ">=",
-            "description": "LReal tan >="
-          }
-        },
-        {
-          "ty": "unit_test",
-          "src": {
-            "expect": {
-              "ty": "tan",
-              "src": {
-                "tan": {
-                  "ty": "local",
-                  "src": {
-                    "path": [
-                      "MyLReal"
-                    ]
-                  }
-                }
-              }
-            },
-            "with": {
-              "ty": "Implicit",
-              "src": {
-                "value": 1.26015821755034
-              }
-            },
-            "operator": "<=",
-            "description": "LReal tan <="
+            }
           }
         }
       ]
     }
   },
-  "file:///Tan_Fb_Instance": {
+  "file:///InstanceDbOfFb": {
     "ty": "instance_db",
     "src": {
-      "of": "Tan_Fb"
+      "of": "MyFb"
     }
   }
 }

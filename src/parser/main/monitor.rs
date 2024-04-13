@@ -2,16 +2,19 @@
 #[cfg(target_arch = "wasm32")]
 use crate::container::broadcast::store::MonitorSchema;
 use crate::parser::body::path::parse_path;
-use crate::registry::registry::{GlobalOrLocal, Kernel};
+use crate::kernel::registry::{convert_string_path_to_usize, GlobalOrLocal, Kernel};
 use serde_json::Value;
 use std::ops::DerefMut;
-use crate::plc::primitives::family_traits::ToggleMonitor;
+use crate::kernel::plc::types::primitives::traits::primitive_traits::ToggleMonitor;
 
 pub fn parse_monitor(monitor: &Vec<Value>, channel: &Broadcast, registry: &mut Kernel) {
     monitor.iter().for_each(|x| {
-        let path = parse_path(x)
+        let path =
+            &convert_string_path_to_usize(
+            &parse_path(x)
             .map_err(|e| channel.add_warning(&format!("[Monitor] Invalid path {:?}", x)))
-            .unwrap_or_default();
+            .unwrap_or_default());
+
 
         match registry.get_and_find_nested(&path) {
             None => channel.add_warning(&format!("[Monitor] Could not find variable: {:?}", path)),

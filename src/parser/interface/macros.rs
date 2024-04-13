@@ -6,7 +6,7 @@
 ///
 /// Appends all sections and members into $interface.
 ///
-/// Appends all pointers to registry.
+/// Appends all pointers to kernel.
 ///
 #[macro_export]
 macro_rules! create_block_interface {
@@ -21,7 +21,7 @@ macro_rules! create_block_interface {
             .try_for_each(|(section, value)| match section.as_str() {
                 "return" => Ok(()),
                 $(stringify!([<$section:lower>]) => {
-                    let h = parse_struct_interface(value, $registry, $channel, &Some(Section::$section))?;
+                    let h = parse_struct_interface(value, $registry, $channel, &Some(Section::$section), &vec!())?;
                     let section = $interface.entry(Section::$section).or_insert_with(|| h);
 
                         $registry

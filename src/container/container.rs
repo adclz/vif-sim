@@ -1,6 +1,6 @@
 ﻿extern crate console_error_panic_hook;
 
-use crate::registry::registry::Kernel;
+use crate::kernel::registry::Kernel;
 use crate::container::broadcast::broadcast::Broadcast;
 use crate::container::simulation::simulation::Simulation;
 use serde::{Deserialize, Serialize};
@@ -31,7 +31,7 @@ use crate::js::typed_array::shiftLeft;
 use crate::{error, key_reader};
 use crate::container::error::error::Stop;
 use crate::parser::main::exclude::{parse_type_aliases, parse_return_operations, parse_exclude_sections, parse_exclude_types, parse_filter_operations};
-use crate::plc::operations::unit::breakpoint::{BreakPointStatus, BreakPointUpdateStatus, enableBreakpoint, pause_simulation, disableBreakpoint};
+use crate::kernel::plc::operations::unit::breakpoint::{BreakPointStatus, BreakPointUpdateStatus, enableBreakpoint, pause_simulation, disableBreakpoint};
 
 pub static DELAYED_TIMERS: Lazy<Arc<Mutex<HashMap<usize, Duration>>>> =
     Lazy::new(|| Arc::new(Mutex::new(HashMap::new())));
@@ -186,7 +186,7 @@ impl Container {
 
     pub fn load_provider(&mut self, data: &str) -> ParseStatus {
         let mut status = ParseStatus::Empty;
-        if !self.registry.resources.is_empty() {
+        if !self.registry.provider.is_empty() {
             self.channel.add_warning("A provider has already been loaded, clean the provider first before uploading a new one".into());
             self.channel.move_and_publish();
             return status;
@@ -236,7 +236,7 @@ impl Container {
                 self.channel.add_message(
                     &format!(
                         "Found {} blocks in provider",
-                        &Blue.paint(format!("{}", self.registry.resources.len()))
+                        &Blue.paint(format!("{}", self.registry.provider.len()))
                     )
                 ),
             Err(e) => {
@@ -279,7 +279,7 @@ impl Container {
 
     pub fn load_program(&mut self, data: &str) -> ParseStatus {
         let mut status = ParseStatus::Empty;
-        if self.registry.resources.is_empty() {
+        if self.registry.provider.is_empty() {
             self.channel.add_warning("No provider found".into());
         };
 

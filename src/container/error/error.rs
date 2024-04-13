@@ -63,8 +63,8 @@ impl Stop {
             sim_stack_vec.push(sim_trace.as_ref().unwrap().clone());
         }
 
-        //#[cfg(not(target_arch = "wasm32"))]
-        //panic!("{}", message);
+//        #[cfg(not(target_arch = "wasm32"))]
+//        panic!("{}", message);
 
         Self {
             error: message,
