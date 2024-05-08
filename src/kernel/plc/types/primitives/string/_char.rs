@@ -5,7 +5,7 @@ use crate::container::error::error::Stop;
 use crate::kernel::plc::types::primitives::traits::family_traits::*;
 use crate::kernel::plc::types::primitives::traits::primitive_traits::*;
 use crate::kernel::plc::types::primitives::traits::meta_data::*;
-use crate::{error, impl_primitive_all};
+use crate::{error, impl_primitive_all, impl_primitive_base, impl_primitive_display, impl_primitive_raw_mut, impl_primitive_serialize, impl_primitive_type_name};
 use serde::ser::SerializeStruct;
 use serde::{Serialize, Serializer};
 use serde_json::Value;
@@ -14,8 +14,9 @@ use std::any::{Any, TypeId};
 use std::fmt::{Display, Formatter};
 use std::str::FromStr;
 use std::borrow::Cow;
+use crate::kernel::plc::types::primitives::string::_string::_String;
 use crate::kernel::registry::Kernel;
-use crate::kernel::registry::get_full_path;
+use crate::kernel::registry::get_string;
 
 #[derive(Clone, SmartDefault)]
 pub struct _Char {
@@ -26,7 +27,7 @@ pub struct _Char {
     monitor: bool,
     read_only: bool,
     alias: Option<usize>,
-    path: Vec<usize>,
+    path: usize,
 }
 
 impl_primitive_all!(_Char, char);

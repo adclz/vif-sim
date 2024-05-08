@@ -27,7 +27,7 @@ pub static STRINGS: Lazy<Arc<Mutex<BiMap<String, usize>>>> =
     Lazy::new(|| Arc::new(Mutex::new(BiMap::new())));
 
 pub fn get_or_insert_global_string(string: &String) -> usize {
-    let a = (*STRINGS.lock().unwrap()).get_by_left(string).and_then(|x| Some(*x));
+    let a = (*STRINGS.lock().unwrap()).get_by_left(string).map(|x| *x);
     if let Some(a) = a {
         a
     } else {
@@ -35,6 +35,11 @@ pub fn get_or_insert_global_string(string: &String) -> usize {
         (*STRINGS.lock().unwrap()).insert(string.clone(), id);
         id
     }
+}
+
+pub fn get_string(id: usize) -> String {
+    (*STRINGS.lock().unwrap()).get_by_right(&id).cloned()
+        .unwrap_or_else(|| "".to_string()).clone()
 }
 
 pub fn get_full_path(path: &Vec<usize>) -> Vec<String> {
@@ -48,11 +53,6 @@ pub fn get_full_path(path: &Vec<usize>) -> Vec<String> {
             }
         });
     full_path
-}
-
-pub fn get_string(id: usize) -> String {
-    (*STRINGS.lock().unwrap()).get_by_right(&id).cloned()
-        .unwrap_or_else(|| "".to_string()).clone()
 }
 
 pub fn convert_string_path_to_usize(path: &Vec<String>) -> Vec<usize> {

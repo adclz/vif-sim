@@ -72,7 +72,7 @@ impl DeferredBuilder for Udt {
             }
         );
 
-        parse_struct_interface(&interface, registry, channel, &None, &vec!())?
+        parse_struct_interface(&interface, registry, channel, &None)?
             .as_ref().iter().for_each(|(name, pointer)| {
             self.interface.as_mut().entry(name.clone()).or_insert_with(|| pointer.clone());
         });

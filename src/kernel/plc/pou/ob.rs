@@ -12,6 +12,7 @@ use crate::container::error::error::Stop;
 use crate::{create_block_interface, error, key_reader};
 use serde_json::{Map, Value};
 use crate::parser::body::body::parse_json_target;
+use crate::kernel::registry::get_string;
 
 pub struct Ob {
     json: Map<String, Value>,

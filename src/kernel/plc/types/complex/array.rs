@@ -3,7 +3,7 @@ use crate::{error, impl_primitive_traits, key_reader};
 use crate::kernel::plc::interface::array_interface::ArrayInterface;
 use crate::kernel::plc::types::primitives::traits::primitive_traits::{RawMut, ToggleMonitor};
 use crate::kernel::arch::local::pointer::{LocalPointer, LocalPointerAndPath};
-use crate::kernel::registry::{convert_string_path_to_usize, get_full_path, Kernel};
+use crate::kernel::registry::{convert_string_path_to_usize, get_full_path, get_string, Kernel};
 use crate::container::error::error::Stop;
 use serde::{Serialize, Serializer};
 use serde_json::{Map, Value};
@@ -29,7 +29,7 @@ use crate::kernel::plc::types::primitives::traits::primitive_traits::{AsMutPrimi
 pub struct PlcArray {
     interface: ArrayInterface,
     read_only: bool,
-    path: Vec<usize>
+    path: usize
 }
 
 impl MetaData for PlcArray {
@@ -50,7 +50,7 @@ impl MetaData for PlcArray {
     }
 
     fn get_path(&self) -> String {
-        get_full_path(&self.path).join("")
+        get_string(self.path)
     }
 }
 
@@ -66,7 +66,7 @@ impl SetMetaData for PlcArray {
             .for_each(|a| a.set_read_only(value))
     }
 
-    fn set_path(&mut self, path: Vec<usize>) {
+    fn set_name(&mut self, path: usize) {
         self.path = path;
     }
 }
@@ -122,7 +122,7 @@ impl PlcArray {
         );
 
         let mut interface = Vec::new();
-        let array_type = vec!(LocalPointer::from(parse_local_type(of, registry, channel, &vec!())?));
+        let array_type = vec!(LocalPointer::from(parse_local_type(of, registry, channel)?));
 
         let array_pointer = array_type.first().unwrap();
 
@@ -171,7 +171,7 @@ impl PlcArray {
                        let value = parse_constant_type(value.as_object().unwrap(), registry, Some(target.as_ref().borrow().deref().clone()))?;
                        box_set_auto_default_once(&target, &value)?(channel)
                    } else if value_raw.is_local() {
-                       let value = parse_local_type(value.as_object().unwrap(), registry, channel, &vec!())?;
+                       let value = parse_local_type(value.as_object().unwrap(), registry, channel)?;
                        box_set_auto_default_once(&target, &value)?(channel)
                    } else {
                         Err(error!(format!("A default value has to be a local or constant type")))
@@ -182,7 +182,7 @@ impl PlcArray {
         Ok(Self {
             interface,
             read_only: false,
-            path: vec!()
+            path: 0_usize
         })
     }
 

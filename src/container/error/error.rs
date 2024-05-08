@@ -15,6 +15,12 @@ pub struct Stop {
     sim_stack: Vec<String>,
 }
 
+impl PartialEq for Stop {
+    fn eq(&self, other: &Self) -> bool {
+        self.error == other.error
+    }
+}
+
 impl Display for Stop {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         writeln!(f, "\x1B[31mError: {}\x1b[0m", self.error)?;

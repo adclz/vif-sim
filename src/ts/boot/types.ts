@@ -1,4 +1,4 @@
-import {ParseStatus, ContainerParams} from "../../plcsim.js";
+import {ParseStatus, ContainerParams} from "../../vifsimlib.js";
 
 export enum Send {
     Boot,

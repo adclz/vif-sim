@@ -24,8 +24,7 @@ use crate::kernel::registry::{get_or_insert_global_string, Kernel};
 pub fn parse_local_type(
     json: &Map<String, Value>,
     registry: &Kernel,
-    channel: &Broadcast,
-    previous_path: &[usize]
+    channel: &Broadcast
 ) -> Result<LocalType, Stop> {
     key_reader!(
             format!("Parse value"),
@@ -119,7 +118,7 @@ pub fn parse_local_type(
                 match interface {
                     Some(a) => {
                         // Parse the received interface
-                        parse_struct_interface(a, registry, channel, &None, &vec!())?
+                        parse_struct_interface(a, registry, channel, &None)?
                             .get_pointers_with_path(&vec!(), &vec!())
                             .iter()
                             .try_for_each(|x| {
@@ -179,7 +178,7 @@ pub fn parse_local_type(
                 match interface {
                     Some(a) => {
                         // Parse the received interface
-                        parse_struct_interface(a, registry, channel, &None, &vec!())?
+                        parse_struct_interface(a, registry, channel, &None)?
                             .get_pointers_with_path(&vec!(), &vec!())
                             .iter()
                             .try_for_each(|x| {

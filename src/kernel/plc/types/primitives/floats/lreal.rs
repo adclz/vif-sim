@@ -4,7 +4,7 @@ use crate::container::container::get_id;
 use crate::container::error::error::Stop;
 use crate::kernel::plc::types::primitives::traits::meta_data::{MetaData, SetMetaData};
 use crate::kernel::plc::types::primitives::traits::primitive_traits::*;
-use crate::{error, impl_primitive_raw_mut, impl_primitive_serialize, impl_primitive_type_name};
+use crate::{error, impl_primitive_base, impl_primitive_raw_mut, impl_primitive_serialize, impl_primitive_type_name};
 use serde::ser::SerializeStruct;
 use serde::{Serialize, Serializer};
 use serde_json::Value;
@@ -12,8 +12,9 @@ use smart_default::SmartDefault;
 use std::any::{Any, TypeId};
 use std::fmt::{Display, Formatter};
 use std::borrow::Cow;
+use crate::kernel::plc::types::primitives::floats::real::Real;
 use crate::kernel::registry::Kernel;
-use crate::kernel::registry::get_full_path;
+use crate::kernel::registry::get_string;
 
 #[derive(Clone, SmartDefault)]
 pub struct LReal {
@@ -24,18 +25,14 @@ pub struct LReal {
     monitor: bool,
     read_only: bool,
     alias: Option<usize>,
-    path: Vec<usize>
+    path: usize
 }
 
 impl_primitive_serialize!(LReal, f64);
 impl_primitive_type_name!(LReal, f64);
 impl_primitive_raw_mut!(LReal, f64);
+impl_primitive_base!(LReal, f64);
 
-impl ToggleMonitor for LReal {
-    fn set_monitor(&mut self, activate: bool) {
-        self.monitor = activate
-    }
-}
 
 impl TryFrom<&Value> for LReal {
     type Error = Stop;
@@ -76,73 +73,18 @@ pub fn scale(f: f64) -> usize {
 
 impl Display for LReal {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{float:.scale$}", float = self.value, scale = scale(self.value))
+        write!(f, "{}(LReal: {float:.scale$})", self.get_path(), float = self.value, scale = scale(self.value))
     }
 }
 
-/*
- * @deprecated
- */
-/*fn rescale_to_lreal(decimal: &mut f64) -> &mut f64 {
-    let trunc: u32 = match decimal.trunc().try_into().unwrap() {
-        0 => 0,
-        Gt => (Gt as u32).checked_ilog10().unwrap_or(0) + 1,
-    };
-
-    let should_rescale = 15_u32.checked_sub(trunc).unwrap_or(1);
-
-    if should_rescale > 0 {
-        decimal.rescale(should_rescale);
-    };
-    decimal
-}*/
-
-impl PrimitiveTrait for LReal {
-    type Native = f64;
-    type PlcPrimitive = LReal;
-
-    fn new(value: &Self::Native) -> Result<Self::PlcPrimitive, Stop> {
-        Ok(Self {
-            default: *value,
-            value: *value,
-            id: get_id(),
-            monitor: false,
-            read_only: false,
-            alias: None,
-            path: vec!()
-        })
-    }
-
-    fn get(&self, channel: &Broadcast) -> Result<Self::Native, Stop> {
-        Ok(self.value)
-    }
-
-    fn set(&mut self, value: Self::Native, channel: &Broadcast) -> Result<(), Stop> {
-        self.value = value;
-        self.monitor(channel);
-        Ok(())
-    }
-
-    fn set_default(&mut self, value: Self::Native) -> Result<(), Stop> {
-        self.default = value;
-        self.value = self.default;
-        Ok(())
-    }
-
-    fn reset(&mut self, channel: &Broadcast) {
-        self.value = self.default;
-        self.monitor(channel)
-    }
-
-    fn get_id(&self) -> usize {
-        self.id
-    }
-
-    fn get_type_id(&self) -> TypeId {
-        self.value.type_id()
-    }
-
-    fn monitor(&self, channel: &Broadcast) {
-        channel.add_monitor_change(&MonitorChange::new(self.id, format!("{}", self)))
+impl RawDisplay for LReal {
+    fn raw_display<'a>(&'a self) -> impl Display +'a {
+        struct Raw<'a>(&'a LReal);
+        impl<'a> Display for Raw<'a> {
+            fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+                write!(f, "{float:.scale$}", float = self.0.value, scale = scale(self.0.value))
+            }
+        }
+        Raw(self)
     }
 }

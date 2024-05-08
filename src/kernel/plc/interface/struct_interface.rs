@@ -9,6 +9,7 @@ use crate::kernel::plc::types::primitives::traits::primitive_traits::ToggleMonit
 use crate::kernel::plc::types::primitives::traits::primitive_traits::RawMut;
 use crate::kernel::arch::local::pointer::{LocalPointer, LocalPointerAndPath};
 use crate::kernel::arch::local::r#type::LocalType;
+use crate::kernel::registry::get_string;
 
 pub struct StructInterface(HashMap<usize, LocalPointer>);
 
@@ -43,7 +44,7 @@ impl FromIterator<(usize, LocalPointer)> for StructInterface {
 impl Display for StructInterface {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         self.0.iter().try_for_each(|(name, pointer)| {
-            writeln!(f, "\t '{}' -> {}", name, pointer)
+            writeln!(f, "\t '{}' -> {}", get_string(*name), pointer)
         })
     }
 }
@@ -78,6 +79,10 @@ impl ToggleMonitor for StructInterface {
 }
 
 impl StructInterface {
+    pub fn get_names(&self) -> Vec<usize> {
+        self.0.keys().copied().collect()
+    }
+    
     pub fn get_raw_pointers(&self) -> Vec<*mut dyn RawMut> {
         self.iter()
             .fold(vec![], |_all, p| p.1.get_raw_pointers())

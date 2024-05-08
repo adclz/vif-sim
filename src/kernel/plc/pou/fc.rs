@@ -14,6 +14,7 @@ use crate::parser::trace::trace::{FileTrace, FileTraceBuilder};
 use crate::container::broadcast::broadcast::Broadcast;
 use crate::container::error::error::{Stop};
 use crate::parser::local_type::local_type::parse_local_type;
+use crate::kernel::registry::get_string;
 
 pub struct Fc {
     json: Map<String, Value>,
@@ -116,7 +117,7 @@ impl DeferredBuilder for Fc {
                 "return" => {
                     let json = value.as_object().unwrap();
 
-                    self.interface.swap_return(LocalPointer::from(parse_local_type(json, registry, channel, &vec!())?));
+                    self.interface.swap_return(LocalPointer::from(parse_local_type(json, registry, channel)?));
                     Ok(())
                 },
                 _ => Ok(())

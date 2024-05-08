@@ -10,7 +10,7 @@ use crate::kernel::plc::types::primitives::traits::primitive_traits::RawMut;
 use crate::kernel::plc::types::primitives::string::wchar::wchar;
 use crate::kernel::plc::types::primitives::string::wstring::wstr256;
 use crate::kernel::arch::local::pointer::{LocalPointer, LocalPointerAndPath};
-use crate::kernel::registry::{get_full_path, Kernel};
+use crate::kernel::registry::{get_full_path, get_string, Kernel};
 use crate::{error, impl_primitive_traits, key_reader, required_key};
 use camelpaste::paste;
 use fixedstr::str256;
@@ -26,7 +26,7 @@ pub struct PlcStruct {
     interface: StructInterface,
     of: Option<String>,
     read_only: bool,
-    path: Vec<usize>
+    path: usize
 }
 
 impl MetaData for PlcStruct {
@@ -47,7 +47,7 @@ impl MetaData for PlcStruct {
     }
 
     fn get_path(&self) -> String {
-        get_full_path(&self.path).join("")
+        get_string(self.path)
     }
 }
 
@@ -63,7 +63,7 @@ impl SetMetaData for PlcStruct {
             .for_each(|a| a.1.set_read_only(value))
     }
 
-    fn set_path(&mut self, path: Vec<usize>) {
+    fn set_name(&mut self, path: usize) {
         self.path = path;
     }
 }
@@ -109,7 +109,7 @@ impl_primitive_traits!(PlcStruct, {
 
 impl PlcStruct {
     pub fn from_interface(of: Option<String>, value: StructInterface, registry: &Kernel, channel: &Broadcast) -> Result<Self, Stop> {
-        Ok(Self { of, interface: value, read_only: false, path: vec!() })
+        Ok(Self { of, interface: value, read_only: false, path: 0_usize })
     }
 
     pub fn get_raw_pointers(&mut self) -> Vec<*mut dyn RawMut> {
@@ -141,10 +141,10 @@ impl PlcStruct {
             of: None,
             interface: StructInterface::new(),
             read_only: false,
-            path: vec!()
+            path: 0_usize
         };
 
-        parse_struct_interface(&interface, registry, channel, &None, &vec!())?
+        parse_struct_interface(&interface, registry, channel, &None)?
             .as_ref()
             .iter()
             .for_each(|(name, pointer)| {

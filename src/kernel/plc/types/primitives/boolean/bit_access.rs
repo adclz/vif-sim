@@ -127,7 +127,7 @@ impl SetMetaData for BitAccess {
         // do nothing
     }
 
-    fn set_path(&mut self, path: Vec<usize>) {
+    fn set_name(&mut self, path: usize) {
         // do nothing
     }
 }

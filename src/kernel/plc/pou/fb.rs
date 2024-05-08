@@ -13,6 +13,7 @@ use serde_json::{Map, Value};
 use crate::parser::body::body::parse_json_target;
 use crate::parser::body::json_target::JsonTarget;
 use crate::container::broadcast::broadcast::Broadcast;
+use crate::kernel::registry::get_string;
 
 pub struct Fb {
     json: Map<String, Value>,

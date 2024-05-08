@@ -10,7 +10,7 @@ import {
     UnitTestStatus,
     UnitTestUpdateStatus,
     BreakPointUpdateStatus
-} from "../../plcsim.js";
+} from "../../vifsimlib.js";
 import {Container} from "../boot/container.js";
 import {VifEventEmitter} from "../event/event-emitter.js"
 

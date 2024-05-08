@@ -120,3 +120,7 @@ macro_rules! primitive_traits {
 primitive_traits!(
     bool, u8, i8, u16, i16, u32, i32, u64, i64, f32, f64, str256, char, wstr256, wchar
 );
+
+pub trait RawDisplay {
+    fn raw_display<'a>(&'a self) -> impl Display + 'a;
+}

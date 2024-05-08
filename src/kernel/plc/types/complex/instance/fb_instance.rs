@@ -14,7 +14,7 @@ use crate::kernel::plc::types::primitives::traits::primitive_traits::{RawMut, To
 use crate::kernel::plc::types::primitives::string::wchar::wchar;
 use crate::kernel::plc::types::primitives::string::wstring::wstr256;
 use crate::kernel::arch::local::pointer::LocalPointerAndPath;
-use crate::kernel::registry::{get_full_path, Kernel};
+use crate::kernel::registry::{get_full_path, get_string, Kernel};
 use crate::{error, impl_primitive_traits};
 use camelpaste::paste;
 use fixedstr::str256;
@@ -32,7 +32,7 @@ pub struct FbInstance {
     body: Vec<JsonTarget>,
     of: Option<String>,
     read_only: bool,
-    path: Vec<usize>
+    path: usize
 }
 
 impl_primitive_traits!(FbInstance, {
@@ -87,7 +87,7 @@ impl MetaData for FbInstance {
     }
 
     fn get_path(&self) -> String {
-        get_full_path(&self.path).join("")
+        get_string(self.path)
     }
 }
 
@@ -103,7 +103,7 @@ impl SetMetaData for FbInstance {
             .for_each(|a| a.1.iter_mut().for_each(|b| b.1.set_read_only(value)))
     }
 
-    fn set_path(&mut self, path: Vec<usize>) {
+    fn set_name(&mut self, path: usize) {
         self.path = path;
     }
 }
@@ -136,7 +136,7 @@ impl FbInstance {
             body,
             read_only: false,
             of,
-            path: vec!()
+            path: 0
         })
     }
 

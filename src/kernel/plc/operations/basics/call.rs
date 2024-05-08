@@ -9,9 +9,9 @@ use crate::kernel::plc::operations::operations::{
     BuildJsonOperation, NewJsonOperation, Operation, RunTimeOperation, RuntimeOperationTrait,
 };
 use crate::kernel::plc::types::primitives::traits::family_traits::{IsFamily, WithMutFamily, WithRefFamily};
-use crate::kernel::plc::types::primitives::traits::meta_data::{HeapOrStatic, MaybeHeapOrStatic};use crate::kernel::registry::Kernel;
+use crate::kernel::plc::types::primitives::traits::meta_data::{HeapOrStatic, MaybeHeapOrStatic};use crate::kernel::registry::{get_or_insert_global_string, get_string, Kernel};
 use crate::container::error::error::Stop;
-use crate::{error, key_reader};
+use crate::{error, json_parse, key_reader};
 use serde_json::{Map, Value};
 use std::collections::HashMap;
 use std::ops::DerefMut;
@@ -23,7 +23,7 @@ use crate::container::broadcast::broadcast::Broadcast;
 #[derive(Clone)]
 pub struct Call {
     call: JsonTarget,
-    name: String,
+    name: usize,
     interface: HashMap<Section, Vec<(Vec<String>, JsonTarget)>>,
     trace: Option<FileTrace>,
 }
@@ -85,6 +85,8 @@ impl NewJsonOperation for Call {
             .last()
             .unwrap()
             .to_string();
+        
+        let name = get_or_insert_global_string(&name);
 
         let mut as_interface = HashMap::new();
 
@@ -124,7 +126,7 @@ impl BuildJsonOperation for Call {
             // Creating an instance from fc
             if global_pointer.is_fc() {
                 FcInstance::from(
-                    &name,
+                    name,
                     global_pointer
                         .as_mut_fc()? //<-- Safe (is_fc)
                         .deref_mut(),
@@ -150,14 +152,14 @@ impl BuildJsonOperation for Call {
                             )
                             .maybe_file_trace(&self.trace)
                         })?;
-
+                    
                     Ok(Box::new(Operation::new(
-                        MaybeHeapOrStatic(Some(HeapOrStatic::Heap(format!("Call {}", name)))),
+                        MaybeHeapOrStatic(Some(HeapOrStatic::Heap(format!("Call {}",  get_string(name))))),
                         move |channel| {
                             let index = channel
                                 .get_cycle_stack()
                                 .borrow_mut()
-                                .add_section(&name, "Fb");
+                                .add_section(name, "Fb");
 
                             executable.with_void(channel)?;
 
@@ -212,7 +214,7 @@ impl BuildJsonOperation for Call {
                         let index = channel
                             .get_cycle_stack()
                             .borrow_mut()
-                            .add_section(&name, "Fb");
+                            .add_section(name, "Fb");
 
                         executable.with_void(channel)?;
 

@@ -11,6 +11,7 @@ use crate::{create_block_interface, error, key_reader};
 use crate::parser::trace::trace::{FileTrace, FileTraceBuilder};
 use crate::container::broadcast::broadcast::Broadcast;
 use crate::container::error::error::{Stop};
+use crate::kernel::registry::get_string;
 
 pub struct GlobalDb {
     json: Map<String, Value>,

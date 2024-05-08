@@ -86,7 +86,7 @@ macro_rules! impl_primitive_type_name {
             }
 
             fn get_path(&self) -> String {
-                get_full_path(&self.path).join("")
+                get_string(self.path)
             }
 
             fn is_read_only(&self) -> bool {
@@ -103,7 +103,7 @@ macro_rules! impl_primitive_type_name {
                 self.read_only = value;
             }
 
-            fn set_path(&mut self, path: Vec<usize>) {
+            fn set_name(&mut self, path: usize) {
                 self.path = path
             }
         }
@@ -127,6 +127,18 @@ macro_rules! impl_primitive_display {
         impl Display for $primitive {
             fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
                 write!(f, "{}({}: {:?})", self.get_path(), stringify!($primitive), self.value)
+            }
+        }
+        
+        impl RawDisplay for $primitive {
+            fn raw_display<'a>(&'a self) -> impl Display +'a {
+                struct Raw<'a>(&'a $primitive);
+                impl<'a> Display for Raw<'a> { 
+                    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+                        write!(f, "{}", self.0.value)
+                    }
+                }
+                Raw(self)
             }
         }
     };
@@ -171,7 +183,7 @@ macro_rules! impl_primitive_base {
                     monitor: false,
                     read_only: false,
                     alias: None,
-                    path: vec!()
+                    path: 0_usize
                 })
             }
 
@@ -199,7 +211,7 @@ macro_rules! impl_primitive_base {
             }
 
             fn monitor(&self, channel: &Broadcast) {
-                channel.add_monitor_change(&MonitorChange::new(self.id, format!("{}", self)))
+                channel.add_monitor_change(&MonitorChange::new(self.id, format!("{}", self.raw_display())))
             }
 
             fn get_id(&self) -> usize {

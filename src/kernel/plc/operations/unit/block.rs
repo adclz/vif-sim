@@ -5,7 +5,7 @@ use crate::kernel::plc::internal::template_impl::TemplateMemory;
 use crate::kernel::plc::operations::operations::{
     BuildJsonOperation, NewJsonOperation, Operation, RunTimeOperation, RuntimeOperationTrait,
 };
-use crate::kernel::registry::Kernel;
+use crate::kernel::registry::{get_or_insert_global_string, get_string, Kernel};
 use crate::container::error::error::Stop;
 use crate::{key_reader};
 use serde_json::{Map, Value};
@@ -74,7 +74,7 @@ impl BuildJsonOperation for UnitBlock {
                 .maybe_file_trace(&self.trace)
             })?;
 
-        let description = self.description.clone();
+        let description = get_or_insert_global_string(&self.description.clone());
 
         Ok(Box::new(Operation::new(
             MaybeHeapOrStatic(Some(HeapOrStatic::Static(&"Unit Block"))),
@@ -82,7 +82,7 @@ impl BuildJsonOperation for UnitBlock {
                 let index = channel
                     .get_cycle_stack()
                     .borrow_mut()
-                    .add_section(&description, "Unit_block");
+                    .add_section(description, "Unit_block");
                 
                 blocks.iter_mut().try_for_each(|f| {
                     f.with_void(channel)?;

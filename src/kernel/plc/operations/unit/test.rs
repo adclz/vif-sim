@@ -80,7 +80,7 @@ impl Display for UnitTest {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
-            "[Unit test] {} -> {}",
+            "[Unit tests] {} -> {}",
             &self.description,
             match &self.status {
                 UnitTestStatus::Unreached => Yellow.paint("Unreached"),
@@ -181,7 +181,7 @@ impl NewJsonOperation for UnitTestJson {
         };
 
         let expect = parse_json_target(&expect).map_err(|e| {
-            e.add_sim_trace(&"Parse Unit test -> Parse expect param".to_string())
+            e.add_sim_trace(&"Parse Unit tests -> Parse expect param".to_string())
                 .maybe_file_trace(&trace)
         })?;
 

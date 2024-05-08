@@ -9,6 +9,10 @@ impl SectionPointers {
     pub fn clear(&mut self) {
         self.0.clear();
     }
+    
+    pub fn is_empty(&self) -> bool {
+        self.0.is_empty()
+    }
 
     pub fn push(&mut self, rst: *mut dyn RawMut) {
         self.0.push(rst);
@@ -37,6 +41,10 @@ macro_rules! impl_section_pointers {
         }
 
         impl RawPointers {
+                pub fn is_empty(&self) -> bool {
+                    $(self.$section.is_empty())&& +
+                }
+                
                 $(
                     pub fn [<clear_$section:lower>](&mut self) {
                         self.$section.clear();

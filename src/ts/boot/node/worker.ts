@@ -1,4 +1,4 @@
-import * as PlcSim from "../../plcsim.js"
+import * as PlcSim from "../../vifsimlib.js"
 import {ToCommand, From, Send} from "./types.js";
 import {parentPort} from "node:worker_threads"
 

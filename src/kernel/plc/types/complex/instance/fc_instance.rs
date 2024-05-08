@@ -19,7 +19,7 @@ use crate::kernel::plc::types::primitives::traits::meta_data::MaybeHeapOrStatic;
 pub struct FcInstance {
     interface: SectionInterface,
     body: Vec<JsonTarget>,
-    name: String
+    name: usize
 }
 
 impl PrivateInstanceAccessors for FcInstance {
@@ -45,11 +45,11 @@ impl Serialize for FcInstance {
 }
 
 impl FcInstance {
-    pub fn from(name: &str, value: &mut Fc, registry: &Kernel, channel: &Broadcast) -> Result<Self, Stop> {
+    pub fn from(name: usize, value: &mut Fc, registry: &Kernel, channel: &Broadcast) -> Result<Self, Stop> {
         Ok(Self {
             interface: value.clone_interface(registry, channel)?,
             body: value.clone_body(registry, channel)?,
-            name: name.into()
+            name
         })
     }
 
@@ -75,7 +75,7 @@ impl FcInstance {
             let index = channel
                 .get_cycle_stack()
                 .borrow_mut()
-                .add_section(&name, "Fc");
+                .add_section(name, "Fc");
 
             input_actions.iter_mut().try_for_each(|assign| {
                 assign.with_void(channel)?;

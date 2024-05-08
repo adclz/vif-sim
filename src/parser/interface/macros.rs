@@ -16,14 +16,31 @@ macro_rules! create_block_interface {
     $channel: ident,
     $({ $section: ident }),+) => {
         camelpaste::paste! {
+            {
+                let mut all_names: Vec<usize> = vec!();
+            
             $data_interface
             .iter()
             .try_for_each(|(section, value)| match section.as_str() {
                 "return" => Ok(()),
                 $(stringify!([<$section:lower>]) => {
-                    let h = parse_struct_interface(value, $registry, $channel, &Some(Section::$section), &vec!())?;
-                    let section = $interface.entry(Section::$section).or_insert_with(|| h);
-
+                    // Creates the section
+                    let section_struct = parse_struct_interface(value, $registry, $channel, &Some(Section::$section))?;
+                    
+                    // Checks if names exists in another section
+                    let names = section_struct.get_names();
+                    
+                    if let Some(name) = names.iter().find(|name| all_names.contains(name)) {
+                        return Err(error!(format!("Invalid member name: {} already exists", get_string(*name))));
+                    }
+                    
+                    // Saves the names
+                    all_names.extend(names);
+                    
+                    // Insert it
+                    let section = $interface.entry(Section::$section).or_insert_with(|| section_struct);
+                    
+                    // Saves the pointers
                         $registry
                             .raw_pointers_collector
                             .borrow_mut()
@@ -33,6 +50,7 @@ macro_rules! create_block_interface {
                 })+,
                 _ => Err(error!(format!("Invalid section name: '{}'", section), format!("Parse Section")))
             })
+        }
         }
     };
 }

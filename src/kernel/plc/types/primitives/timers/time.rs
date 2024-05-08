@@ -16,7 +16,7 @@ use std::fmt::{Display, Formatter};
 use std::time::Duration;
 use std::borrow::Cow;
 use crate::kernel::registry::Kernel;
-use crate::kernel::registry::get_full_path;
+use crate::kernel::registry::get_string;
 
 #[derive(Clone, SmartDefault)]
 pub struct Time {
@@ -27,7 +27,7 @@ pub struct Time {
     monitor: bool,
     read_only: bool,
     alias: Option<usize>,
-    path: Vec<usize>
+    path: usize
 }
 
 impl_primitive_all!(Time, i32);

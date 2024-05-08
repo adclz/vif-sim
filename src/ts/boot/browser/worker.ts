@@ -1,4 +1,4 @@
-import init, {boot_container, is_running, Container} from "../../plcsim.js";
+import init, {boot_container, is_running, Container} from "../../vifsimlib.js";
 import {ToCommand, From, Send} from "./types.js";
 
 let container: Container

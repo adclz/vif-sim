@@ -10,7 +10,7 @@ use crate::kernel::plc::operations::operations::{
 use crate::kernel::rust::set::box_set_plc_primitive;
 use crate::kernel::arch::global::pointer::GlobalPointer;
 use crate::kernel::arch::local::pointer::LocalPointer;
-use crate::kernel::registry::{convert_string_path_to_usize, Kernel};
+use crate::kernel::registry::{convert_string_path_to_usize, get_or_insert_global_string, Kernel};
 use crate::container::error::error::Stop;
 use crate::{create_block_interface, error, insert_section, key_reader};
 use serde_json::{Map, Value};
@@ -191,14 +191,14 @@ impl BuildJsonOperation for TemplateImpl {
                     .maybe_file_trace(&self.trace)
             })?;
 
-        let name = self.of.clone();
+        let name = get_or_insert_global_string(&self.of);
         Ok(Box::new(Operation::new(
             MaybeHeapOrStatic(None),
             move |channel| {
                 let index = channel
                     .get_cycle_stack()
                     .borrow_mut()
-                    .add_section(&name, "[Template]");
+                    .add_section(name, "[Template]");
 
                 input_actions.iter_mut().try_for_each(|assign| {
                     assign.with_void(channel)?;

@@ -1,5 +1,5 @@
 ﻿use crate::kernel::arch::global::r#type::GlobalType;
-use crate::kernel::registry::{get_or_insert_global_string, Kernel};
+use crate::kernel::registry::{get_or_insert_global_string, get_string, Kernel};
 use crate::container::broadcast::broadcast::Broadcast;
 use crate::container::error::error::Stop;
 use crate::container::container::{CONTAINER_PARAMS, ContainerParams, StopOn};
@@ -30,6 +30,8 @@ impl<'a> Simulation<'a> {
 
     pub async fn start(&mut self, entry: &str) -> Result<bool, Stop> {
         self.channel.reset_cycle_stack();
+        
+        let entry = get_or_insert_global_string(&entry.to_string());
 
         let index = self
             .channel
@@ -42,9 +44,7 @@ impl<'a> Simulation<'a> {
             .borrow_mut()
             .get_current_section()
             .unwrap();
-
-        let entry = get_or_insert_global_string(&entry.to_string());
-
+        
         let entry_block = self.registry.get(&entry);
         if entry_block.is_some() {
             match entry_block.unwrap().as_ref().borrow_mut().deref_mut() {
@@ -58,10 +58,10 @@ impl<'a> Simulation<'a> {
                         }
                     };
                 }
-                _ => return Err(error!(format!("{} is not an OB block!", entry))),
+                _ => return Err(error!(format!("{} is not an OB block!", get_string(entry)))),
             }
         } else {
-            return Err(error!(format!("Invalid entry block '{}'", entry)));
+            return Err(error!(format!("Invalid entry block '{}'", get_string(entry))));
         }
 
         self.channel.add_message(&Purple.paint("--- End of Cycle ---").to_string());

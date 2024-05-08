@@ -97,5 +97,5 @@ impl Display for MaybeHeapOrStatic {
 pub trait SetMetaData : MetaData {
     fn set_alias(&mut self, alias: &str, kernel: &Kernel);
     fn set_read_only(&mut self, value: bool);
-    fn set_path(&mut self, path: Vec<usize>);
+    fn set_name(&mut self, path: usize);
 }

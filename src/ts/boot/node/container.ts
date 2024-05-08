@@ -1,4 +1,4 @@
-import {ParseStatus, ContainerParams} from "../../plcsim.js"
+import {ParseStatus, ContainerParams} from "../../vifsimlib.js"
 import {From, FromCommand, Send} from "./types.js";
 import {CommandStore} from "./command-store.js";
 import {VifEventEmitter} from "../event/event-emitter.js";

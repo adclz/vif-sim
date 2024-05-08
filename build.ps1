@@ -1,4 +1,4 @@
-﻿$version = "0.0.1-alpha.4"
+﻿$version = "0.0.1-alpha.8"
 #
 # Web
 #
@@ -11,14 +11,14 @@ $packageJsonPath = "pkg_web/package.json"
 $packageJson = Get-Content $packageJsonPath | ConvertFrom-Json
 $packageJson.name = "@vifjs/sim-web"
 $packageJson.version = $version
-$packageJson.files += "plcsim_bg.wasm.d.ts"
+$packageJson.files += "vifsimlib_bg.wasm.d.ts"
 $packageJson.files += "snippets"
 $packageJson.files += "dist"
-$packageJson | Add-Member -MemberType NoteProperty -Name "main" -Value "plcsim_bg.js"
+$packageJson | Add-Member -MemberType NoteProperty -Name "main" -Value "vifsimlib_bg.js"
 $packageJson | Add-Member -MemberType NoteProperty -Name "exports" -Value @{}
 $packageJson | Add-Member -MemberType NoteProperty -Name "type" -Value "module"
-$packageJson.exports."." = @{ "import" = "./plcsim.js" }
-$packageJson.exports."./plcsim_bg.wasm" = "./plcsim_bg.wasm"
+$packageJson.exports."." = @{ "import" = "./vifsimlib.js" }
+$packageJson.exports."./vifsimlib_bg.wasm" = "./vifsimlib_bg.wasm"
 $packageJson.exports."./plugin" = "./dist/plugin/plugin.js"
 $packageJson.exports."./boot" = "./dist/boot/container.js"
 $packageJson.PSObject.Properties.Remove('repository')
@@ -82,11 +82,11 @@ $packageJsonPath = "pkg_node/package.json"
 $packageJson = Get-Content $packageJsonPath | ConvertFrom-Json
 $packageJson.name = "@vifjs/sim-node"
 $packageJson.version = $version
-$packageJson.files += "plcsim_bg.wasm.d.ts"
+$packageJson.files += "vifsimlib_bg.wasm.d.ts"
 $packageJson.files += "snippets"
 $packageJson.files += "dist"
 $packageJson | Add-Member -MemberType NoteProperty -Name "exports" -Value @{}
-$packageJson.exports."." = @{ "import" = "./plcsim.js" }
+$packageJson.exports."." = @{ "import" = "./vifsimlib.js" }
 $packageJson.exports."./plugin" = "./dist/plugin/plugin.js"
 $packageJson.exports."./boot" = "./dist/boot/container.js"
 $packageJson.PSObject.Properties.Remove('repository')

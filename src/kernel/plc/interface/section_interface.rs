@@ -12,6 +12,7 @@ use crate::kernel::plc::types::primitives::traits::primitive_traits::ToggleMonit
 use crate::kernel::plc::types::primitives::traits::primitive_traits::RawMut;
 use crate::kernel::arch::local::pointer::{LocalPointer, LocalPointerAndPath};
 use crate::kernel::arch::local::r#type::LocalType;
+use crate::kernel::registry::get_string;
 
 pub struct SectionInterface((HashMap<Section, StructInterface>, Option<LocalPointer>));
 
@@ -157,9 +158,9 @@ impl SectionInterface {
         let key = &path[0];
         let next_path = &path[1..];
 
-        /*if key == "return" {
+        if get_string(*key) == "return" {
             return self.0.1.clone();
-        }*/
+        }
 
         self.0.0.iter_mut().find_map(|(_section, members)| {
             members.as_mut().get_mut(key)
@@ -187,9 +188,9 @@ impl SectionInterface {
         let key = &path[0];
         let next_path = &path[1..];
 
-        /*if key == "return" {
+        if get_string(*key) == "return" {
             return self.0.1.clone();
-        }*/
+        }
 
         self.0.0.iter().find_map(|(_section, members)| {
             members.as_ref().get(key)

@@ -6,6 +6,7 @@ use serde::ser::{SerializeSeq, SerializeStruct};
 use tsify::Tsify;
 use wasm_bindgen::JsValue;
 use wasm_bindgen::prelude::wasm_bindgen;
+use crate::kernel::registry::get_string;
 
 #[derive(Default, Tsify)]
 struct VecSectionOrLog(Vec<SectionOrLog>);
@@ -52,7 +53,7 @@ impl Serialize for SectionOrLog {
 
 #[derive(Default, Tsify)]
 pub struct Section {
-    name: String,
+    name: usize,
     ty: String,
     content: VecSectionOrLog,
 }
@@ -60,7 +61,7 @@ pub struct Section {
 impl Serialize for Section {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error> where S: Serializer {
         let mut state = serializer.serialize_struct("section", 4)?;
-        state.serialize_field("name", &self.name)?;
+        state.serialize_field("name", &get_string(self.name))?;
         state.serialize_field("ty", &self.ty)?;
         state.serialize_field("content", &self.content)?;
         state.end()
@@ -68,9 +69,9 @@ impl Serialize for Section {
 }
 
 impl Section {
-    fn new(name: &str, ty: &str) -> Self {
+    fn new(name: usize, ty: &str) -> Self {
         Self {
-            name: name.into(),
+            name,
             ty: ty.into(),
             content: VecSectionOrLog(vec![]),
         }
@@ -126,7 +127,7 @@ impl Stack {
         self.stack.clear();
     }
 
-    pub fn add_section(&mut self, name: &str, ty: &str) -> usize {
+    pub fn add_section(&mut self, name: usize, ty: &str) -> usize {
         let new = Rc::new(RefCell::new(Section::new(name, ty)));
         let mut index = 0;
         match &self.current {

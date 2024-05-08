@@ -1,6 +1,6 @@
 ﻿#[cfg(target_arch = "wasm32")]
 use crate::js::dispatcher::dispatcher::Dispatcher;
-use crate::container::broadcast::log_stack::Stack;
+use crate::container::broadcast::stack::Stack;
 use crate::container::error::error::Stop;
 use crate::container::container::{ParseStatus, SimulationStatus};
 use std::cell::RefCell;

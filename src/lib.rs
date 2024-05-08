@@ -8,3 +8,5 @@ pub mod js;
 pub mod parser;
 pub mod kernel;
 pub mod container;
+#[cfg(test)]
+mod tests;

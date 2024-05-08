@@ -15,7 +15,7 @@ use std::fmt::{Display, Formatter};
 use std::str::FromStr;
 use std::borrow::Cow;
 use crate::kernel::registry::Kernel;
-use crate::kernel::registry::get_full_path;
+use crate::kernel::registry::get_string;
 
 pub type wchar = char;
 
@@ -28,7 +28,7 @@ pub struct WChar {
     monitor: bool,
     read_only: bool,
     alias: Option<usize>,
-    path: Vec<usize>
+    path: usize
 }
 
 impl_primitive_all!(WChar, char);

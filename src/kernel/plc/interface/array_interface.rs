@@ -1,4 +1,5 @@
 ﻿use std::fmt::{Display, Formatter};
+use std::num::ParseIntError;
 use std::ops::{Deref, DerefMut};
 use serde::{Serialize, Serializer};
 use serde::ser::SerializeSeq;
@@ -8,6 +9,7 @@ use crate::kernel::plc::types::primitives::traits::primitive_traits::ToggleMonit
 use crate::kernel::plc::types::primitives::traits::primitive_traits::RawMut;
 use crate::kernel::arch::local::pointer::{LocalPointer, LocalPointerAndPath};
 use crate::kernel::arch::local::r#type::LocalType;
+use crate::kernel::registry::get_string;
 
 pub struct ArrayInterface(Vec<LocalPointer>);
 
@@ -102,10 +104,15 @@ impl ArrayInterface {
             return None;
         }
 
-        let key = &path[0];
-        let next_path = &path[1..];
+        let key = get_string(path[0]);
+        let key = match key
+            .replace('[', "")
+            .replace(']', "")
+            .parse::<usize>() {
+            Ok(a) => a,
+            Err(_) => return None
+        };
 
-        let key = path[0];
         let next_path = &path[1..];
 
         self.0.get_mut(key).and_then(|f| {
@@ -128,7 +135,15 @@ impl ArrayInterface {
             return None;
         }
 
-        let key = path[0];
+        let key = get_string(path[0]);
+        let key = match key
+            .replace('[', "")
+            .replace(']', "")
+            .parse::<usize>() {
+            Ok(a) => a,
+            Err(_) => return None
+        };
+
         let next_path = &path[1..];
 
         self.0.get(key).and_then(|f| {

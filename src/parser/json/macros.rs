@@ -102,4 +102,4 @@ macro_rules! key_reader {
     ($location: expr, $json: ident { $($key:tt)* }) => {
         key_reader!(@key $location, $json {} $($key)*);
     };
-}  
+}

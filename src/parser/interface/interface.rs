@@ -14,8 +14,7 @@ pub fn parse_struct_interface(
     json: &Value,
     registry: &Kernel,
     channel: &Broadcast,
-    section: &Option<Section>,
-    previous_path: &[usize]
+    section: &Option<Section>
 ) -> Result<StructInterface, Stop> {
     let mut section_to_fill = HashMap::new();
     // Get all members
@@ -42,9 +41,8 @@ pub fn parse_struct_interface(
         )))?;
 
         let name = get_or_insert_global_string(name);
-        let mut current_path = previous_path.to_vec();
 
-        let mut pointer = LocalPointer::from(parse_local_type(json, registry, channel, &current_path)?);
+        let mut pointer = LocalPointer::from(parse_local_type(json, registry, channel)?);
 
         // Checks if type is allowed
         registry.check_excluded_type(&pointer)?;
@@ -57,17 +55,18 @@ pub fn parse_struct_interface(
           pointer.set_read_only(true);
         };
 
-        current_path.push(name);
-
         // Set path
-        pointer.set_path(current_path);
+        pointer.set_name(name);
 
         // Fails if the member is already present
+
+        //println!("{}", name);
+        //section_to_fill.iter().for_each(|x| println!("{}", x.0));
 
         match section_to_fill.insert(name, pointer) {
             None => Ok(()),
             Some(_) => Err(error!(
-                format!("Could not create type '{}' because it is already present", name),
+                format!("Could not create member '{}' because it is already registered", name),
                 format!("Parse member")
             )),
         }?;

@@ -97,8 +97,8 @@ impl SetMetaData for LocalPointer {
         self.read_only = value
     }
 
-    fn set_path(&mut self, path: Vec<usize>) {
-        self.as_ref().borrow_mut().set_path(path)
+    fn set_name(&mut self, path: usize) {
+        self.as_ref().borrow_mut().set_name(path)
     }
 }
 

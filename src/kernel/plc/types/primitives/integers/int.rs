@@ -15,7 +15,7 @@ use std::any::{Any, TypeId};
 use std::fmt::{Display, Formatter};
 use std::borrow::Cow;
 use crate::kernel::registry::Kernel;
-use crate::kernel::registry::get_full_path;
+use crate::kernel::registry::get_string;
 
 #[derive(Clone, SmartDefault)]
 pub struct Int {
@@ -26,7 +26,7 @@ pub struct Int {
     monitor: bool,
     read_only: bool,
     alias: Option<usize>,
-    path: Vec<usize>
+    path: usize
 }
 
 impl TryFrom<&Value> for Int {

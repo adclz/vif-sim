@@ -16,7 +16,7 @@ use std::fmt::{Display, Formatter};
 use std::str::FromStr;
 use std::borrow::Cow;
 use crate::kernel::registry::Kernel;
-use crate::kernel::registry::get_full_path;
+use crate::kernel::registry::get_string;
 
 #[derive(SmartDefault, Clone)]
 pub struct _String {
@@ -27,7 +27,7 @@ pub struct _String {
     monitor: bool,
     read_only: bool,
     alias: Option<usize>,
-    path: Vec<usize>
+    path: usize
 }
 
 impl_primitive_all!(_String, str256);
@@ -44,81 +44,3 @@ impl TryFrom<&Value> for _String {
         }
     }
 }
-
-/*
-impl RawMut for _String {
-    fn reset_ptr(&mut self, channel: &Broadcast) {
-        self.reset(channel)
-    }
-}
-
-impl PrimitiveTrait for _String {
-    type Native = str256;
-    type PlcPrimitive = _String;
-
-    fn new(value: &Self::Native) -> Result<Self::PlcPrimitive, Stop> {
-        Ok(Self {
-            default: value.into(),
-            value: value.into(),
-            id: get_id(),
-            monitor: false,
-        })
-    }
-
-    fn get(&self) -> &Self::Native {
-        &self.value
-    }
-
-    fn set_as(&mut self, value: &Self::PlcPrimitive, channel: &Broadcast) {
-        self.value = value.get().into();
-        if self.monitor {
-            self.monitor(channel)
-        }
-    }
-
-    fn set(&mut self, value: &str256, channel: &Broadcast) {
-        self.value = value.into();
-        self.monitor(channel)
-    }
-
-    fn set_default(&mut self, value: &Self::Native) {
-        self.default = value.into()
-    }
-
-    fn reset(&mut self, channel: &Broadcast) {
-        self.value = self.default.clone();
-        self.monitor(channel)
-    }
-
-    fn get_id(&self) -> usize {
-        self.id
-    }
-
-    fn get_type_id(&self) -> TypeId {
-        self.value.type_id()
-    }
-
-    fn monitor(&self, channel: &Broadcast) {
-        channel.add_monitor_change(&MonitorChange::new(self.id, format!("{}", self)))
-    }
-}
-
-impl Serialize for _String {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        let mut data = serializer.serialize_struct("data", 3)?;
-        data.serialize_field("ty", &"String")?;
-        data.serialize_field("id", &self.id)?;
-        data.serialize_field("value", &self.value.to_string())?;
-        data.end()
-    }
-}
-
-impl Display for _String {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.value)
-    }
-}
-*/
