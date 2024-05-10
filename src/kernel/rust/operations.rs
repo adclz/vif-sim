@@ -2,7 +2,6 @@ use camelpaste::paste;
 use crate::container::error::error::Stop;
 use crate::error;
 use std::fmt::Display;
-use crate::parser::trace::trace::FileTrace;
 use crate::kernel::plc::types::primitives::traits::primitive_traits::PrimitiveTrait;
 use crate::kernel::plc::operations::operations::{Operation, RunTimeOperation};
 use crate::kernel::plc::types::primitives::traits::primitive_traits::{AsMutPrimitive, Primitive};
@@ -23,7 +22,8 @@ macro_rules! box_create_checked_operation_primitive {
     }),+
     ) => {
         paste! {
-            pub fn [<box_$op_fn _plc_primitive>]<T: 'static + MetaData + Primitive + Clone + Display + IntoLocalType, Y : 'static + MetaData + Primitive + Clone + Display>(variable1: &T, variable2: &Y, trace: &Option<FileTrace>, kernel: &Kernel) -> Result<RunTimeOperation, Stop>{
+            pub fn [<box_$op_fn _plc_primitive>]<T: 'static + MetaData + Primitive + Clone + Display + IntoLocalType, 
+            Y : 'static + MetaData + Primitive + Clone + Display>(variable1: &T, variable2: &Y, trace: u64, kernel: &Kernel) -> Result<RunTimeOperation, Stop>{
                 kernel.check_filtered_operation(&stringify!($op_fn), variable1, variable2)?;
                 $(
                     if variable1.[<is_$primitive>]() {
@@ -36,7 +36,6 @@ macro_rules! box_create_checked_operation_primitive {
                                let return_ptr_clone = return_ptr.clone();
                                let o1_clone = variable1.clone();
                                let o2_clone = variable2.clone();
-                               let trace = trace.clone();
 
                                let o1_clone_1 = variable1.clone();
                                let o2_clone_1 = variable2.clone();
@@ -56,7 +55,7 @@ macro_rules! box_create_checked_operation_primitive {
 
                                     return_ptr.as_ref().borrow_mut().deref_mut().[<set_$primitive>](result, channel)?;
                                     Ok(())
-                               }, Some(return_ptr_clone), false, &trace)))
+                               }, Some(return_ptr_clone), false, trace)))
                            }
                         )+
                     }
@@ -74,13 +73,12 @@ macro_rules! box_create_checked_operation_primitive_on_self {
     }),+
     ) => {
         paste! {
-            pub fn [<box_$op_fn _plc_primitive>]<T: 'static + MetaData + Primitive + Clone + Display + IntoLocalType>(variable1: &T, trace: &Option<FileTrace>, kernel: &Kernel) -> Result<RunTimeOperation, Stop>{
+            pub fn [<box_$op_fn _plc_primitive>]<T: 'static + MetaData + Primitive + Clone + Display + IntoLocalType>(variable1: &T, trace: u64, kernel: &Kernel) -> Result<RunTimeOperation, Stop>{
                 $(
                     if variable1.[<is_$primitive>]() {
                         let return_ptr = LocalPointer::new(variable1.transform()?);
                         let return_ptr_clone = return_ptr.clone();
                         let o1_clone = variable1.clone();
-                        let trace = trace.clone();
 
                         let o1_clone_1 = variable1.clone();
                         let o1_clone_2 = variable1.clone();
@@ -93,7 +91,7 @@ macro_rules! box_create_checked_operation_primitive_on_self {
 
                             return_ptr.as_ref().borrow_mut().deref_mut().[<set_$primitive>](result, channel)?;
                             Ok(())
-                        }, Some(return_ptr_clone), false, &trace)))
+                        }, Some(return_ptr_clone), false, trace)))
                     }
                 )+
                 Err(error!(format!("Invalid operation: Can not {} {}", stringify!($op_fn), variable1)))
@@ -110,7 +108,8 @@ macro_rules! box_create_operation_primitive {
     }),+
     ) => {
         paste! {
-            pub fn [<box_$op_fn _plc_primitive>]<T: 'static + MetaData + Primitive + Clone + Display + IntoLocalType, Y : 'static + MetaData + Primitive + Clone + Display>(variable1: &T, variable2: &Y, trace: &Option<FileTrace>, kernel: &Kernel) -> Result<RunTimeOperation, Stop>{
+            pub fn [<box_$op_fn _plc_primitive>]<T: 'static + MetaData + Primitive + Clone + Display + IntoLocalType, 
+            Y : 'static + MetaData + Primitive + Clone + Display>(variable1: &T, variable2: &Y, trace: u64, kernel: &Kernel) -> Result<RunTimeOperation, Stop>{
                 kernel.check_filtered_operation(&stringify!($op_fn), variable1, variable2)?;
                 $(
                     if variable1.[<is_$primitive>]() {
@@ -123,7 +122,6 @@ macro_rules! box_create_operation_primitive {
                                let return_ptr_clone = return_ptr.clone();
                                let o1_clone = variable1.clone();
                                let o2_clone = variable2.clone();
-                               let trace = trace.clone();
 
                                let o1_clone_1 = variable1.clone();
                                let o2_clone_1 = variable2.clone();
@@ -142,7 +140,7 @@ macro_rules! box_create_operation_primitive {
 
                                     return_ptr.as_ref().borrow_mut().deref_mut().[<set_$primitive>](result, channel)?;
                                     Ok(())
-                               }, Some(return_ptr_clone), false, &trace)))
+                               }, Some(return_ptr_clone), false, trace)))
                            }
                         )+
                     }
@@ -160,13 +158,12 @@ macro_rules! box_create_operation_primitive_on_self {
     }),+
     ) => {
         paste! {
-            pub fn [<box_$op_fn _plc_primitive>]<T: 'static + MetaData + Primitive + Clone + Display + IntoLocalType>(variable1: &T, trace: &Option<FileTrace>, kernel: &Kernel) -> Result<RunTimeOperation, Stop>{
+            pub fn [<box_$op_fn _plc_primitive>]<T: 'static + MetaData + Primitive + Clone + Display + IntoLocalType>(variable1: &T, trace: u64, kernel: &Kernel) -> Result<RunTimeOperation, Stop>{
                 $(
                     if variable1.[<is_$primitive>]() {
                         let return_ptr = LocalPointer::new(variable1.transform()?);
                         let return_ptr_clone = return_ptr.clone();
                         let o1_clone = variable1.clone();
-                        let trace = trace.clone();
 
                         let o1_clone_1 = variable1.clone();
 
@@ -177,7 +174,7 @@ macro_rules! box_create_operation_primitive_on_self {
 
                             return_ptr.as_ref().borrow_mut().deref_mut().[<set_$primitive>](result, channel)?;
                             Ok(())
-                        }, Some(return_ptr_clone), false, &trace)))
+                        }, Some(return_ptr_clone), false, trace)))
                     }
                 )+
                 Err(error!(format!("Invalid operation: Can not {} {}", stringify!($op_fn), variable1)))

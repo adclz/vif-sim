@@ -17,6 +17,7 @@ use crate::kernel::arch::local::r#type::LocalType;
 #[derive(Clone)]
 pub struct Round {
     round: JsonTarget,
+    id: u64,
 }
 
 impl NewJsonOperation for Round {
@@ -25,13 +26,15 @@ impl NewJsonOperation for Round {
             format!("Parse Round"),
             json {
                 round,
+                id => as_u64,
             }
         );
 
         let round = parse_json_target(&round)?;
 
         Ok(Self {
-            round
+            round,
+            id
         })
     }
 }
@@ -45,6 +48,6 @@ impl BuildJsonOperation for Round {
         channel: &Broadcast
     ) -> Result<RunTimeOperation, Stop> {
         let round = self.round.solve_to_ref(interface, template, Some(LocalType::PlcFloat(PlcFloat::Real(Real::default()))), registry, channel)?;
-        box_round_plc_primitive(&round, &None, registry)
+        box_round_plc_primitive(&round, self.id, registry)
     }
 }

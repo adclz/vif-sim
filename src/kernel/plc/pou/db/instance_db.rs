@@ -1,5 +1,4 @@
-﻿use crate::parser::trace::trace::{FileTrace, FileTraceBuilder};
-use crate::kernel::plc::types::complex::instance::private::{PrivateInstanceAccessors, PrivateInstanceTrait};
+﻿use crate::kernel::plc::types::complex::instance::private::{PrivateInstanceAccessors, PrivateInstanceTrait};
 use crate::kernel::plc::types::complex::instance::public::PublicInstanceAccessors;
 use crate::kernel::plc::interface::section::Section;
 use crate::kernel::plc::interface::section_interface::SectionInterface;
@@ -23,7 +22,7 @@ pub struct InstanceDb {
     interface_status: InterfaceStatus,
     body_status: BodyStatus,
     body: Vec<JsonTarget>,
-    trace: Option<FileTrace>,
+    id: u64
 }
 
 impl PrivateInstanceAccessors for InstanceDb {
@@ -65,7 +64,7 @@ impl InstanceDb {
         match self.body_status {
             BodyStatus::Default => self.build_body(registry, channel).map_err(|e| {
                 e.add_sim_trace(&format!("Build instance db -> executable"))
-                    .maybe_file_trace(&self.trace)
+                    .add_id(self.id)
             })?,
             BodyStatus::Pending => {
                 return Err(error!(
@@ -113,33 +112,20 @@ impl InstanceDb {
             },
             None,
             false,
-            &self.trace
+            self.id
         )))
-    }
-}
-
-impl FileTraceBuilder for InstanceDb {
-    fn get_trace(&self) -> &Option<FileTrace> {
-        &self.trace
     }
 }
 
 impl DeferredBuilder for InstanceDb {
     fn default(json: &Map<String, Value>) -> Self {
-        let mut trace = None;
-        if json.contains_key("trace") {
-            if let Some(a) = json["trace"].as_object() {
-                trace = Self::build_trace(a);
-            }
-        }
-
         Self {
             json: json.clone(),
             interface: SectionInterface::new(),
             interface_status: InterfaceStatus::Default,
             body_status: BodyStatus::Default,
             body: Vec::new(),
-            trace,
+            id: json["id"].as_u64().unwrap(),
         }
     }
 
@@ -157,7 +143,7 @@ impl DeferredBuilder for InstanceDb {
         let as_type = registry.get(&get_or_insert_global_string(&of.to_string())).ok_or_else(|| error!(
             format!("Could not find a block named '{}' to create instance", of),
             format!("Parse instance db -> interface"),
-            &self.trace
+            Some(self.id)
         ))?;
         if as_type.is_fb() {
             self.interface = as_type
@@ -165,7 +151,7 @@ impl DeferredBuilder for InstanceDb {
                 .clone_interface(registry, channel)
                 .map_err(|e| {
                     e.add_sim_trace(&format!("Parse instance db -> interface"))
-                        .maybe_file_trace(&self.trace)
+                        .add_id(self.id)
                 })?;
             self.interface_status = InterfaceStatus::Solved;
             Ok(())
@@ -173,7 +159,7 @@ impl DeferredBuilder for InstanceDb {
             Err(error!(
                 format!("Invalid block for InstanceDb, expected Fb, got {}", as_type),
                 format!("Parse instance db -> interface"),
-                &self.trace)
+                Some(self.id))
             )
         }
     }
@@ -192,13 +178,13 @@ impl DeferredBuilder for InstanceDb {
         let as_type = registry.get(&get_or_insert_global_string(&of.to_string())).ok_or_else(|| error!(
             format!("Could not find a block named '{}' to create instance", of),
             format!("Parse instance db -> body"),
-            &self.trace
+            Some(self.id)
         ))?;
         if as_type.is_fb() {
             // Safe (is_fb)
             self.body = as_type.as_mut_fb()?.clone_body(registry, channel).map_err(|e| {
                 e.add_sim_trace(&format!("Parse instance db -> body"))
-                    .maybe_file_trace(&self.trace)
+                    .add_id(self.id)
             })?;
             self.body_status = BodyStatus::Solved;
             Ok(())
@@ -206,7 +192,7 @@ impl DeferredBuilder for InstanceDb {
             Err(error!(
                 format!("Invalid block for InstanceDb, expected Fb, got {}", as_type),
                 format!("Parse instance db -> body"),
-                &self.trace)
+                Some(self.id))
             )
         }
     }

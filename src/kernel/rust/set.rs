@@ -6,7 +6,6 @@ use crate::container::error::error::Stop;
 use camelpaste::paste;
 use std::fmt::Display;
 use crate::container::broadcast::broadcast::Broadcast;
-use crate::parser::trace::trace::FileTrace;
 use crate::kernel::registry::Kernel;
 use crate::kernel::plc::types::primitives::traits::meta_data::{MetaData, MaybeHeapOrStatic, HeapOrStatic};
 use std::rc::Rc;
@@ -18,7 +17,8 @@ macro_rules! primitive_links {
         [$($associated: ident),+]
     }),+
     ) => {
-        pub fn box_set_plc_primitive<T: 'static + MetaData + Primitive + AsMutPrimitive + Clone + Display, Y : 'static + MetaData + Primitive + Clone + Display>(variable1: &T, variable2: &Y, trace: &Option<FileTrace>, silent: bool, kernel: &Kernel) -> Result<RunTimeOperation, Stop>{
+        pub fn box_set_plc_primitive<T: 'static + MetaData + Primitive + AsMutPrimitive + Clone + Display, 
+        Y : 'static + MetaData + Primitive + Clone + Display>(variable1: &T, variable2: &Y, trace: u64, silent: bool, kernel: &Kernel) -> Result<RunTimeOperation, Stop>{
             kernel.check_filtered_operation(&"assign", variable1, variable2)?;
             paste! {
                 $(
@@ -46,7 +46,7 @@ macro_rules! primitive_links {
                                         channel
                                     )?;
                                     Ok(())
-                               }, None, false, &trace)))
+                               }, None, false, trace)))
                            }
                         )+
                     }
@@ -54,7 +54,8 @@ macro_rules! primitive_links {
                 Err(error!(format!("Invalid assignment: Can not set {} with {}", variable1, variable2)))
             }
         }
-        pub fn box_set_plc_primitive_default_once<T: 'static + MetaData + Primitive + AsMutPrimitive + Clone + Display, Y : 'static + MetaData + Primitive + Clone + Display>(variable1: &T, variable2: &Y) -> Result<Box<dyn FnMut(&Broadcast) -> Result<(), Stop>>, Stop> {
+        pub fn box_set_plc_primitive_default_once<T: 'static + MetaData + Primitive + AsMutPrimitive + Clone + Display, 
+        Y : 'static + MetaData + Primitive + Clone + Display>(variable1: &T, variable2: &Y) -> Result<Box<dyn FnMut(&Broadcast) -> Result<(), Stop>>, Stop> {
             paste! {
                 $(
                     if variable1.[<is_$primitive>]() {

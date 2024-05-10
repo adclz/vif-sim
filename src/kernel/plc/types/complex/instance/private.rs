@@ -129,7 +129,7 @@ impl<T: PrivateInstanceAccessors + PublicInstanceAccessors> PrivateInstanceTrait
                             let target = self.get_interface().try_get_nested(&convert_string_path_to_usize(target_path))
                                 .ok_or_else(|| error!(format!("Could not find a valid reference in instance interface for path {:?}, Current interface: {}", &target_path, self.get_interface())))?;
 
-                            assigners.push(box_set_auto(&target, &source.solve_to_ref(parent_interface, None, Some(target.as_ref().borrow().deref().clone()), registry, channel)?, &None, registry)?);
+                            assigners.push(box_set_auto(&target, &source.solve_to_ref(parent_interface, None, Some(target.as_ref().borrow().deref().clone()), registry, channel)?, 0, registry)?);
                             Ok(())
                         })
                 }
@@ -166,7 +166,7 @@ impl<T: PrivateInstanceAccessors + PublicInstanceAccessors> PrivateInstanceTrait
                         .try_for_each(|(target_path, source)| {
                             let target = self.get_interface().try_get_nested(&convert_string_path_to_usize(target_path))
                                 .ok_or_else(move || error!(format!("Could not find a valid reference in instance interface for path {:?}, Current interface: {}", &target_path, self.get_interface())))?;
-                            assigners.push(box_set_auto(&source.solve_as_local_pointer(parent_interface, None, registry, channel).unwrap(), &target, &None, registry)?);
+                            assigners.push(box_set_auto(&source.solve_as_local_pointer(parent_interface, None, registry, channel).unwrap(), &target, 0, registry)?);
                             Ok(())
                         })
                 }

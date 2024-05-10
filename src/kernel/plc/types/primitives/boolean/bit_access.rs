@@ -11,7 +11,6 @@ use crate::container::broadcast::broadcast::Broadcast;
 use crate::container::error::error::Stop;
 use crate::{error, key_reader};
 use crate::parser::body::body::parse_json_target;
-use crate::parser::trace::trace::{FileTrace, FileTraceBuilder};
 use crate::kernel::plc::interface::section_interface::SectionInterface;
 use crate::kernel::plc::internal::template_impl::TemplateMemory;
 use crate::kernel::plc::operations::operations::{NewJsonOperation};
@@ -24,16 +23,10 @@ use crate::kernel::registry::Kernel;
 pub struct BitAccess {
     get_closure: Rc<RefCell<dyn Fn(&Broadcast) -> Result<bool, Stop>>>,
     set_closure: Rc<RefCell<dyn FnMut(&Broadcast) -> Result<(), Stop>>>,
-    trace: Option<FileTrace>,
+    id: u64,
     of: LocalPointer,
     at: u64,
     monitor: bool
-}
-
-impl FileTraceBuilder for BitAccess {
-    fn get_trace(&self) -> &Option<FileTrace> {
-        &self.trace
-    }
 }
 
 impl BitAccess {
@@ -48,28 +41,25 @@ impl BitAccess {
             json {
                 of,
                 at => as_u64,
-                trace? => as_object,
+                id => as_u64,
             }
         );
 
-        let trace = match trace {
-            None => None,
-            Some(a) => Self::build_trace(a),
-        };
-
-        let of = parse_json_target(of).map_err(|e| {
+        let of = parse_json_target(of)
+            .map_err(|e| {
             e.add_sim_trace(&format!("Build Assign Operation [assign]"))
-                .maybe_file_trace(&trace)
+                .add_id(id)
         })?;
 
         let of = of
             .solve_as_local_pointer(interface, template, registry, channel)
-            .ok_or_else(|| error!(format!("Expected a valid number reference, got {}", of), "Build bit access -> source".to_string()).maybe_file_trace(&trace.clone()))?;
+            .ok_or_else(|| error!(format!("Expected a valid number reference, got {}", of), "Build bit access -> source".to_string())
+                .add_id(id))?;
 
         Ok(Self{
             get_closure: Rc::new(RefCell::new(box_bit_get(&of, at)?)),
             set_closure: Rc::new(RefCell::new(box_bit_set(&of, at)?)),
-            trace,
+            id,
             of,
             at,
             monitor: false

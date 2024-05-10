@@ -1,7 +1,6 @@
 ﻿use serde_json::{Map, Value};
 use crate::{error, key_reader};
 use crate::parser::interface::interface::parse_struct_interface;
-use crate::parser::trace::trace::{FileTrace, FileTraceBuilder};
 use crate::kernel::plc::interface::status::{BodyStatus, InterfaceStatus};
 use crate::kernel::plc::interface::struct_interface::StructInterface;
 use crate::kernel::plc::interface::traits::{DeferredBuilder};
@@ -15,7 +14,7 @@ pub struct Udt {
     interface: StructInterface,
     interface_status: InterfaceStatus,
     body_status: BodyStatus,
-    trace: Option<FileTrace>
+    id: u64,
 }
 
 impl Udt {
@@ -37,27 +36,14 @@ impl Udt {
     }
 }
 
-impl FileTraceBuilder for Udt {
-    fn get_trace(&self) -> &Option<FileTrace> {
-        &self.trace
-    }
-}
-
 impl DeferredBuilder for Udt {
     fn default(json: &Map<String, Value>) -> Self {
-        let mut trace = None;
-        if json.contains_key("trace") {
-            if let Some(a) = json["trace"].as_object() {
-                trace = Self::build_trace(a);
-            }
-        }
-
         Self {
             json: json.clone(),
             interface: StructInterface::new(),
             interface_status: InterfaceStatus::Default,
             body_status: BodyStatus::Solved,
-            trace
+            id: json["id"].as_u64().unwrap()
         }
     }
 

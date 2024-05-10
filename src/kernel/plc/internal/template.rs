@@ -1,5 +1,4 @@
 use crate::{error, key_reader};
-use crate::parser::trace::trace::{FileTrace, FileTraceBuilder};
 use crate::kernel::plc::interface::status::{BodyStatus, InterfaceStatus};
 use crate::kernel::plc::interface::traits::DeferredBuilder;
 use crate::kernel::registry::Kernel;
@@ -12,28 +11,17 @@ pub struct Template {
     interface_status: InterfaceStatus,
     body_status: BodyStatus,
     body: Vec<Value>,
-    trace: Option<FileTrace>,
-}
-
-impl FileTraceBuilder for Template {
-    fn get_trace(&self) -> &Option<FileTrace> {
-        &self.trace
-    }
+    id: u64,
 }
 
 impl DeferredBuilder for Template {
     fn default(json: &Map<String, Value>) -> Self {
-        let mut trace = None;
-        if json.contains_key("trace") {
-            trace = Self::build_trace(json["trace"].as_object().unwrap());
-        }
-
         Self {
             json: json.clone(),
             interface_status: InterfaceStatus::Default,
             body_status: BodyStatus::Default,
             body: Vec::new(),
-            trace,
+            id: json["id"].as_u64().unwrap(),
         }
     }
 

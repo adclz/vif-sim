@@ -7,6 +7,7 @@ use tsify::Tsify;
 use crate::container::broadcast::stack::Stack;
 use crate::kernel::plc::operations::unit::breakpoint::{BreakPoint, BreakPointUpdateStatus};
 use crate::kernel::plc::operations::unit::test::{UnitTest, UnitTestUpdateStatus};
+use serde::{Serialize, Serializer};
 
 #[derive(Tsify)]
 #[wasm_bindgen(skip_typescript)]

@@ -10,7 +10,6 @@ use crate::kernel::registry::Kernel;
 use crate::{create_block_interface, required_key, error, key_reader};
 use crate::parser::body::body::parse_json_target;
 use crate::parser::body::json_target::JsonTarget;
-use crate::parser::trace::trace::{FileTrace, FileTraceBuilder};
 use crate::container::broadcast::broadcast::Broadcast;
 use crate::container::error::error::{Stop};
 use crate::parser::local_type::local_type::parse_local_type;
@@ -22,7 +21,7 @@ pub struct Fc {
     interface_status: InterfaceStatus,
     body_status: BodyStatus,
     body: Vec<JsonTarget>,
-    trace: Option<FileTrace>
+    id: u64
 }
 
 impl Fc {
@@ -63,28 +62,15 @@ impl Cloneable for Fc {
     }
 }
 
-impl FileTraceBuilder for Fc {
-    fn get_trace(&self) -> &Option<FileTrace> {
-        &self.trace
-    }
-}
-
 impl DeferredBuilder for Fc {
     fn default(json: &Map<String, Value>) -> Self {
-        let mut trace = None;
-        if json.contains_key("trace") {
-            if let Some(a) = json["trace"].as_object() {
-                trace = Self::build_trace(a);
-            }
-        }
-
         Self {
             json: json.clone(),
             interface: SectionInterface::new(),
             interface_status: InterfaceStatus::Default,
             body_status: BodyStatus::Default,
             body: Vec::new(),
-            trace
+            id: json["id"].as_u64().unwrap()
         }
     }
 
@@ -108,7 +94,8 @@ impl DeferredBuilder for Fc {
             { InOut },
             { Temp },
             { Constant }
-        ).map_err(|e| e.add_sim_trace(&format!("Build Fc")).maybe_file_trace(&self.trace))?;
+        ).map_err(|e| e.add_sim_trace(&format!("Build Fc"))
+            .add_id(self.id))?;
 
         // Get the return
         src
@@ -162,7 +149,8 @@ impl DeferredBuilder for Fc {
                 self.body_status = BodyStatus::Solved;
                 Ok(())
             }
-            Err(e) => Err(e.add_sim_trace("Build Fc Body").maybe_file_trace(&self.trace))
+            Err(e) => Err(e.add_sim_trace("Build Fc Body")
+                .add_id(self.id))
         }
     }
 

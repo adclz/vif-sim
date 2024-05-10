@@ -15,6 +15,7 @@ use crate::kernel::rust::operations::{box_shl_plc_primitive};
 pub struct Shl {
     shl: JsonTarget,
     shl_with: JsonTarget,
+    id: u64,
 }
 
 impl NewJsonOperation for Shl {
@@ -24,6 +25,7 @@ impl NewJsonOperation for Shl {
             json {
                 shl,
                 shl_with,
+                id => as_u64,
             }
         );
 
@@ -32,7 +34,8 @@ impl NewJsonOperation for Shl {
 
         Ok(Self {
             shl,
-            shl_with
+            shl_with,
+            id
         })
     }
 }
@@ -47,6 +50,6 @@ impl BuildJsonOperation for Shl {
     ) -> Result<RunTimeOperation, Stop> {
         let shl = self.shl.solve_to_ref(interface, template, None, registry, channel)?;
         let shl_with = self.shl_with.solve_to_ref(interface, template, None, registry, channel)?;
-        box_shl_plc_primitive(&shl, &shl_with, &None, registry)
+        box_shl_plc_primitive(&shl, &shl_with, self.id, registry)
     }
 }

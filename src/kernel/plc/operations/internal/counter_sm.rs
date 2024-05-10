@@ -19,7 +19,6 @@ use crate::container::error::error::Stop;
 use serde_json::{Map, Value};
 use crate::parser::body::body::parse_json_target;
 use crate::container::broadcast::broadcast::Broadcast;
-use crate::parser::trace::trace::{FileTrace, FileTraceBuilder};
 use crate::kernel::plc::operations::internal::timer_sm::TimerStateMachine;
 
 #[derive(Clone)]
@@ -36,13 +35,8 @@ pub struct CounterStateMachine {
     on_counter_up: Vec<JsonTarget>,
     on_counter_down: Vec<JsonTarget>,
     on_counter_reset: Vec<JsonTarget>,
-    trace: Option<FileTrace>,
-}
-
-impl FileTraceBuilder for CounterStateMachine {
-    fn get_trace(&self) -> &Option<FileTrace> {
-        &self.trace
-    }
+    
+    id: u64,
 }
 
 impl NewJsonOperation for CounterStateMachine {
@@ -62,14 +56,9 @@ impl NewJsonOperation for CounterStateMachine {
                 on_counter_up => as_array,
                 on_counter_down => as_array,
                 on_counter_reset => as_array,
-                trace? => as_object,
+                id => as_u64,
             }
         );
-
-        let trace = match trace {
-            None => None,
-            Some(a) => Self::build_trace(a),
-        };
 
         Ok(Self {
             increment: increment.map(parse_json_target).transpose()?,
@@ -90,7 +79,7 @@ impl NewJsonOperation for CounterStateMachine {
                 .iter()
                 .map(parse_json_target)
                 .collect::<Result<Vec<JsonTarget>, Stop>>()?,
-            trace
+            id
         })
     }
 }
@@ -148,10 +137,10 @@ impl BuildJsonOperation for CounterStateMachine {
             .map(|x| x.solve_as_operation(_interface, template, registry, channel))
             .collect::<Result<Vec<RunTimeOperation>, Stop>>()?;
 
-        let counter_down = box_ord_plc_primitive(&counter_var, &preset_var, &None, registry)?;
-        let counter_up = box_ord_plc_primitive(&counter_var, &preset_var, &None, registry)?;
+        let counter_down = box_ord_plc_primitive(&counter_var, &preset_var, self.id, registry)?;
+        let counter_up = box_ord_plc_primitive(&counter_var, &preset_var, self.id, registry)?;
 
-        let load_counter = box_set_plc_primitive(&counter_var, &preset_var,  &None, true, registry)?;
+        let load_counter = box_set_plc_primitive(&counter_var, &preset_var,  self.id, true, registry)?;
 
         Ok(Box::new(Operation::new(
             MaybeHeapOrStatic(None),
@@ -206,7 +195,7 @@ impl BuildJsonOperation for CounterStateMachine {
             },
             None,
             false,
-            &self.trace
+            self.id
         )))
     }
 }

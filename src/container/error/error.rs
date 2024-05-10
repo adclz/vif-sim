@@ -1,5 +1,4 @@
-﻿use crate::parser::trace::trace::FileTrace;
-use serde::ser::SerializeStruct;
+﻿use serde::ser::SerializeStruct;
 use serde::{Serialize, Serializer};
 use std::fmt::{Display, Formatter};
 use tsify::Tsify;
@@ -11,13 +10,26 @@ use wasm_bindgen::prelude::wasm_bindgen;
 #[wasm_bindgen(skip_typescript)]
 pub struct Stop {
     error: String,
-    file_stack: Vec<FileTrace>,
+    id_stack: Vec<u64>,
     sim_stack: Vec<String>,
 }
 
 impl PartialEq for Stop {
     fn eq(&self, other: &Self) -> bool {
         self.error == other.error
+    }
+}
+
+impl Serialize for Stop {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+        where
+            S: Serializer,
+    {
+        let mut state = serializer.serialize_struct("error", 3)?;
+        state.serialize_field("error", &self.error)?;
+        state.serialize_field("id_stack", &self.id_stack)?;
+        state.serialize_field("sim_stack", &self.sim_stack)?;
+        state.end()
     }
 }
 
@@ -29,28 +41,13 @@ impl Display for Stop {
             .iter()
             .try_for_each(|s| writeln!(f, "at - {}", s))?;
         writeln!(f, "FileStack")?;
-        self.file_stack.iter().try_for_each(|s| {
+        self.id_stack.iter().try_for_each(|s| {
             writeln!(
                 f,
-                "at - {}:{}:{}",
-                s.get_filename(),
-                s.get_line(),
-                s.get_column()
+                "at - {}",
+                s
             )
         })
-    }
-}
-
-impl Serialize for Stop {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        let mut state = serializer.serialize_struct("error", 3)?;
-        state.serialize_field("error", &self.error)?;
-        state.serialize_field("file_stack", &self.file_stack)?;
-        state.serialize_field("sim_stack", &self.sim_stack)?;
-        state.end()
     }
 }
 
@@ -58,10 +55,10 @@ impl Stop {
     pub fn serialize(&self) -> JsValue {
         serde_wasm_bindgen::to_value(self).unwrap()
     }
-    pub fn new(message: String, sim_trace: &Option<String>, trace: &Option<FileTrace>) -> Self {
-        let mut trace_vec = Vec::new();
-        if trace.is_some() {
-            trace_vec.push(trace.as_ref().unwrap().clone());
+    pub fn new(message: String, sim_trace: &Option<String>, id: Option<u64>) -> Self {
+        let mut id_vec = Vec::new();
+        if id.is_some() {
+            id_vec.push(*id.as_ref().unwrap());
         }
 
         let mut sim_stack_vec = Vec::new();
@@ -69,12 +66,9 @@ impl Stop {
             sim_stack_vec.push(sim_trace.as_ref().unwrap().clone());
         }
 
-//        #[cfg(not(target_arch = "wasm32"))]
-//        panic!("{}", message);
-
         Self {
             error: message,
-            file_stack: trace_vec,
+            id_stack: id_vec,
             sim_stack: sim_stack_vec
         }
     }
@@ -84,16 +78,8 @@ impl Stop {
         self
     }
 
-    pub fn add_file_trace(mut self, stack: &FileTrace) -> Self {
-        self.file_stack.push(stack.clone());
-        self
-    }
-
-    pub fn maybe_file_trace(mut self, stack: &Option<FileTrace>) -> Self {
-        match stack {
-            None => {}
-            Some(a) => self.file_stack.push(a.clone()),
-        }
+    pub fn add_id(mut self, id: u64) -> Self {
+        self.id_stack.push(id);
         self
     }
 }

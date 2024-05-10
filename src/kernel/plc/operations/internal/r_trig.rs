@@ -1,6 +1,5 @@
 use crate::key_reader;
 use crate::parser::body::json_target::JsonTarget;
-use crate::parser::trace::trace::{FileTrace, FileTraceBuilder};
 use crate::kernel::plc::interface::section_interface::SectionInterface;
 use crate::kernel::plc::internal::template_impl::TemplateMemory;
 use crate::kernel::plc::operations::operations::{
@@ -26,13 +25,7 @@ use crate::container::broadcast::broadcast::Broadcast;
 pub struct R_Trig {
     input: JsonTarget,
     stat_bit: Rc<RefCell<bool>>,
-    trace: Option<FileTrace>,
-}
-
-impl FileTraceBuilder for R_Trig {
-    fn get_trace(&self) -> &Option<FileTrace> {
-        &self.trace
-    }
+    id: u64,
 }
 
 impl NewJsonOperation for R_Trig {
@@ -44,24 +37,19 @@ impl NewJsonOperation for R_Trig {
             format!("Parse #R_Trig"),
             json {
                 input,
-                trace? => as_object,
+                id => as_u64,
             }
         );
 
-        let trace = match trace {
-            None => None,
-            Some(a) => Self::build_trace(a),
-        };
-
         let input = parse_json_target(input).map_err(|e| {
             e.add_sim_trace("Build #R_Trig -> input")
-                .maybe_file_trace(&trace)
+                .add_id(id)
         })?;
 
         Ok(Self {
             input,
             stat_bit: Rc::new(RefCell::new(false)),
-            trace,
+            id,
         })
     }
 }
@@ -106,7 +94,7 @@ impl BuildJsonOperation for R_Trig {
             },
             Some(return_trig),
             false,
-            &self.trace
+            self.id
         )))
     }
 }

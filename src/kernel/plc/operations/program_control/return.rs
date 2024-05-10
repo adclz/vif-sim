@@ -8,18 +8,11 @@ use crate::container::error::error::Stop;
 use serde_json::{Map, Value};
 use crate::container::broadcast::broadcast::Broadcast;
 use crate::key_reader;
-use crate::parser::trace::trace::{FileTrace, FileTraceBuilder};
 use crate::kernel::plc::types::primitives::traits::meta_data::{HeapOrStatic, MaybeHeapOrStatic};
 
 #[derive(Clone)]
 pub struct Return {
-    trace: Option<FileTrace>
-}
-
-impl FileTraceBuilder for Return {
-    fn get_trace(&self) -> &Option<FileTrace> {
-        &self.trace
-    }
+    id: u64
 }
 
 impl NewJsonOperation for Return {
@@ -30,16 +23,11 @@ impl NewJsonOperation for Return {
         key_reader!(
             format!("Parse Return"),
             json {
-                trace? => as_object,
+                id => as_u64,
             }
         );
 
-        let trace = match trace {
-            None => None,
-            Some(a) => Self::build_trace(a),
-        };
-
-        Ok(Self {trace})
+        Ok(Self {id})
     }
 }
 
@@ -59,7 +47,7 @@ impl BuildJsonOperation for Return {
             move |_channel| Ok(()),
             None,
             false,
-            &self.trace
+            self.id
         )))
     }
 }

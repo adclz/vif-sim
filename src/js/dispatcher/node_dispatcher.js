@@ -60,7 +60,6 @@ class NodeDispatcher {
         }))
         if (received_store.breakpoints) filtered_store.breakpoints = received_store.breakpoints.map(x => ({
             id: x.get_id,
-            path: x.get_path,
             status: x.status
         }))
         if (received_store.breakpoints_statuses) filtered_store.breakpoints_statuses = received_store.breakpoints_statuses.map(x => ({
@@ -70,7 +69,6 @@ class NodeDispatcher {
         if (received_store.unit_tests) filtered_store.unit_tests = received_store.unit_tests.map(x => ({
             id: x.get_id,
             description: x.get_description,
-            path: x.get_path,
             status: x.status
         }))
         if (received_store.unit_tests_statuses) filtered_store.unit_tests_statuses = received_store.unit_tests_statuses.map(x => ({

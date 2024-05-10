@@ -19,6 +19,7 @@ pub struct Calc {
     calc: JsonTarget,
     with: JsonTarget,
     operator: String,
+    id: u64,
 }
 
 impl Clone for Calc {
@@ -27,6 +28,7 @@ impl Clone for Calc {
             calc: self.calc.clone(),
             with: self.with.clone(),
             operator: self.operator.clone(),
+            id: self.id
         }
     }
 }
@@ -39,6 +41,7 @@ impl NewJsonOperation for Calc {
                 calc,
                 with,
                 operator => as_str,
+                id => as_u64,
             }
         );
 
@@ -49,6 +52,7 @@ impl NewJsonOperation for Calc {
             calc,
             with,
             operator: operator.to_string(),
+            id,
         })
     }
 }
@@ -65,11 +69,11 @@ impl BuildJsonOperation for Calc {
         let o2 = self.with.solve_to_ref(interface, template, Some(o1.transform()?), registry, channel)?;
 
         match self.operator.as_str() {
-            "+" => box_add_plc_primitive(&o1, &o2, &None, registry),
-            "-" => box_sub_plc_primitive(&o1, &o2, &None, registry),
-            "*" => box_mul_plc_primitive(&o1, &o2, &None, registry),
-            "/" => box_div_plc_primitive(&o1, &o2, &None, registry),
-            "MOD" => box_rem_plc_primitive(&o1, &o2, &None, registry),
+            "+" => box_add_plc_primitive(&o1, &o2, self.id, registry),
+            "-" => box_sub_plc_primitive(&o1, &o2, self.id, registry),
+            "*" => box_mul_plc_primitive(&o1, &o2, self.id, registry),
+            "/" => box_div_plc_primitive(&o1, &o2, self.id, registry),
+            "MOD" => box_rem_plc_primitive(&o1, &o2, self.id, registry),
             _ => Err(error!(format!("Invalid calc operator {}", self.operator.as_str()), format!("0"))),
         }
     }

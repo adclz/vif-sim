@@ -2,7 +2,6 @@
 use std::rc::Rc;
 use crate::key_reader;
 use crate::parser::body::json_target::JsonTarget;
-use crate::parser::trace::trace::{FileTrace, FileTraceBuilder};
 use crate::kernel::plc::interface::section_interface::SectionInterface;
 use crate::kernel::plc::internal::template_impl::TemplateMemory;
 use crate::kernel::plc::operations::operations::{
@@ -22,13 +21,7 @@ pub struct If {
     _if: JsonTarget,
     then: Vec<JsonTarget>,
     _else: Option<Vec<JsonTarget>>,
-    trace: Option<FileTrace>,
-}
-
-impl FileTraceBuilder for If {
-    fn get_trace(&self) -> &Option<FileTrace> {
-        &self.trace
-    }
+    id: u64
 }
 
 impl NewJsonOperation for If {
@@ -39,18 +32,13 @@ impl NewJsonOperation for If {
                 _if,
                 then => as_array,
                 _else? => as_array,
-                trace? => as_object,
+                id => as_u64,
             }
         );
 
-        let trace = match trace {
-            None => None,
-            Some(a) => Self::build_trace(a),
-        };
-
         let _if = parse_json_target(&_if).map_err(|e| {
             e.add_sim_trace(&format!("Parse If Operation"))
-                .maybe_file_trace(&trace)
+                .add_id(id)
         })?;
 
         let then = then
@@ -76,7 +64,7 @@ impl NewJsonOperation for If {
             _if,
             then,
             _else: maybe_else,
-            trace,
+            id,
         })
     }
 }
@@ -94,7 +82,7 @@ impl BuildJsonOperation for If {
             .solve_as_operation(interface, template, registry, channel)
             .map_err(|e| {
                 e.add_sim_trace(&format!("Build If -> Build first condition"))
-                    .maybe_file_trace(&self.trace)
+                    .add_id(self.id)
             })?;
 
         let then = self
@@ -104,7 +92,7 @@ impl BuildJsonOperation for If {
             .collect::<Result<Vec<RunTimeOperation>, Stop>>()
             .map_err(|e| {
                 e.add_sim_trace(&format!("Build If -> Build then operations"))
-                    .maybe_file_trace(&self.trace)
+                    .add_id(self.id)
             })?;
 
         let _else: Option<Vec<RunTimeOperation>> = match &self._else {
@@ -115,7 +103,7 @@ impl BuildJsonOperation for If {
                     .collect::<Result<Vec<RunTimeOperation>, Stop>>()
                     .map_err(|e| {
                         e.add_sim_trace(&format!("Build If -> Build else condition(s)"))
-                            .maybe_file_trace(&self.trace)
+                            .add_id(self.id)
                     })?,
             ),
             None => None,
@@ -143,7 +131,7 @@ impl BuildJsonOperation for If {
             },
             None,
             false,
-            &self.trace
+            self.id
         )))
     }
 }

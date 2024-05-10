@@ -1,6 +1,5 @@
 use crate::{error, key_reader};
 use crate::parser::body::json_target::JsonTarget;
-use crate::parser::trace::trace::{FileTrace, FileTraceBuilder};
 use crate::kernel::plc::interface::section_interface::SectionInterface;
 use crate::kernel::plc::internal::template_impl::TemplateMemory;
 use crate::kernel::plc::operations::operations::{BuildJsonOperation, NewJsonOperation, Operation, RunTimeOperation};
@@ -17,13 +16,7 @@ use crate::kernel::plc::types::primitives::traits::meta_data::{HeapOrStatic, May
 #[derive(Clone)]
 pub struct Reset {
     reset: Vec<JsonTarget>,
-    trace: Option<FileTrace>,
-}
-
-impl FileTraceBuilder for Reset {
-    fn get_trace(&self) -> &Option<FileTrace> {
-        &self.trace
-    }
+    id: u64,
 }
 
 impl NewJsonOperation for Reset {
@@ -34,23 +27,17 @@ impl NewJsonOperation for Reset {
         key_reader!(
             format!("Parse #reset"),
             json {
-                trace? => as_object,
+                id => as_u64,
                 reset => as_array,
             }
         );
-
-        let trace = match trace {
-            None => None,
-            Some(a) => Self::build_trace(a),
-        };
-
 
         Ok(Self {
             reset: reset
                 .iter()
                 .map(parse_json_target)
                 .collect::<Result<Vec<JsonTarget>, Stop>>()?,
-            trace,
+            id,
         })
     }
 }
@@ -84,7 +71,7 @@ impl BuildJsonOperation for Reset {
             },
             None,
             false,
-            &self.trace
+            self.id
         )))
     }
 }

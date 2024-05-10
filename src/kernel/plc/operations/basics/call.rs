@@ -1,5 +1,4 @@
 ﻿use crate::parser::body::json_target::JsonTarget;
-use crate::parser::trace::trace::{FileTrace, FileTraceBuilder};
 use crate::kernel::plc::types::complex::instance::fb_instance::FbInstance;
 use crate::kernel::plc::types::complex::instance::fc_instance::FcInstance;
 use crate::kernel::plc::interface::section::Section;
@@ -11,7 +10,7 @@ use crate::kernel::plc::operations::operations::{
 use crate::kernel::plc::types::primitives::traits::family_traits::{IsFamily, WithMutFamily, WithRefFamily};
 use crate::kernel::plc::types::primitives::traits::meta_data::{HeapOrStatic, MaybeHeapOrStatic};use crate::kernel::registry::{get_or_insert_global_string, get_string, Kernel};
 use crate::container::error::error::Stop;
-use crate::{error, json_parse, key_reader};
+use crate::{error, key_reader};
 use serde_json::{Map, Value};
 use std::collections::HashMap;
 use std::ops::DerefMut;
@@ -25,7 +24,7 @@ pub struct Call {
     call: JsonTarget,
     name: usize,
     interface: HashMap<Section, Vec<(Vec<String>, JsonTarget)>>,
-    trace: Option<FileTrace>,
+    id: u64,
 }
 
 #[macro_export]
@@ -53,12 +52,6 @@ macro_rules! insert_section {
     };
 }
 
-impl FileTraceBuilder for Call {
-    fn get_trace(&self) -> &Option<FileTrace> {
-        &self.trace
-    }
-}
-
 impl NewJsonOperation for Call {
     fn new(json: &Map<String, Value>) -> Result<Self, Stop> {
         key_reader!(
@@ -66,20 +59,15 @@ impl NewJsonOperation for Call {
             json {
                 call,
                 interface => as_object,
-                trace? => as_object,
+                id => as_u64,
             }
         );
 
         let call_interface = interface["src"].as_object().unwrap();
 
-        let trace = match trace {
-            None => None,
-            Some(a) => Self::build_trace(a),
-        };
-
         let to = parse_json_target(&call).map_err(|e| {
             e.add_sim_trace("Build call operation -> parse 'call'")
-                .maybe_file_trace(&trace)
+                .add_id(id)
         })?;
         let name = parse_path(&json["call"]["src"]["path"])?
             .last()
@@ -98,14 +86,14 @@ impl NewJsonOperation for Call {
         )
         .map_err(|e| {
             e.add_sim_trace("Build call operation -> parse interface of calling block")
-                .maybe_file_trace(&trace)
+                .add_id(id)
         })?;
 
         Ok(Self {
             call: to,
             interface: as_interface,
             name,
-            trace,
+            id,
         })
     }
 }
@@ -127,6 +115,7 @@ impl BuildJsonOperation for Call {
             if global_pointer.is_fc() {
                 FcInstance::from(
                     name,
+                    self.id,
                     global_pointer
                         .as_mut_fc()? //<-- Safe (is_fc)
                         .deref_mut(),
@@ -136,7 +125,7 @@ impl BuildJsonOperation for Call {
                 .build_executable(&self.interface, parent_interface, registry, channel)
                 .map_err(|e| {
                     e.add_sim_trace("Build call operation -> build fc instance")
-                        .maybe_file_trace(&self.trace)
+                        .add_id(self.id)
                 })
             }
             // Cloning instance Db pointer
@@ -149,8 +138,7 @@ impl BuildJsonOperation for Call {
                         .map_err(|e| {
                             e.add_sim_trace(
                                 &"Build call operation -> build instance db".to_string(),
-                            )
-                            .maybe_file_trace(&self.trace)
+                            ).add_id(self.id)
                         })?;
                     
                     Ok(Box::new(Operation::new(
@@ -171,7 +159,7 @@ impl BuildJsonOperation for Call {
                         },
                         None,
                         false,
-                        &self.trace
+                        self.id
                     )))
                 } else {
                     Err(error!(
@@ -204,7 +192,7 @@ impl BuildJsonOperation for Call {
                     a.build_executable(&self.interface, parent_interface, registry, channel)
                         .map_err(|e| {
                             e.add_sim_trace(&"Build Call Operation".to_string())
-                                .maybe_file_trace(&self.trace)
+                                .add_id(self.id)
                         })
                 })??;
 
@@ -226,7 +214,7 @@ impl BuildJsonOperation for Call {
                     },
                     None,
                     false,
-                    &self.trace
+                    self.id
                 )))
             } else {
                 Err(error!(

@@ -17,6 +17,7 @@ use crate::kernel::arch::local::r#type::LocalType;
 #[derive(Clone)]
 pub struct Fract {
     fract: JsonTarget,
+    id: u64,
 }
 
 impl NewJsonOperation for Fract {
@@ -25,13 +26,15 @@ impl NewJsonOperation for Fract {
             format!("Parse Fract"),
             json {
                 fract,
+                id => as_u64,
             }
         );
 
         let fract = parse_json_target(&fract)?;
 
         Ok(Self {
-            fract
+            fract,
+            id
         })
     }
 }
@@ -45,6 +48,6 @@ impl BuildJsonOperation for Fract {
         channel: &Broadcast
     ) -> Result<RunTimeOperation, Stop> {
         let fract = self.fract.solve_to_ref(interface, template, Some(LocalType::PlcFloat(PlcFloat::Real(Real::default()))), registry, channel)?;
-        box_fract_plc_primitive(&fract, &None, registry)
+        box_fract_plc_primitive(&fract, self.id, registry)
     }
 }

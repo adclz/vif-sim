@@ -21,7 +21,6 @@ use std::ops::{Deref, DerefMut};
 use std::rc::Rc;
 use std::time::Duration;
 use web_time::Instant;
-use crate::parser::trace::trace::{FileTrace, FileTraceBuilder};
 use crate::kernel::plc::operations::unit::test::UnitTestJson;
 
 pub struct TimerStateMachine {
@@ -36,8 +35,7 @@ pub struct TimerStateMachine {
 
     started: Rc<RefCell<bool>>,
     previous_duration: Rc<RefCell<Instant>>,
-    trace: Option<FileTrace>,
-    id: usize,
+    id: u64,
 }
 
 impl Clone for TimerStateMachine {
@@ -54,15 +52,8 @@ impl Clone for TimerStateMachine {
 
             started: Rc::new(RefCell::new(false)),
             previous_duration: Rc::new(RefCell::new(Instant::now())),
-            id: get_id(),
-            trace: self.trace.clone()
+            id: self.id
         }
-    }
-}
-
-impl FileTraceBuilder for TimerStateMachine {
-    fn get_trace(&self) -> &Option<FileTrace> {
-        &self.trace
     }
 }
 
@@ -81,15 +72,10 @@ impl NewJsonOperation for TimerStateMachine {
                 on_timer_start => as_array,
                 on_timer_elapsed => as_array,
                 on_timer_reset => as_array,
-                trace? => as_object,
+                id => as_u64,
             }
         );
-
-        let trace = match trace {
-            None => None,
-            Some(a) => Self::build_trace(a),
-        };
-
+        
         Ok(Self {
             start: parse_json_target(start)?,
             reset: reset.map(parse_json_target).transpose()?,
@@ -109,8 +95,7 @@ impl NewJsonOperation for TimerStateMachine {
                 .collect::<Result<Vec<JsonTarget>, Stop>>()?,
             started: Rc::new(RefCell::new(false)),
             previous_duration: Rc::new(RefCell::new(Instant::now())),
-            id: get_id(),
-            trace
+            id,
         })
     }
 }
@@ -162,7 +147,7 @@ impl BuildJsonOperation for TimerStateMachine {
         let previous_duration = self.previous_duration.clone();
         let id = self.id;
 
-        let elapsed = box_ord_plc_primitive(&timer_var, &preset_var, &None, registry)?;
+        let elapsed = box_ord_plc_primitive(&timer_var, &preset_var, id, registry)?;
 
         Ok(Box::new(Operation::new(
             MaybeHeapOrStatic(None),
@@ -210,7 +195,7 @@ impl BuildJsonOperation for TimerStateMachine {
             },
             None,
             false,
-            &self.trace
+            self.id
         )))
     }
 }

@@ -6,7 +6,6 @@ use camelpaste::paste;
 use std::cmp::Ordering;
 use std::fmt::Display;
 use crate::kernel::plc::types::primitives::traits::primitive_traits::{AsMutPrimitive, Primitive};
-use crate::parser::trace::trace::FileTrace;
 use crate::kernel::registry::Kernel;
 use crate::kernel::plc::types::primitives::traits::meta_data::MetaData;
 
@@ -20,7 +19,8 @@ macro_rules! box_ord_primitive {
         [$($associated: ident),+]
     }),+
     ) => {
-        pub fn box_ord_plc_primitive<T: 'static + MetaData + Primitive + Clone + Display, Y : 'static + MetaData + Primitive + Clone + Display>(variable1: &T, variable2: &Y, trace: &Option<FileTrace>, kernel: &Kernel) -> Result<Box<dyn Fn(&Broadcast) -> Result<Option<Ordering>, Stop>>, Stop>{
+        pub fn box_ord_plc_primitive<T: 'static + MetaData + Primitive + Clone + Display, 
+        Y : 'static + MetaData + Primitive + Clone + Display>(variable1: &T, variable2: &Y, trace: u64, kernel: &Kernel) -> Result<Box<dyn Fn(&Broadcast) -> Result<Option<Ordering>, Stop>>, Stop>{
             paste! {
                 kernel.check_filtered_operation(&"cmp", variable1, variable2)?;
                 $(
@@ -35,7 +35,7 @@ macro_rules! box_ord_primitive {
                                     Ok(ord(o1_clone.[<as_$primitive>](channel).unwrap(),
                                     o2_clone.[<as_$associated>](channel)?.try_into()
                                         .map_err(|_| error!(format!("Failed comparison of {} with {}", o1_clone, o2_clone)))
-                                        .map_err(|e| e.maybe_file_trace(&trace))?
+                                        .map_err(|e| e.add_id(trace))?
                                    ))
                                }))
                            }

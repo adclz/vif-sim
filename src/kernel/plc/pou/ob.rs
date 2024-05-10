@@ -1,5 +1,4 @@
 ﻿use crate::parser::interface::interface::parse_struct_interface;
-use crate::parser::trace::trace::{FileTrace, FileTraceBuilder};
 use crate::kernel::plc::interface::section::Section;
 use crate::kernel::plc::interface::section_interface::SectionInterface;
 use crate::kernel::plc::interface::status::{BodyStatus, InterfaceStatus};
@@ -20,7 +19,7 @@ pub struct Ob {
     interface_status: InterfaceStatus,
     body_status: BodyStatus,
     body: Vec<RunTimeOperation>,
-    trace: Option<FileTrace>,
+    id: u64,
 }
 
 impl Ob {
@@ -32,7 +31,7 @@ impl Ob {
         self.body.iter_mut().try_for_each(|op| {
             op.with_void(channel).map_err(|e| {
                 e.add_sim_trace(&format!("Ob Start"))
-                    .maybe_file_trace(&self.trace)
+                    .add_id(self.id)
             })?;
             Ok(())
         })?;
@@ -44,28 +43,15 @@ impl Ob {
     }
 }
 
-impl FileTraceBuilder for Ob {
-    fn get_trace(&self) -> &Option<FileTrace> {
-        &self.trace
-    }
-}
-
 impl DeferredBuilder for Ob {
     fn default(json: &Map<String, Value>) -> Self {
-        let mut trace = None;
-        if json.contains_key("trace") {
-            if let Some(a) = json["trace"].as_object() {
-                trace = Self::build_trace(a);
-            }
-        }
-
         Self {
             json: json.clone(),
             interface: SectionInterface::new(),
             interface_status: InterfaceStatus::Default,
             body_status: BodyStatus::Default,
             body: Vec::new(),
-            trace,
+            id: json["id"].as_u64().unwrap(),
         }
     }
 
@@ -89,7 +75,7 @@ impl DeferredBuilder for Ob {
         )
         .map_err(|e| {
             e.add_sim_trace(&format!("Build Ob Interface"))
-                .maybe_file_trace(&self.trace)
+                .add_id(self.id)
         })?;
 
         self.interface_status = InterfaceStatus::Solved;
@@ -126,7 +112,8 @@ impl DeferredBuilder for Ob {
                 self.body_status = BodyStatus::Solved;
                 Ok(())
             }
-            Err(e) => Err(e.add_sim_trace("Build Ob Body").maybe_file_trace(&self.trace))
+            Err(e) => Err(e.add_sim_trace("Build Ob Body")
+                .add_id(self.id))
         }
     }
 

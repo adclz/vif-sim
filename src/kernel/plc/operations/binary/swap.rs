@@ -14,6 +14,7 @@ use crate::kernel::rust::operations::{box_swap_bytes_plc_primitive};
 #[derive(Clone)]
 pub struct Swap {
     swap: JsonTarget,
+    id: u64,
 }
 
 impl NewJsonOperation for Swap {
@@ -22,6 +23,7 @@ impl NewJsonOperation for Swap {
             format!("Parse Swap (bytes)"),
             json {
                 swap,
+                id => as_u64,
             }
         );
 
@@ -29,6 +31,7 @@ impl NewJsonOperation for Swap {
 
         Ok(Self {
             swap,
+            id
         })
     }
 }
@@ -42,6 +45,6 @@ impl BuildJsonOperation for Swap {
         channel: &Broadcast
     ) -> Result<RunTimeOperation, Stop> {
         let swap = self.swap.solve_to_ref(interface, template, None, registry, channel)?;
-        box_swap_bytes_plc_primitive(&swap, &None, registry)
+        box_swap_bytes_plc_primitive(&swap, self.id, registry)
     }
 }

@@ -14,6 +14,7 @@ use crate::kernel::rust::operations::{box_rotate_right_plc_primitive};
 pub struct RotateRight {
     rotate: JsonTarget,
     rotate_with: JsonTarget,
+    id: u64,
 }
 
 impl NewJsonOperation for RotateRight {
@@ -23,6 +24,7 @@ impl NewJsonOperation for RotateRight {
             json {
                 rotate,
                 rotate_with,
+                id => as_u64,
             }
         );
 
@@ -31,7 +33,8 @@ impl NewJsonOperation for RotateRight {
 
         Ok(Self {
             rotate,
-            rotate_with
+            rotate_with,
+            id
         })
     }
 }
@@ -46,6 +49,6 @@ impl BuildJsonOperation for RotateRight {
     ) -> Result<RunTimeOperation, Stop> {
         let rotate = self.rotate.solve_to_ref(interface, template, None, registry, channel)?;
         let rotate_with = self.rotate_with.solve_to_ref(interface, template, None, registry, channel)?;
-        box_rotate_right_plc_primitive(&rotate, &rotate_with, &None, registry)
+        box_rotate_right_plc_primitive(&rotate, &rotate_with, self.id, registry)
     }
 }

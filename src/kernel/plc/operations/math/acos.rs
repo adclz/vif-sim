@@ -16,6 +16,7 @@ use crate::kernel::arch::local::r#type::LocalType;
 #[derive(Clone)]
 pub struct ACos {
     acos: JsonTarget,
+    id: u64,
 }
 
 impl NewJsonOperation for ACos {
@@ -24,6 +25,7 @@ impl NewJsonOperation for ACos {
             format!("Parse ACos"),
             json {
                 acos,
+                id => as_u64,
             }
         );
 
@@ -31,6 +33,7 @@ impl NewJsonOperation for ACos {
 
         Ok(Self {
             acos,
+            id
         })
     }
 }
@@ -44,6 +47,6 @@ impl BuildJsonOperation for ACos {
         channel: &Broadcast
     ) -> Result<RunTimeOperation, Stop> {
         let acos = self.acos.solve_to_ref(interface, template, Some(LocalType::PlcFloat(PlcFloat::Real(Real::default()))), registry, channel)?;
-        box_acos_plc_primitive(&acos, &None, registry)
+        box_acos_plc_primitive(&acos, self.id, registry)
     }
 }

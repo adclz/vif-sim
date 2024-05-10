@@ -1,5 +1,4 @@
 ﻿use crate::parser::body::json_target::JsonTarget;
-use crate::parser::trace::trace::{FileTrace, FileTraceBuilder};
 use crate::kernel::plc::interface::section_interface::SectionInterface;
 use crate::kernel::plc::internal::template_impl::TemplateMemory;
 use crate::kernel::plc::operations::operations::{
@@ -17,13 +16,7 @@ use crate::kernel::plc::types::primitives::traits::meta_data::{HeapOrStatic, May
 pub struct UnitBlock {
     blocks: Vec<JsonTarget>,
     description: String,
-    trace: Option<FileTrace>,
-}
-
-impl FileTraceBuilder for UnitBlock {
-    fn get_trace(&self) -> &Option<FileTrace> {
-        &self.trace
-    }
+    id: u64,
 }
 
 impl NewJsonOperation for UnitBlock {
@@ -33,14 +26,9 @@ impl NewJsonOperation for UnitBlock {
             json {
                 block => as_array,
                 description => as_str,
-                trace? => as_object,
+                id => as_u64,
             }
         );
-
-        let trace = match trace {
-            None => None,
-            Some(a) => Self::build_trace(a),
-        };
 
         Ok(Self {
             blocks: block
@@ -48,7 +36,7 @@ impl NewJsonOperation for UnitBlock {
                 .map(|f| parse_json_target(f))
                 .collect::<Result<Vec<JsonTarget>, Stop>>()?,
             description: description.to_string(),
-            trace,
+            id,
         })
     }
 }
@@ -71,7 +59,7 @@ impl BuildJsonOperation for UnitBlock {
                     "Build Unit block -> Build operations [{}]",
                     self.description
                 ))
-                .maybe_file_trace(&self.trace)
+                .add_id(self.id)
             })?;
 
         let description = get_or_insert_global_string(&self.description.clone());
@@ -100,7 +88,7 @@ impl BuildJsonOperation for UnitBlock {
             },
             None,
             false,
-            &self.trace
+            self.id
         )))
     }
 }

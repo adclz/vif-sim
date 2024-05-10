@@ -1,6 +1,5 @@
 use crate::parser::interface::interface::parse_struct_interface;
 use crate::parser::body::json_target::JsonTarget;
-use crate::parser::trace::trace::{FileTrace, FileTraceBuilder};
 use crate::kernel::plc::types::complex::boxed::set::box_set_plc_complex;
 use crate::kernel::plc::interface::section::Section;
 use crate::kernel::plc::interface::section_interface::SectionInterface;
@@ -31,16 +30,10 @@ pub enum TemplateMemory {
 
 #[derive(Clone)]
 pub struct TemplateImpl {
-    trace: Option<FileTrace>,
     of: String,
     call_interface: HashMap<Section, Vec<(Vec<String>, JsonTarget)>>,
     inner: Value,
-}
-
-impl FileTraceBuilder for TemplateImpl {
-    fn get_trace(&self) -> &Option<FileTrace> {
-        &self.trace
-    }
+    id: u64,
 }
 
 impl NewJsonOperation for TemplateImpl {
@@ -53,7 +46,7 @@ impl NewJsonOperation for TemplateImpl {
             json {
                 of => as_str,
                 inner,
-                trace? => as_object,
+                id => as_u64,
                 call_interface => {
                     src => as_object,
                 }
@@ -61,11 +54,6 @@ impl NewJsonOperation for TemplateImpl {
         );
 
         let call_interface = call_interface["src"].as_object().unwrap();
-
-        let trace = match trace {
-            None => None,
-            Some(a) => Self::build_trace(a),
-        };
 
         let mut as_interface = HashMap::new();
 
@@ -77,7 +65,7 @@ impl NewJsonOperation for TemplateImpl {
         )
         .map_err(|e| {
             e.add_sim_trace("Build template -> parse interface of calling block")
-                .maybe_file_trace(&trace)
+                .add_id(id)
         })?;
 
         Ok(Self {
@@ -85,7 +73,7 @@ impl NewJsonOperation for TemplateImpl {
             //interface: interface.clone(),
             call_interface: as_interface,
             inner: inner.clone(),
-            trace,
+            id,
         })
     }
 }
@@ -139,7 +127,7 @@ impl BuildJsonOperation for TemplateImpl {
                         .try_for_each(|(target_path, source)| {
                             let target = inner_memory.try_get_nested(&convert_string_path_to_usize(target_path))
                                 .ok_or_else(move || error!(format!("Could not find a valid reference in instance interface for path {:?}, Current interface: {}", &target_path, interface)))?;
-                            input_actions.push(box_set_auto(&target, &source.solve_to_ref(interface, None, Some(target.as_ref().borrow().deref().clone()), registry, channel)?, &None, registry)?);
+                            input_actions.push(box_set_auto(&target, &source.solve_to_ref(interface, None, Some(target.as_ref().borrow().deref().clone()), registry, channel)?, 0, registry)?);
                             Ok(())
                         })
                 },
@@ -165,7 +153,7 @@ impl BuildJsonOperation for TemplateImpl {
                         .try_for_each(|(target_path, source)| {
                             let target = inner_memory.try_get_nested(&convert_string_path_to_usize(target_path))
                                 .ok_or_else(move || error!(format!("Could not find a valid reference in instance interface for path {:?}, Current interface: {}", &target_path, interface)))?;
-                            output_actions.push(box_set_auto(&source.solve_as_local_pointer(interface, None, registry, channel).unwrap(), &target, &None, registry)?);
+                            output_actions.push(box_set_auto(&source.solve_as_local_pointer(interface, None, registry, channel).unwrap(), &target, 0, registry)?);
                             Ok(())
                         })
                 },
@@ -188,7 +176,7 @@ impl BuildJsonOperation for TemplateImpl {
             .collect::<Result<Vec<RunTimeOperation>, Stop>>()
             .map_err(|e: Stop| {
                 e.add_sim_trace("Build template -> body")
-                    .maybe_file_trace(&self.trace)
+                    .add_id(self.id)
             })?;
 
         let name = get_or_insert_global_string(&self.of);
@@ -226,7 +214,7 @@ impl BuildJsonOperation for TemplateImpl {
             },
             None,
             false,
-            &self.trace
+            self.id
         )))
     }
 }

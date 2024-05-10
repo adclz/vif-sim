@@ -13,7 +13,6 @@ use serde_json::{Map, Value};
 use std::fmt::{Display, Formatter};
 use crate::parser::body::body::parse_json_target;
 use crate::container::broadcast::broadcast::Broadcast;
-use crate::parser::trace::trace::{FileTrace, FileTraceBuilder};
 use crate::kernel::plc::operations::unit::test::UnitTestJson;
 use crate::kernel::plc::types::primitives::traits::meta_data::{HeapOrStatic, MaybeHeapOrStatic};
 
@@ -44,13 +43,7 @@ impl Display for StringOrRuntimeTarget {
 #[derive(Clone)]
 pub struct UnitLog {
     fmt: Vec<StringOrJsonTarget>,
-    trace: Option<FileTrace>,
-}
-
-impl FileTraceBuilder for UnitLog {
-    fn get_trace(&self) -> &Option<FileTrace> {
-        &self.trace
-    }
+    id: u64,
 }
 
 impl NewJsonOperation for UnitLog {
@@ -60,14 +53,9 @@ impl NewJsonOperation for UnitLog {
            json {
                 message => as_str,
                 format => as_array,
-                trace? => as_object,
+                id => as_u64,
             }
         );
-
-        let trace = match trace {
-            None => None,
-            Some(a) => Self::build_trace(a),
-        };
 
         let mut fmt = Vec::new();
         let mut curr_index = 0;
@@ -93,7 +81,7 @@ impl NewJsonOperation for UnitLog {
             fmt.push(StringOrJsonTarget::String(str.into()));
         }
 
-        Ok(Self { fmt, trace })
+        Ok(Self { fmt, id })
     }
 }
 
@@ -170,7 +158,7 @@ impl BuildJsonOperation for UnitLog {
             },
             None,
             false,
-            &self.trace
+            self.id
         )))
     }
 }

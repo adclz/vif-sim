@@ -31,8 +31,8 @@ pub struct Broadcast {
 
     store: Rc<RefCell<Store>>,
 
-    unit_tests: Rc<RefCell<HashMap<usize, UnitTest>>>,
-    breakpoints: Rc<RefCell<HashMap<usize, BreakPoint>>>,
+    unit_tests: Rc<RefCell<HashMap<u64, UnitTest>>>,
+    breakpoints: Rc<RefCell<HashMap<u64, BreakPoint>>>,
 
     stack: Rc<RefCell<Stack>>,
 }
@@ -141,7 +141,7 @@ impl Broadcast {
         self.breakpoints.borrow_mut().get_mut(&breakpoint.get_id()).unwrap().set_status(breakpoint.get_status())
     }
 
-    pub fn is_breakpoint_enabled(&self, id: usize) -> bool {
+    pub fn is_breakpoint_enabled(&self, id: u64) -> bool {
         !matches!(self.breakpoints.borrow().deref().get(&id).unwrap().get_status(), BreakPointStatus::Disabled)
     }
 

@@ -181,44 +181,11 @@ pub fn get_string_id() -> usize {
 
 
 impl Kernel {
-    /*pub fn get_or_insert_global_string(&self, string: &String) -> usize {
-        let a = self.global_strings.borrow().get_by_left(string).and_then(|x| Some(*x));
-        if let Some(a) = a {
-            a
-        } else {
-            let id = get_string_id();
-            self.global_strings.borrow_mut().insert(string.clone(), id);
-            id
-        }
-    }
-
-    pub fn get_full_path(&self, path: &Vec<usize>) -> Vec<String> {
-        let mut full_path = Vec::new();
-        path
-            .iter()
-            .for_each(|u| {
-                match self.global_strings.borrow().get_by_right(&u) {
-                    None => full_path.push("?".into()),
-                    Some(a) => full_path.push(a.clone())
-                }
-            });
-        full_path
-    }
-
-    pub fn convert_string_path_to_usize(&self, path: &Vec<String>) -> Vec<usize> {
-        let mut full_path = Vec::new();
-        path
-            .iter()
-            .for_each(|u| {
-                full_path.push(self.get_or_insert_global_string(u));
-            });
-        full_path
-    }*/
-
+    /// DEPERECATED
     pub fn should_ignore_operation(&self) -> bool {
         *self.ignore_operation.borrow().deref()
     }
-
+    /// DEPERECATED
     pub fn set_ignore_operation(&self, value: bool) {
         (*self.ignore_operation.borrow_mut().deref_mut()) = value;
     }

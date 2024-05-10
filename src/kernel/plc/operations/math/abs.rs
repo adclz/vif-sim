@@ -14,6 +14,7 @@ use crate::kernel::rust::operations::{box_abs_plc_primitive};
 #[derive(Clone)]
 pub struct Abs {
     abs: JsonTarget,
+    id: u64,
 }
 
 impl NewJsonOperation for Abs {
@@ -22,13 +23,15 @@ impl NewJsonOperation for Abs {
             format!("Parse Abs"),
             json {
                 abs,
+                id => as_u64,
             }
         );
 
         let abs = parse_json_target(&abs)?;
 
         Ok(Self {
-            abs
+            abs,
+            id
         })
     }
 }
@@ -42,6 +45,6 @@ impl BuildJsonOperation for Abs {
         channel: &Broadcast
     ) -> Result<RunTimeOperation, Stop> {
         let abs = self.abs.solve_to_ref(interface, template, None, registry, channel)?;
-        box_abs_plc_primitive(&abs, &None, registry)
+        box_abs_plc_primitive(&abs, self.id, registry)
     }
 }

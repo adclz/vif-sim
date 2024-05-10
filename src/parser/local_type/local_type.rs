@@ -155,10 +155,12 @@ pub fn parse_local_type(
                 format!("Instance name is not of type string, {:?}", src),
                 src {
                     of => as_str,
+                    id => as_u64,
                     interface?,
                 }
             );
 
+            // get the instance in kernel
             let instance = registry.get(&get_or_insert_global_string(&of.to_string())).ok_or_else(move || error!(
                 format!("The Fb '{}' could not be found", of),
                 format!("Parse Fb instance")
@@ -187,12 +189,12 @@ pub fn parse_local_type(
                                         .ok_or_else(move || error!(format!("0")))?, &x.0.0)?(channel)
                             })?;
                         Ok(LocalType::FbInstance(
-                            FbInstance::from_fb(Some(of.to_string()), fb_interface, fb_body, registry, channel)?,
+                            FbInstance::from_fb(Some(of.to_string()), id, fb_interface, fb_body, registry, channel)?,
                         ))
                     },
                     None => {
                         Ok(LocalType::FbInstance(
-                            FbInstance::from_fb(Some(of.to_string()), fb_interface, fb_body, registry, channel)?,
+                            FbInstance::from_fb(Some(of.to_string()), id, fb_interface, fb_body, registry, channel)?,
                         ))
                     }
                 }

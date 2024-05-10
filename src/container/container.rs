@@ -33,7 +33,7 @@ use crate::container::error::error::Stop;
 use crate::parser::main::exclude::{parse_type_aliases, parse_return_operations, parse_exclude_sections, parse_exclude_types, parse_filter_operations};
 use crate::kernel::plc::operations::unit::breakpoint::{BreakPointStatus, BreakPointUpdateStatus, enableBreakpoint, pause_simulation, disableBreakpoint};
 
-pub static DELAYED_TIMERS: Lazy<Arc<Mutex<HashMap<usize, Duration>>>> =
+pub static DELAYED_TIMERS: Lazy<Arc<Mutex<HashMap<u64, Duration>>>> =
     Lazy::new(|| Arc::new(Mutex::new(HashMap::new())));
 
 pub static COUNTER: AtomicUsize = AtomicUsize::new(1);
@@ -533,7 +533,7 @@ impl Container {
 
     pub fn disable_breakpoint(&self, data: u64) {
         self.channel.add_breakpoint_status(&BreakPointUpdateStatus::new(
-            data as usize,
+            data,
             BreakPointStatus::Disabled));
         self.channel.add_message(&format!("Disabled breakpoint {}", data));
         self.channel.publish();
@@ -541,7 +541,7 @@ impl Container {
 
     pub fn enable_breakpoint(&self, data: u64) {
         self.channel.add_breakpoint_status(&BreakPointUpdateStatus::new(
-            data as usize,
+            data,
             BreakPointStatus::Inactive));
         self.channel.add_message(&format!("Enabled breakpoint {}", data));
         self.channel.publish();
@@ -613,11 +613,11 @@ pub fn read_sab_commands(channel: &Broadcast) -> bool {
                     channel.publish();
                 }
                 5 => { // 5 Enable breakpoint
-                    enableBreakpoint(channel, &window[1]);
+                    enableBreakpoint(channel, window[1] as u64);
                     channel.publish();
                 }
                 6 => { // 6 Disable breakpoint
-                    disableBreakpoint(channel, &window[1]);
+                    disableBreakpoint(channel, window[1] as u64);
                     channel.publish();
                 }
                 _ => {}

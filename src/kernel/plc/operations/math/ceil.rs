@@ -17,6 +17,7 @@ use crate::kernel::arch::local::r#type::LocalType;
 #[derive(Clone)]
 pub struct Ceil {
     ceil: JsonTarget,
+    id: u64,
 }
 
 impl NewJsonOperation for Ceil {
@@ -25,13 +26,15 @@ impl NewJsonOperation for Ceil {
             format!("Parse Ceil"),
             json {
                 ceil,
+                id => as_u64,
             }
         );
 
         let ceil = parse_json_target(&ceil)?;
 
         Ok(Self {
-            ceil
+            ceil,
+            id
         })
     }
 }
@@ -45,6 +48,6 @@ impl BuildJsonOperation for Ceil {
         channel: &Broadcast
     ) -> Result<RunTimeOperation, Stop> {
         let ceil = self.ceil.solve_to_ref(interface, template, Some(LocalType::PlcFloat(PlcFloat::Real(Real::default()))), registry, channel)?;
-        box_ceil_plc_primitive(&ceil, &None, registry)
+        box_ceil_plc_primitive(&ceil, self.id, registry)
     }
 }

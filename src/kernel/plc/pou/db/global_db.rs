@@ -8,7 +8,6 @@ use crate::kernel::plc::interface::traits::DeferredBuilder;
 use crate::kernel::arch::local::pointer::LocalPointer;
 use crate::kernel::registry::Kernel;
 use crate::{create_block_interface, error, key_reader};
-use crate::parser::trace::trace::{FileTrace, FileTraceBuilder};
 use crate::container::broadcast::broadcast::Broadcast;
 use crate::container::error::error::{Stop};
 use crate::kernel::registry::get_string;
@@ -18,7 +17,7 @@ pub struct GlobalDb {
     interface: SectionInterface,
     interface_status: InterfaceStatus,
     body_status: BodyStatus,
-    trace: Option<FileTrace>
+    id: u64,
 }
 
 impl GlobalDb {
@@ -39,27 +38,14 @@ impl GlobalDb {
     }
 }
 
-impl FileTraceBuilder for GlobalDb {
-    fn get_trace(&self) -> &Option<FileTrace> {
-        &self.trace
-    }
-}
-
 impl DeferredBuilder for GlobalDb {
     fn default(json: &Map<String, Value>) -> Self {
-        let mut trace = None;
-        if json.contains_key("trace") {
-            if let Some(a) = json["trace"].as_object() {
-                trace = Self::build_trace(a);
-            }
-        }
-
         Self {
             json: json.clone(),
             interface: SectionInterface::new(),
             interface_status: InterfaceStatus::Default,
             body_status: BodyStatus::Solved,
-            trace
+            id: json["id"].as_u64().unwrap()
         }
     }
 
@@ -79,7 +65,8 @@ impl DeferredBuilder for GlobalDb {
         create_block_interface!(
             src, self.interface, registry, channel,
             { Static }
-        ).map_err(|e| e.add_sim_trace(&format!("Build Global Db")).maybe_file_trace(&self.trace))?;
+        ).map_err(|e| e.add_sim_trace(&format!("Build Global Db"))
+            .add_id(self.id))?;
         
         self.interface_status = InterfaceStatus::Solved;
         Ok(())

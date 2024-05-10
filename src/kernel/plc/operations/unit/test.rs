@@ -14,7 +14,6 @@ use crate::kernel::registry::Kernel;
 use crate::key_reader;
 use crate::parser::body::body::parse_json_target;
 use crate::parser::body::json_target::JsonTarget;
-use crate::parser::trace::trace::{FileTrace, FileTraceBuilder};
 use ansi_term::Color::Yellow;
 use ansi_term::Colour::{Blue, Green, Red};
 use serde_json::{Map, Value};
@@ -29,28 +28,18 @@ use wasm_bindgen::JsValue;
 #[wasm_bindgen(skip_typescript)]
 #[derive(Clone)]
 pub struct UnitTest {
-    path: Option<FileTrace>,
     description: String,
-    id: usize,
+    id: u64,
     status: UnitTestStatus,
 }
 
 #[wasm_bindgen]
 impl UnitTest {
-    pub fn new(id: usize, description: String, path: Option<FileTrace>) -> Self {
+    pub fn new(id: u64, description: String) -> Self {
         Self {
             id,
             description,
-            path,
             status: UnitTestStatus::Unreached,
-        }
-    }
-
-    #[wasm_bindgen(getter)]
-    pub fn get_path(&self) -> JsValue {
-        match &self.path {
-            None => JsValue::null(),
-            Some(a) => serde_wasm_bindgen::to_value(&a).unwrap(),
         }
     }
 
@@ -60,7 +49,7 @@ impl UnitTest {
     }
 
     #[wasm_bindgen(getter)]
-    pub fn get_id(&self) -> usize {
+    pub fn get_id(&self) -> u64 {
         self.id
     }
 
@@ -103,14 +92,14 @@ pub enum UnitTestStatus {
 #[wasm_bindgen(skip_typescript)]
 #[derive(Clone)]
 pub struct UnitTestUpdateStatus {
-    id: usize,
+    id: u64,
     status: UnitTestStatus,
     fail_message: Option<String>,
 }
 
 #[wasm_bindgen]
 impl UnitTestUpdateStatus {
-    pub fn new(id: usize, status: UnitTestStatus, fail_message: Option<String>) -> Self {
+    pub fn new(id: u64, status: UnitTestStatus, fail_message: Option<String>) -> Self {
         Self {
             id,
             status,
@@ -119,7 +108,7 @@ impl UnitTestUpdateStatus {
     }
 
     #[wasm_bindgen(getter)]
-    pub fn get_id(&self) -> usize {
+    pub fn get_id(&self) -> u64 {
         self.id
     }
 
@@ -139,8 +128,7 @@ pub struct UnitTestJson {
     expect: JsonTarget,
     with: JsonTarget,
     operator: String,
-    trace: Option<FileTrace>,
-    id: usize,
+    id: u64,
 }
 
 impl Clone for UnitTestJson {
@@ -150,15 +138,8 @@ impl Clone for UnitTestJson {
             expect: self.expect.clone(),
             with: self.with.clone(),
             operator: self.operator.clone(),
-            trace: self.trace.clone(),
-            id: get_id(),
+            id: self.id,
         }
-    }
-}
-
-impl FileTraceBuilder for UnitTestJson {
-    fn get_trace(&self) -> &Option<FileTrace> {
-        &self.trace
     }
 }
 
@@ -171,23 +152,18 @@ impl NewJsonOperation for UnitTestJson {
                 expect,
                 with,
                 operator => as_str,
-                trace? => as_object,
+                id => as_u64,
             }
         );
 
-        let trace = match trace {
-            None => None,
-            Some(a) => Self::build_trace(a),
-        };
-
         let expect = parse_json_target(&expect).map_err(|e| {
             e.add_sim_trace(&"Parse Unit tests -> Parse expect param".to_string())
-                .maybe_file_trace(&trace)
+                .add_id(id)
         })?;
 
         let with = parse_json_target(&with).map_err(|e| {
             e.add_sim_trace(&"Parse Compare -> Parse with param".to_string())
-                .maybe_file_trace(&trace)
+                .add_id(id)
         })?;
 
         Ok(Self {
@@ -195,8 +171,7 @@ impl NewJsonOperation for UnitTestJson {
             expect,
             with,
             operator: operator.to_string(),
-            trace,
-            id: get_id(),
+            id,
         })
     }
 }
@@ -217,11 +192,12 @@ impl BuildJsonOperation for UnitTestJson {
             &registry,
             &channel,
         )
-        .map_err(|e| e.maybe_file_trace(&self.trace))?;
+        .map_err(|e| e.add_id(self.id))?;
 
         let (compare, with) = targets.clone();
 
         let expect = box_cmp(
+            self.id,
             &compare,
             &with,
             &self.operator,
@@ -230,19 +206,17 @@ impl BuildJsonOperation for UnitTestJson {
             &registry,
             &channel,
         )
-        .map_err(|e| e.maybe_file_trace(&self.trace))?;
+        .map_err(|e| e.add_id(self.id))?;
 
         let operator = self.operator.clone();
 
         let description = self.description.clone();
         let id = self.id;
-        let trace = self.trace.clone();
 
         if !registry.should_ignore_operation() {
             channel.add_unit_test(&UnitTest::new(
                 id,
                 self.description.clone(),
-                self.trace.as_ref().cloned(),
             ));
         }
 
@@ -287,7 +261,7 @@ impl BuildJsonOperation for UnitTestJson {
             },
             None,
             false,
-            &self.trace,
+            self.id,
         )))
     }
 }

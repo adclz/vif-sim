@@ -3,14 +3,14 @@ use crate::kernel::plc::operations::operations::{Operation, RunTimeOperation, Ru
 use crate::kernel::rust::auto_set::{box_set_auto, box_set_auto_default_once};
 use crate::container::error::error::Stop;
 use crate::error;
-use crate::parser::trace::trace::FileTrace;
 use crate::kernel::plc::types::complex::instance::public::PublicInstanceAccessors;
 use crate::kernel::plc::types::primitives::traits::family_traits::{IsFamily, WithMutFamily, WithRefFamily, WithTypeFamily};
 use crate::kernel::plc::types::primitives::traits::meta_data::{HeapOrStatic, MaybeHeapOrStatic};
 use crate::kernel::plc::types::primitives::traits::primitive_traits::{Primitive, AsMutPrimitive};
 use crate::kernel::registry::Kernel;
 
-pub fn box_set_plc_complex<T: WithMutFamily + WithTypeFamily + Clone + IsFamily + AsMutPrimitive + Primitive, Y: WithRefFamily + WithTypeFamily + Clone + IsFamily + Primitive>(o1: &T, o2: &Y, trace: &Option<FileTrace>, registry: &Kernel) -> Result<RunTimeOperation, Stop> {
+pub fn box_set_plc_complex<T: WithMutFamily + WithTypeFamily + Clone + IsFamily + AsMutPrimitive + Primitive, 
+    Y: WithRefFamily + WithTypeFamily + Clone + IsFamily + Primitive>(o1: &T, o2: &Y, trace: u64, registry: &Kernel) -> Result<RunTimeOperation, Stop> {
     let mut opexs = vec![];
 
     if o1.is_plc_struct() && o2.is_plc_struct() {
@@ -55,7 +55,7 @@ pub fn box_set_plc_complex<T: WithMutFamily + WithTypeFamily + Clone + IsFamily 
             closure.with_void(channel)?;
         }
         Ok(())
-    }, None, false, &None)))
+    }, None, false, trace)))
 }
 
 pub fn box_set_plc_complex_default_once<T: WithMutFamily + WithTypeFamily + Clone + IsFamily + AsMutPrimitive + Primitive, Y: WithRefFamily + WithTypeFamily + Clone + IsFamily + Primitive>

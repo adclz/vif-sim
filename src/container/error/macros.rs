@@ -4,21 +4,21 @@ macro_rules! error {
         $crate::container::error::error::Stop::new(
             $message,
             &Some($location),
-            &$trace
+            $trace
         )
     };
     ($message: expr, $location: expr) => {
         $crate::container::error::error::Stop::new(
             $message, 
             &Some($location),
-            &None
+            None
         )
     };
     ($message: expr) => {
         $crate::container::error::error::Stop::new(
             $message,  
             &None,
-            &None
+            None
         )
     };
 }

@@ -17,6 +17,7 @@ use crate::kernel::arch::local::r#type::LocalType;
 #[derive(Clone)]
 pub struct Sin {
     sin: JsonTarget,
+    id: u64
 }
 
 impl NewJsonOperation for Sin {
@@ -25,6 +26,7 @@ impl NewJsonOperation for Sin {
             format!("Parse Sin"),
             json {
                 sin,
+                id => as_u64,
             }
         );
 
@@ -32,6 +34,7 @@ impl NewJsonOperation for Sin {
 
         Ok(Self {
             sin,
+            id
         })
     }
 }
@@ -45,6 +48,6 @@ impl BuildJsonOperation for Sin {
         channel: &Broadcast
     ) -> Result<RunTimeOperation, Stop> {
         let sin = self.sin.solve_to_ref(interface, template, Some(LocalType::PlcFloat(PlcFloat::Real(Real::default()))), registry, channel)?;
-        box_sin_plc_primitive(&sin, &None, registry)
+        box_sin_plc_primitive(&sin, self.id, registry)
     }
 }

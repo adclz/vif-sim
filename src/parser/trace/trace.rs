@@ -1,4 +1,4 @@
-use serde::{Deserialize, Serialize};
+/*use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
 use tsify::Tsify;
 use wasm_bindgen::prelude::wasm_bindgen;
@@ -39,3 +39,4 @@ pub trait FileTraceBuilder {
     }
     fn get_trace(&self) -> &Option<FileTrace>;
 }
+*/

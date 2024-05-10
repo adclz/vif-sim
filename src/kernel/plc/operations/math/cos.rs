@@ -16,6 +16,7 @@ use crate::kernel::arch::local::r#type::LocalType;
 #[derive(Clone)]
 pub struct Cos {
     cos: JsonTarget,
+    id: u64,
 }
 
 impl NewJsonOperation for Cos {
@@ -24,6 +25,7 @@ impl NewJsonOperation for Cos {
             format!("Parse Cos"),
             json {
                 cos,
+                id => as_u64,
             }
         );
 
@@ -31,6 +33,7 @@ impl NewJsonOperation for Cos {
 
         Ok(Self {
             cos,
+            id
         })
     }
 }
@@ -44,6 +47,6 @@ impl BuildJsonOperation for Cos {
         channel: &Broadcast
     ) -> Result<RunTimeOperation, Stop> {
         let cos = self.cos.solve_to_ref(interface, template, Some(LocalType::PlcFloat(PlcFloat::Real(Real::default()))), registry, channel)?;
-        box_cos_plc_primitive(&cos, &None, registry)
+        box_cos_plc_primitive(&cos, self.id, registry)
     }
 }

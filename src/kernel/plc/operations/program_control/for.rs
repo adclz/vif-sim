@@ -2,7 +2,6 @@
 use std::ops::Deref;
 use std::rc::Rc;
 use crate::parser::body::json_target::JsonTarget;
-use crate::parser::trace::trace::{FileTrace, FileTraceBuilder};
 use crate::kernel::plc::interface::section_interface::SectionInterface;
 use crate::kernel::plc::internal::template_impl::TemplateMemory;
 use crate::kernel::plc::operations::operations::{
@@ -30,13 +29,7 @@ pub struct For {
     to: JsonTarget,
     by: Option<JsonTarget>,
     _do: Vec<JsonTarget>,
-    trace: Option<FileTrace>,
-}
-
-impl FileTraceBuilder for For {
-    fn get_trace(&self) -> &Option<FileTrace> {
-        &self.trace
-    }
+    id: u64,
 }
 
 impl NewJsonOperation for For {
@@ -49,27 +42,22 @@ impl NewJsonOperation for For {
                 to,
                 by?,
                 _do => as_array,
-                trace? => as_object,
+                id => as_u64,
             }
         );
 
-        let trace = match trace {
-            None => None,
-            Some(a) => Self::build_trace(a),
-        };
-
-        let _for = parse_json_target(_for).map_err(|e|e.maybe_file_trace(&trace))?;
-        let with = parse_json_target(with).map_err(|e|e.maybe_file_trace(&trace))?;
-        let to = parse_json_target(to).map_err(|e|e.maybe_file_trace(&trace))?;
+        let _for = parse_json_target(_for).map_err(|e|e.add_id(id))?;
+        let with = parse_json_target(with).map_err(|e|e.add_id(id))?;
+        let to = parse_json_target(to).map_err(|e|e.add_id(id))?;
         let by= match by {
-            Some(a) => Some(parse_json_target(a).map_err(|e|e.maybe_file_trace(&trace))?),
+            Some(a) => Some(parse_json_target(a).map_err(|e|e.add_id(id))?),
             None => None
         };
 
         let _do = _do
             .iter()
             .map(|f| parse_json_target(&f))
-            .collect::<Result<Vec<JsonTarget>, Stop>>().map_err(|e|e.maybe_file_trace(&trace))?;
+            .collect::<Result<Vec<JsonTarget>, Stop>>().map_err(|e|e.add_id(id))?;
 
         Ok(Self {
             _for,
@@ -77,7 +65,7 @@ impl NewJsonOperation for For {
             to,
             by,
             _do,
-            trace,
+            id,
         })
     }
 }
@@ -90,39 +78,38 @@ impl BuildJsonOperation for For {
         registry: &Kernel,
         channel: &Broadcast
     ) -> Result<RunTimeOperation, Stop> {
-        let trace = self.trace.clone();
 
         let _for = self
             ._for
             .solve_as_local_pointer(interface, template, registry, channel)
-            .ok_or_else(move || error!(format!("ForOf first argument has to be a reference, got {}", self._for), format!("Build For -> for"))).map_err(|e|e.maybe_file_trace(&trace))?;
+            .ok_or_else(move || error!(format!("ForOf first argument has to be a reference, got {}", self._for), format!("Build For -> for"))).map_err(|e|e.add_id(self.id))?;
 
         let with = self
             .with
             .solve_to_ref(interface, template, Some(_for.as_ref().borrow().deref().clone()), registry, channel)?;
 
-        let for_with = box_set_plc_primitive(&_for, &with, &trace, true, registry)?;
+        let for_with = box_set_plc_primitive(&_for, &with, self.id, true, registry)?;
 
-        let to = self.to.solve_to_ref(interface, template, Some(_for.as_ref().borrow().deref().clone()), registry, channel).map_err(|e|e.maybe_file_trace(&trace))?;
+        let to = self.to.solve_to_ref(interface, template, Some(_for.as_ref().borrow().deref().clone()), registry, channel).map_err(|e|e.add_id(self.id))?;
 
         let by = match &self.by {
             None => None,
-            Some(a) => Some(a.solve_to_ref(interface, template, Some(_for.as_ref().borrow().deref().clone()), registry, channel).map_err(|e|e.maybe_file_trace(&trace))?)
+            Some(a) => Some(a.solve_to_ref(interface, template, Some(_for.as_ref().borrow().deref().clone()), registry, channel).map_err(|e|e.add_id(self.id))?)
         };
 
         let mut _do: Vec<RunTimeOperation> = self
             ._do
             .iter()
             .map(|i| i.solve_as_operation(interface, template, registry, channel))
-            .collect::<Result<Vec<RunTimeOperation>, Stop>>().map_err(|e|e.maybe_file_trace(&trace))?;
+            .collect::<Result<Vec<RunTimeOperation>, Stop>>().map_err(|e|e.add_id(self.id))?;
 
-        let for_to = box_ord_plc_primitive(&_for, &to, &None, registry).map_err(|e|e.maybe_file_trace(&trace))?;
+        let for_to = box_ord_plc_primitive(&_for, &to, self.id, registry).map_err(|e|e.add_id(self.id))?;
 
         let incr_by = match &by {
             None => None,
             Some(a) => {
-                let add = box_add_plc_primitive(&_for, a, &trace, registry).map_err(|e| e.maybe_file_trace(&trace))?;
-                let set = box_set_plc_primitive(&_for, &add, &trace, true, registry).map_err(|e| e.maybe_file_trace(&trace))?;
+                let add = box_add_plc_primitive(&_for, a, self.id, registry).map_err(|e| e.add_id(self.id))?;
+                let set = box_set_plc_primitive(&_for, &add, self.id, true, registry).map_err(|e| e.add_id(self.id))?;
                 Some(set)
             }
         };
@@ -141,6 +128,8 @@ impl BuildJsonOperation for For {
             }
         };
 
+        let id = self.id;
+
         Ok(Box::new(Operation::new(
             display,
             move |channel| {
@@ -149,21 +138,21 @@ impl BuildJsonOperation for For {
 
                 while for_to(channel)?.unwrap().is_ne() {
                     for operation in &_do {
-                        operation.with_void(channel).map_err(|e|e.maybe_file_trace(&trace))?;
+                        operation.with_void(channel).map_err(|e|e.add_id(id))?;
                     }
 
                     // Increment
                     if let Some(incr) = &incr_by {
-                        incr.with_void(channel).map_err(|e|e.maybe_file_trace(&trace))?;
+                        incr.with_void(channel).map_err(|e|e.add_id(id))?;
                     }
 
                     let elapsed = Instant::now().duration_since(earlier);
                     if elapsed > THOUSAND_MS {
                         return match &by {
                             None => Err(error!(format!("For of loop took longer than 100 ms to execute. \nStatus of loop: FOR {} := {} TO {}", _for, with, to)))
-                                .map_err(|e|e.maybe_file_trace(&trace)),
+                                .map_err(|e|e.add_id(id)),
                             Some(a) => Err(error!(format!("For of loop took longer than 100 ms to execute. \nStatus of loop: FOR {} := {} TO {} BY {}", _for, with, to, a)))
-                                .map_err(|e|e.maybe_file_trace(&trace))
+                                .map_err(|e|e.add_id(id))
                         }
                     };
                 }
@@ -171,7 +160,7 @@ impl BuildJsonOperation for For {
             },
             None,
             false,
-            &self.trace
+            self.id
         )))
     }
 }

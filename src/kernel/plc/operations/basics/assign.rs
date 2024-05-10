@@ -1,6 +1,5 @@
 ﻿use std::ops::Deref;
 use crate::parser::body::json_target::JsonTarget;
-use crate::parser::trace::trace::{FileTrace, FileTraceBuilder};
 use crate::kernel::plc::interface::section_interface::SectionInterface;
 use crate::kernel::plc::internal::template_impl::TemplateMemory;
 use crate::kernel::plc::operations::operations::{BuildJsonOperation, NewJsonOperation, RunTimeOperation};
@@ -16,13 +15,7 @@ use crate::container::broadcast::broadcast::Broadcast;
 pub struct Assign {
     assign: JsonTarget,
     to: JsonTarget,
-    trace: Option<FileTrace>,
-}
-
-impl FileTraceBuilder for Assign {
-    fn get_trace(&self) -> &Option<FileTrace> {
-        &self.trace
-    }
+    id: u64,
 }
 
 impl NewJsonOperation for Assign {
@@ -30,7 +23,7 @@ impl NewJsonOperation for Assign {
         key_reader!(
             format!("Parse Assign"),
             json {
-                trace? => as_object,
+                id => as_u64, 
             }
         );
         match(|| {
@@ -41,11 +34,6 @@ impl NewJsonOperation for Assign {
                 to,
             }
         );
-
-            let trace = match trace {
-                None => None,
-                Some(a) => Self::build_trace(a),
-            };
 
             let assign = parse_json_target(assign).map_err(|e| {
                 e.add_sim_trace(&format!("Parse Assign Operation [assign]"))
@@ -61,13 +49,10 @@ impl NewJsonOperation for Assign {
             ));
             };
 
-            Ok(Self { assign, to, trace })
+            Ok(Self { assign, to, id })
         })() {
             Ok(a) => Ok(a),
-            Err(e) => Err(e.add_sim_trace("Parse Assign").maybe_file_trace(&match trace {
-                None => None,
-                Some(a) => Self::build_trace(a),
-            }))
+            Err(e) => Err(e.add_sim_trace("Parse Assign").add_id(id))
         }
 
     }
@@ -84,10 +69,10 @@ impl BuildJsonOperation for Assign {
         let a1 = self
             .assign
             .solve_as_local_pointer(interface, template, registry, channel)
-            .ok_or_else(move || error!(format!("Expected a valid reference, got {}", self.assign), "Build assign -> source".to_string()).maybe_file_trace(&self.trace))?;
+            .ok_or_else(move || error!(format!("Expected a valid reference, got {}", self.assign), "Build assign -> source".to_string()).add_id(self.id))?;
 
         if a1.is_read_only() {
-            return Err(error!(format!("Attempt to assign a constant value"), "Build assign -> source".to_string(), &self.trace))
+            return Err(error!(format!("Attempt to assign a constant value"), "Build assign -> source".to_string(), Some(self.id)))
         }
 
         let a2 = self
@@ -95,9 +80,9 @@ impl BuildJsonOperation for Assign {
             .solve_to_ref(interface, template, Some(a1.as_ref().borrow().deref().clone()), registry, channel)
             .map_err(|e| {
                 e.add_sim_trace("Build assign -> target")
-                    .maybe_file_trace(&self.trace)
+                    .add_id(self.id)
             })?;
 
-        box_set_plc_primitive(&a1, &a2, &self.trace, false, registry)
+        box_set_plc_primitive(&a1, &a2, self.id, false, registry)
     }
 }

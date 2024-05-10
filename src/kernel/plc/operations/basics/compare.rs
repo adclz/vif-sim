@@ -17,7 +17,6 @@ use crate::kernel::registry::Kernel;
 use crate::kernel::rust::partial::box_ord_plc_primitive;
 use crate::parser::body::body::parse_json_target;
 use crate::parser::body::json_target::JsonTarget;
-use crate::parser::trace::trace::{FileTrace, FileTraceBuilder};
 use crate::{error, key_reader};
 use serde_json::{Map, Value};
 use std::cell::RefCell;
@@ -31,13 +30,7 @@ pub struct Compare {
     operator: String,
     cont: Option<String>,
     cont_with: Option<Map<String, Value>>,
-    trace: Option<FileTrace>,
-}
-
-impl FileTraceBuilder for Compare {
-    fn get_trace(&self) -> &Option<FileTrace> {
-        &self.trace
-    }
+    id: u64,
 }
 
 impl NewJsonOperation for Compare {
@@ -49,23 +42,18 @@ impl NewJsonOperation for Compare {
                 with,
                 operator => as_str,
                 cont? => as_str,
-                trace? => as_object,
+                id => as_u64,
             }
         );
 
-        let trace = match trace {
-            None => None,
-            Some(a) => Self::build_trace(a),
-        };
-
         let compare = parse_json_target(&compare).map_err(|e| {
             e.add_sim_trace(&format!("Parse Compare -> Parse first param"))
-                .maybe_file_trace(&trace)
+                .add_id(id)
         })?;
 
         let with = parse_json_target(&with).map_err(|e| {
             e.add_sim_trace(&format!("Parse Compare -> Parse with param"))
-                .maybe_file_trace(&trace)
+                .add_id(id)
         })?;
 
         let mut cont_with = None;
@@ -82,7 +70,7 @@ impl NewJsonOperation for Compare {
             operator: operator.to_string(),
             cont: cont.map(|h| h.to_string()).or(None),
             cont_with,
-            trace,
+            id,
         })
     }
 }
@@ -140,6 +128,7 @@ pub fn get_cmp_targets(
 }
 
 pub fn box_cmp(
+    id: u64,
     compare: &AnyRefType,
     with: &AnyRefType,
     operator: &str,
@@ -150,42 +139,42 @@ pub fn box_cmp(
 ) -> Result<impl Fn(&Broadcast) -> Result<bool, Stop>, Stop> {
     let op: Result<Box<dyn Fn(&Broadcast) -> Result<bool, Stop>>, Stop> = match operator {
         "=" => {
-            let cmp = box_ord_plc_primitive(compare, with, &None, registry)
+            let cmp = box_ord_plc_primitive(compare, with, id, registry)
                 .map_err(|e| e.add_sim_trace(&format!("Build compare -> compare operation")))?;
             Ok(Box::new(move |channel: &Broadcast| {
                 Ok(cmp(channel)?.unwrap().is_eq())
             }))
         }
         "<>" => {
-            let cmp = box_ord_plc_primitive(compare, with, &None, registry)
+            let cmp = box_ord_plc_primitive(compare, with, id, registry)
                 .map_err(|e| e.add_sim_trace(&format!("Build compare -> compare operation")))?;
             Ok(Box::new(move |channel: &Broadcast| {
                 Ok(cmp(channel)?.unwrap().is_ne())
             }))
         }
         "<" => {
-            let cmp = box_ord_plc_primitive(compare, with, &None, registry)
+            let cmp = box_ord_plc_primitive(compare, with, id, registry)
                 .map_err(|e| e.add_sim_trace(&format!("Build compare -> compare operation")))?;
             Ok(Box::new(move |channel: &Broadcast| {
                 Ok(cmp(channel)?.unwrap().is_lt())
             }))
         }
         ">" => {
-            let cmp = box_ord_plc_primitive(compare, with, &None, registry)
+            let cmp = box_ord_plc_primitive(compare, with, id, registry)
                 .map_err(|e| e.add_sim_trace(&format!("Build compare -> compare operation")))?;
             Ok(Box::new(move |channel: &Broadcast| {
                 Ok(cmp(channel)?.unwrap().is_gt())
             }))
         }
         "<=" => {
-            let cmp = box_ord_plc_primitive(compare, with, &None, registry)
+            let cmp = box_ord_plc_primitive(compare, with, id, registry)
                 .map_err(|e| e.add_sim_trace(&format!("Build compare -> compare operation")))?;
             Ok(Box::new(move |channel: &Broadcast| {
                 Ok(cmp(channel)?.unwrap().is_le())
             }))
         }
         ">=" => {
-            let cmp = box_ord_plc_primitive(compare, with, &None, registry)
+            let cmp = box_ord_plc_primitive(compare, with, id, registry)
                 .map_err(|e| e.add_sim_trace(&format!("Build compare -> compare operation")))?;
             Ok(Box::new(move |channel: &Broadcast| {
                 Ok(cmp(channel)?.unwrap().is_ge())
@@ -212,11 +201,12 @@ impl BuildJsonOperation for Compare {
             &registry,
             &channel,
         )
-        .map_err(|e| e.maybe_file_trace(&self.trace))?;
+        .map_err(|e| e.add_id(self.id))?;
 
         let (compare, with) = targets.clone();
 
         let first = box_cmp(
+            self.id,
             &compare,
             &with,
             &self.operator,
@@ -225,7 +215,7 @@ impl BuildJsonOperation for Compare {
             &registry,
             &channel,
         )
-        .map_err(|e| e.maybe_file_trace(&self.trace))?;
+        .map_err(|e| e.add_id(self.id))?;
 
         let return_ptr = Some(LocalPointer::new(LocalType::PlcBool(PlcBool::Bool(
             Bool::new(&false)?,
@@ -275,7 +265,7 @@ impl BuildJsonOperation for Compare {
                         },
                         return_ptr,
                         false,
-                        &self.trace,
+                        self.id,
                     ))),
                     "OR" => Ok(Box::new(Operation::new(
                         MaybeHeapOrStatic(Some(HeapOrStatic::Static(&"Compare [OR]"))),
@@ -295,7 +285,7 @@ impl BuildJsonOperation for Compare {
                         },
                         return_ptr,
                         false,
-                        &self.trace,
+                        self.id,
                     ))),
                     "XOR" => Ok(Box::new(Operation::new(
                         MaybeHeapOrStatic(Some(HeapOrStatic::Static(&"Compare [XOR]"))),
@@ -318,7 +308,7 @@ impl BuildJsonOperation for Compare {
                         },
                         return_ptr,
                         false,
-                        &self.trace,
+                        self.id,
                     ))),
                     _ => Err(error!(format!("Invalid Cwith operator"))),
                 }
@@ -347,7 +337,7 @@ impl BuildJsonOperation for Compare {
                     },
                     return_ptr,
                     false,
-                    &self.trace,
+                    self.id,
                 )))
             }
         }

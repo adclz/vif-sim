@@ -32,7 +32,8 @@ pub struct FbInstance {
     body: Vec<JsonTarget>,
     of: Option<String>,
     read_only: bool,
-    path: usize
+    path: usize,
+    id: u64
 }
 
 impl_primitive_traits!(FbInstance, {
@@ -130,13 +131,14 @@ impl Serialize for FbInstance {
 }
 
 impl FbInstance {
-    pub fn from_fb(of: Option<String>, interface: SectionInterface, body: Vec<JsonTarget>, registry: &Kernel, channel: &Broadcast) -> Result<Self, Stop> {
+    pub fn from_fb(of: Option<String>, id: u64, interface: SectionInterface, body: Vec<JsonTarget>, registry: &Kernel, channel: &Broadcast) -> Result<Self, Stop> {
         Ok(Self {
             interface,
             body,
             read_only: false,
             of,
-            path: 0
+            path: 0,
+            id
         })
     }
 
@@ -196,7 +198,7 @@ impl FbInstance {
             },
             None,
             false,
-            &None
+            self.id
         )))
     }
 }

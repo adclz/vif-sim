@@ -18,38 +18,27 @@ use crate::kernel::plc::internal::template_impl::TemplateMemory;
 use crate::container::container::SimulationStatus;
 use web_time::Instant;
 use crate::container::broadcast::broadcast::Broadcast;
-use crate::parser::trace::trace::{FileTrace, FileTraceBuilder};
 use crate::kernel::plc::types::primitives::traits::meta_data::{HeapOrStatic, MaybeHeapOrStatic};
 
 #[derive(Tsify)]
 #[wasm_bindgen(skip_typescript)]
 #[derive(Clone)]
 pub struct BreakPoint {
-    path: Option<FileTrace>,
-    id: usize,
+    id: u64,
     status: BreakPointStatus,
 }
 
 #[wasm_bindgen]
 impl BreakPoint {
-    pub fn new(id: usize, path: Option<FileTrace>) -> Self {
+    pub fn new(id: u64) -> Self {
         Self {
             id,
-            path,
             status: BreakPointStatus::Inactive,
         }
     }
 
     #[wasm_bindgen(getter)]
-    pub fn get_path(&self) -> JsValue {
-        match &self.path {
-            None => JsValue::null(),
-            Some(a) => serde_wasm_bindgen::to_value(&a).unwrap()
-        }
-    }
-
-    #[wasm_bindgen(getter)]
-    pub fn get_id(&self) -> usize {
+    pub fn get_id(&self) -> u64 {
         self.id
     }
 
@@ -65,7 +54,7 @@ impl BreakPoint {
     }
 }
 
-pub fn pause_simulation(channel: &Broadcast, id: Option<usize>) -> Result<(), Stop> {
+pub fn pause_simulation(channel: &Broadcast, id: Option<u64>) -> Result<(), Stop> {
     channel.add_message(
         &Yellow.paint("[Pause] Simulation paused").to_string());
     let earlier = Instant::now();
@@ -105,23 +94,23 @@ pub fn pause_simulation(channel: &Broadcast, id: Option<usize>) -> Result<(), St
 
         let stop = read_sab_commands(&channel);
         if stop {
-            return Err(Stop::new("Manual stop before cycle end".into(), &None, &None))
+            return Err(Stop::new("Manual stop before cycle end".into(), &None, id))
         }
     }
     Ok(())
 }
 
-pub fn enableBreakpoint(channel: &Broadcast, bp: &i32) {
+pub fn enableBreakpoint(channel: &Broadcast, bp: u64) {
     channel.add_breakpoint_status(&BreakPointUpdateStatus::new(
-        (*bp) as usize,
+        bp,
         BreakPointStatus::Inactive,
     ));
     channel.add_message(&format!("Enabled breakpoint {}", bp))
 }
 
-pub fn disableBreakpoint(channel: &Broadcast, bp: &i32) {
+pub fn disableBreakpoint(channel: &Broadcast, bp: u64) {
     channel.add_breakpoint_status(&BreakPointUpdateStatus::new(
-        (*bp) as usize,
+        bp,
         BreakPointStatus::Disabled,
     ));
     channel.add_message(&format!("Disabled breakpoint {}", bp))
@@ -139,13 +128,13 @@ pub enum BreakPointStatus {
 #[wasm_bindgen(skip_typescript)]
 #[derive(Clone)]
 pub struct BreakPointUpdateStatus {
-    id: usize,
+    id: u64,
     status: BreakPointStatus,
 }
 
 #[wasm_bindgen]
 impl BreakPointUpdateStatus {
-    pub fn new(id: usize, status: BreakPointStatus) -> Self {
+    pub fn new(id: u64, status: BreakPointStatus) -> Self {
         Self {
             id,
             status,
@@ -153,7 +142,7 @@ impl BreakPointUpdateStatus {
     }
 
     #[wasm_bindgen(getter)]
-    pub fn get_id(&self) -> usize {
+    pub fn get_id(&self) -> u64 {
         self.id
     }
 
@@ -165,22 +154,14 @@ impl BreakPointUpdateStatus {
 
 
 pub struct BreakpointJson {
-    id: usize,
-    trace: Option<FileTrace>,
+    id: u64,
 }
 
 impl Clone for BreakpointJson {
     fn clone(&self) -> Self {
         Self {
-            id: get_id(),
-            trace: self.trace.clone(),
+            id: self.id,
         }
-    }
-}
-
-impl FileTraceBuilder for BreakpointJson {
-    fn get_trace(&self) -> &Option<FileTrace> {
-        &self.trace
     }
 }
 
@@ -189,18 +170,12 @@ impl NewJsonOperation for BreakpointJson {
         key_reader!(
             format!("Parse Breakpoint"),
             json {
-                trace? => as_object,
+                id => as_u64,
             }
         );
 
-        let trace = match trace {
-            None => None,
-            Some(a) => Self::build_trace(a),
-        };
-
         Ok(Self {
-            id: get_id(),
-            trace,
+            id,
         })
     }
 }
@@ -215,8 +190,7 @@ impl BuildJsonOperation for BreakpointJson {
     ) -> Result<RunTimeOperation, Stop> {
         if !registry.should_ignore_operation() {
             channel.add_breakpoint(&BreakPoint::new(
-                self.id,
-                self.trace.as_ref().cloned(),
+                self.id
             ));
         }
         let id = self.id;
@@ -230,7 +204,7 @@ impl BuildJsonOperation for BreakpointJson {
             },
             None,
             false,
-            &self.trace
+            self.id
         )))
     }
 }
