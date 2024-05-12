@@ -1,3 +1,4 @@
+use std::collections::HashSet;
 use wasm_bindgen::JsValue;
 use wasm_bindgen::prelude::wasm_bindgen;
 use crate::container::container::{ParseStatus, SimulationStatus};
@@ -5,9 +6,10 @@ use crate::container::error::error::Stop;
 use camelpaste::paste;
 use tsify::Tsify;
 use crate::container::broadcast::stack::Stack;
-use crate::kernel::plc::operations::unit::breakpoint::{BreakPoint, BreakPointUpdateStatus};
 use crate::kernel::plc::operations::unit::test::{UnitTest, UnitTestUpdateStatus};
-use serde::{Serialize, Serializer};
+use serde::{Deserialize, Serialize, Serializer};
+use wasm_bindgen::convert::IntoWasmAbi;
+use wasm_bindgen::describe::WasmDescribe;
 
 #[derive(Tsify)]
 #[wasm_bindgen(skip_typescript)]
@@ -115,8 +117,8 @@ impl_store!(
     error => Option<Stop>,
     monitor_schemas => Option<Vec<MonitorSchema>>,
     monitor_changes => Option<Vec<MonitorChange>>,
-    breakpoints => Option<Vec<BreakPoint>>,
-    breakpoints_statuses => Option<Vec<BreakPointUpdateStatus>>,
+    breakpoints => CustomHashSet,
+    current_breakpoint => Option<u64>,
     unit_tests => Option<Vec<UnitTest>>,
     unit_tests_statuses => Option<Vec<UnitTestUpdateStatus>>,
     entry_points => Option<Vec<String>>,
@@ -135,8 +137,8 @@ impl_take!(
     warnings => Option<Vec<String>>,
     monitor_schemas => Option<Vec<MonitorSchema>>,
     monitor_changes => Option<Vec<MonitorChange>>,
-    breakpoints => Option<Vec<BreakPoint>>,
-    breakpoints_statuses => Option<Vec<BreakPointUpdateStatus>>,
+    breakpoints => CustomHashSet,
+    current_breakpoint => Option<u64>,
     unit_tests => Option<Vec<UnitTest>>,
     unit_tests_statuses => Option<Vec<UnitTestUpdateStatus>>,
     entry_points => Option<Vec<String>>,
@@ -144,6 +146,10 @@ impl_take!(
     parse_provider_status => Option<ParseStatus>,
     parse_program_status => Option<ParseStatus>
 );
+
+#[wasm_bindgen]
+#[derive(Default, Clone)]
+pub struct CustomHashSet(HashSet<u64>);
 
 impl Store {
     pub fn move_and_reset(&mut self) -> Store {
@@ -174,12 +180,20 @@ impl Store {
         self.monitor_changes.get_or_insert_with(Vec::new).push(change.clone());
     }
 
-    pub fn add_breakpoint(&mut self, location: &BreakPoint) {
-        self.breakpoints.get_or_insert_with(Vec::new).push(location.clone());
+    pub fn add_breakpoint(&mut self, id: u64) {
+        self.breakpoints.0.insert(id);
     }
 
-    pub fn add_breakpoint_status(&mut self, status: &BreakPointUpdateStatus) {
-        self.breakpoints_statuses.get_or_insert_with(Vec::new).push(status.clone());
+    pub fn remove_breakpoint(&mut self, id: u64) {
+        self.breakpoints.0.remove(&id);
+    }
+
+    pub fn activate_breakpoint(&mut self, id: u64) {
+        self.current_breakpoint = Some(id);
+    }
+
+    pub fn disable_breakpoint(&mut self) {
+        self.current_breakpoint = None;
     }
 
     pub fn add_unit_test(&mut self, location: &UnitTest) {

@@ -1,1 +1,180 @@
-{"trace":{"file":"test\\pou.fc-return.test.ts","column":12,"line":23},"monitor":[],"file:///Main":{"ty":"ob","src":{"trace":{"file":"test\\pou.fc-return.test.ts","column":25,"line":26},"interface":{"ty":"interface","src":{"temp":{"FcReturn":{"ty":"Bool","src":{}}}}},"body":[{"ty":"asg","src":{"trace":{"file":"test\\pou.fc-return.test.ts","column":33,"line":34},"assign":{"ty":"local","src":{"path":["FcReturn"]}},"to":{"ty":"call","src":{"trace":{"file":"test\\pou.fc-return.test.ts","column":64,"line":34},"interface":{"ty":"call_interface","src":{}},"call":{"ty":"global","src":{"path":["Test_Fc"]}}}}}},{"ty":"unit_test","src":{"trace":{"file":"test\\pou.fc-return.test.ts","column":33,"line":35},"expect":{"ty":"local","src":{"path":["FcReturn"]}},"with":{"ty":"Implicit","src":{"value":true}},"operator":"=","description":"Return type of fc should be true"}}]}},"file:///Test_Fc":{"ty":"fc","src":{"trace":{"file":"test\\pou.fc-return.test.ts","column":16,"line":12},"interface":{"ty":"interface","src":{"return":{"ty":"Bool","src":{"value":false}}}},"body":[{"ty":"asg","src":{"assign":{"ty":"local","src":{"path":["return"]}},"to":{"ty":"Implicit","src":{"value":true}}}}]}}}
+{
+  "trace": {
+    "fileTrace": {
+      "file": "code\\main.ts",
+      "column": 1,
+      "line": 31
+    }
+  },
+  "monitor": [
+  ],
+  "entry": "Main",
+  "file:///Main": {
+    "ty": "ob",
+    "src": {
+      "id": 58,
+      "interface": {
+        "ty": "interface",
+        "src": {
+          "temp": {
+            "test": {
+              "ty": "Bool",
+              "src": {
+              }
+            },
+            "test2": {
+              "ty": "Bool",
+              "src": {
+              }
+            },
+            "test3": {
+              "ty": "array",
+              "src": {
+                "length": 10,
+                "of": {
+                  "ty": "Bool",
+                  "src": {
+                  }
+                },
+                "values": {
+                  "ty": "array_values",
+                  "src": [
+                  ]
+                }
+              }
+            }
+          },
+          "constant": {
+            "test4": {
+              "ty": "Bool",
+              "src": {
+              }
+            }
+          }
+        }
+      },
+      "body": [
+        {
+          "ty": "asg",
+          "src": {
+            "id": 154,
+            "assign": {
+              "ty": "local_out",
+              "src": {
+                "path": [
+                  "Main",
+                  "temp",
+                  "test"
+                ]
+              }
+            },
+            "to": {
+              "ty": "Implicit",
+              "src": {
+                "value": true
+              }
+            }
+          }
+        },
+        {
+          "ty": "asg",
+          "src": {
+            "id": 155,
+            "assign": {
+              "ty": "local_out",
+              "src": {
+                "path": [
+                  "Main",
+                  "temp",
+                  "test3",
+                  "[9]"
+                ]
+              }
+            },
+            "to": {
+              "ty": "Implicit",
+              "src": {
+                "value": true
+              }
+            }
+          }
+        },
+        {
+          "ty": "call",
+          "src": {
+            "id": 156,
+            "interface": {
+              "ty": "call_interface",
+              "src": {
+              }
+            },
+            "call": {
+              "ty": "global",
+              "src": {
+                "path": [
+                  "MyFirstInstanceDb"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "file:///MyFirstFb": {
+    "ty": "fb",
+    "src": {
+      "id": 41,
+      "interface": {
+        "ty": "interface",
+        "src": {
+          "temp": {
+            "test": {
+              "ty": "Bool",
+              "src": {
+              }
+            }
+          }
+        }
+      },
+      "body": [
+        {
+          "ty": "unit_log",
+          "src": {
+            "id": 157,
+            "message": "Hello world!",
+            "format": [
+            ]
+          }
+        },
+        {
+          "ty": "asg",
+          "src": {
+            "id": 158,
+            "assign": {
+              "ty": "local",
+              "src": {
+                "path": [
+                  "test"
+                ]
+              }
+            },
+            "to": {
+              "ty": "Implicit",
+              "src": {
+                "value": true
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "file:///MyFirstInstanceDb": {
+    "ty": "instance_db",
+    "src": {
+      "id": 42,
+      "of": "MyFirstFb"
+    }
+  }
+}

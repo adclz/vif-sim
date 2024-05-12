@@ -6,10 +6,8 @@ import {
     ParseStatus,
     MonitorSchema,
     Stack,
-    BreakPoint,
     UnitTestStatus,
-    UnitTestUpdateStatus,
-    BreakPointUpdateStatus
+    UnitTestUpdateStatus
 } from "../../vifsimlib.js";
 import {Container} from "../boot/container.js";
 import {VifEventEmitter} from "../event/event-emitter.js"
@@ -20,11 +18,11 @@ type Hooks = {
     "error": (cb: Stop) => void;
 
     "monitor:changes": (cb: MonitorChange[]) => void;
-    "breakpoints:statuses": (cb: BreakPointUpdateStatus[]) => void;
+    "breakpoint:current": (cb: number | undefined) => void;
     "unit-tests:statuses": (cb: UnitTestUpdateStatus[]) => void;
 
     "monitor:schemas": (cb: MonitorSchema[]) => void;
-    "breakpoints": (cb: BreakPoint[]) => void;
+    "breakpoints": (cb: number[]) => void;
     "unit-tests": (cb: UnitTest[]) => void;
     "simulation:stack": (cb: Stack) => void;
     "simulation:entry-points": (cb: string[]) => void;
@@ -45,8 +43,8 @@ interface AsyncExecutor {
         clearProvider(): Promise<void>
         clearProgram(): Promise<void>
         getMonitorSchemas(): MonitorSchema[]
-        getMonitorSchemasAsObject(): Record<string, MonitorSchema["value"]>
-        getBreakpoints(): BreakPoint[]
+        getMonitorSchemasAsObject(): MonitorSchema[]
+        getBreakpoints(): number[]
         getUnitTests(): UnitTest[]
     }>
 }
@@ -60,7 +58,7 @@ export class Plugin extends VifEventEmitter<Hooks> {
 
     private unitTests: UnitTest[] = []
     private monitorSchemas: MonitorSchema[] = []
-    private breakpoints: BreakPoint[] = []
+    private breakpoints: number[] = []
 
     constructor(name: string, interval: number) {
         super()
@@ -71,7 +69,7 @@ export class Plugin extends VifEventEmitter<Hooks> {
             1: ["warnings", "warnings"],
             2: ["error", "error"],
             3: ["monitor:changes", "changes"],
-            4: ["breakpoints:statuses", "statuses"],
+            4: ["breakpoint:current", "current"],
             5: ["unit-tests:statuses", "statuses"],
             6: ["monitor:schemas", "schemas"],
             7: ["breakpoints", "breakpoints"],
@@ -120,14 +118,14 @@ export class Plugin extends VifEventEmitter<Hooks> {
                 ev.sim_stack.forEach(x => err += `  at -  ${x}\n`)
             }
 
-            if (ev.file_stack)
+            if (ev.id_stack)
                 err += "File stack: \n"
 
             super(err)
 
-            if (ev.file_stack) {
+            if (ev.id_stack) {
                 let stack = ""
-                ev.file_stack.forEach(x => stack += `${x.file.replace("\\", "/")}:${x.line}:${x.column}\n`)
+                ev.id_stack.forEach(x => stack += x)
                 this.stack = stack
             }
         }
@@ -200,7 +198,6 @@ export class Plugin extends VifEventEmitter<Hooks> {
                                     switch (x.status) {
                                         case UnitTestStatus.Failed:
                                             resolve({
-                                                path: a.path,
                                                 description: a.description,
                                                 id: a.id,
                                                 status: UnitTestStatus.Failed,
@@ -209,7 +206,6 @@ export class Plugin extends VifEventEmitter<Hooks> {
                                             break;
                                         case UnitTestStatus.Succeed:
                                             resolve({
-                                                path: a.path,
                                                 description: a.description,
                                                 id: a.id,
                                                 status: UnitTestStatus.Succeed,
@@ -230,18 +226,7 @@ export class Plugin extends VifEventEmitter<Hooks> {
 
         const getMonitorSchemasAsObject = () => {
             let root: Record<string, any> = {};
-            this.monitorSchemas.forEach((x) => {
-                let ref: Record<string, any> = root
-                x.path.forEach((field, i) => {
-                    if (!ref[field]) {
-                        if (i === x.path.length - 1)
-                            ref[field] = x.value
-                        else ref[field] = {}
-                    }
-                    ref = ref[field]
-                })
-            })
-            return root
+            return this.monitorSchemas
         }
 
         const getBreakpoints = () => this.breakpoints

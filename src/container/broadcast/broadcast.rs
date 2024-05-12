@@ -4,7 +4,7 @@ use crate::container::broadcast::stack::Stack;
 use crate::container::error::error::Stop;
 use crate::container::container::{ParseStatus, SimulationStatus};
 use std::cell::RefCell;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::ops::{Deref, DerefMut};
 use std::rc::Rc;
 use js_sys::{Int32Array, SharedArrayBuffer};
@@ -13,7 +13,6 @@ use uuid::Uuid;
 #[cfg(target_arch = "wasm32")]
 use wasm_bindgen::JsValue;
 use crate::container::broadcast::store::{MonitorChange, MonitorSchema, Store};
-use crate::kernel::plc::operations::unit::breakpoint::{BreakPoint, BreakPointStatus, BreakPointUpdateStatus};
 use crate::kernel::plc::operations::unit::test::{UnitTest, UnitTestStatus, UnitTestUpdateStatus};
 
 pub struct Broadcast {
@@ -32,7 +31,7 @@ pub struct Broadcast {
     store: Rc<RefCell<Store>>,
 
     unit_tests: Rc<RefCell<HashMap<u64, UnitTest>>>,
-    breakpoints: Rc<RefCell<HashMap<u64, BreakPoint>>>,
+    breakpoints: Rc<RefCell<HashSet<u64>>>,
 
     stack: Rc<RefCell<Stack>>,
 }
@@ -48,7 +47,7 @@ impl Broadcast {
             store: Rc::new(RefCell::new(Store::default())),
 
             unit_tests: Rc::new(RefCell::new(HashMap::new())),
-            breakpoints: Rc::new(RefCell::new(HashMap::new())),
+            breakpoints: Rc::new(RefCell::new(HashSet::new())),
 
             stack: Rc::new(RefCell::new(Stack::new())),
         }
@@ -72,8 +71,8 @@ impl Broadcast {
             store: Rc::new(RefCell::new(Store::default())),
 
             unit_tests: Rc::new(RefCell::new(HashMap::new())),
-            breakpoints: Rc::new(RefCell::new(HashMap::new())),
-
+            breakpoints: Rc::new(RefCell::new(HashSet::new())),
+            
             stack: Rc::new(RefCell::new(Stack::new())),
         }
     }
@@ -131,18 +130,36 @@ impl Broadcast {
         panic!("{}", error)
     }
 
-    pub fn add_breakpoint(&self, breakpoint: &BreakPoint) {
-        self.store.borrow_mut().add_breakpoint(breakpoint);
-        self.breakpoints.borrow_mut().insert(breakpoint.get_id(), breakpoint.clone());
-    }
-
-    pub fn add_breakpoint_status(&self, breakpoint: &BreakPointUpdateStatus) {
+    /*pub fn add_breakpoint_status(&self, breakpoint: &BreakPointUpdateStatus) {
         self.store.borrow_mut().add_breakpoint_status(breakpoint);
         self.breakpoints.borrow_mut().get_mut(&breakpoint.get_id()).unwrap().set_status(breakpoint.get_status())
+    }*/
+
+    /// Checks if a breakpoint is enabled
+    pub fn is_breakpoint_enabled(&self, id: u64) -> bool {
+        self.breakpoints.borrow().deref().contains(&id)
     }
 
-    pub fn is_breakpoint_enabled(&self, id: u64) -> bool {
-        !matches!(self.breakpoints.borrow().deref().get(&id).unwrap().get_status(), BreakPointStatus::Disabled)
+    // Adds a breakpoint (set from outside) 
+    pub fn add_breakpoint(&self, id: u64) {
+        self.breakpoints.borrow_mut().insert(id);
+        self.store.borrow_mut().add_breakpoint(id);
+    }
+    
+    /// Removes a breakpoint (set from outside)
+    pub fn remove_breakpoint(&self, id: u64) {
+        self.breakpoints.borrow_mut().remove(&id);
+        self.store.borrow_mut().remove_breakpoint(id)
+    }
+    
+    /// Activate breakpoint
+    pub fn activate_breakpoint(&self, id: u64) {
+        self.store.borrow_mut().activate_breakpoint(id);
+    }
+
+    /// Disable breakpoint
+    pub fn disable_breakpoint(&self) {
+        self.store.borrow_mut().disable_breakpoint();
     }
 
     pub fn add_monitor_schema(&self, schema: &MonitorSchema) {
@@ -196,63 +213,11 @@ impl Broadcast {
     }
 
     pub fn clear_breakpoints(&self) {
-        *self.breakpoints.borrow_mut().deref_mut() = HashMap::new();
+        self.breakpoints.borrow_mut().clear()
     }
 
     pub fn breakpoints_len(&self) -> usize {
         self.breakpoints.borrow_mut().len()
-    }
-
-    pub fn reset_breakpoints(&self) {
-        let mut breakpoints_ids = vec!();
-        self.breakpoints
-            .borrow_mut()
-            .deref_mut()
-            .iter_mut()
-            .for_each(|x| {
-                if let BreakPointStatus::Disabled = x.1.get_status() { return; }
-                breakpoints_ids.push(*x.0);
-            });
-        breakpoints_ids.iter().for_each(|x| {
-            self.add_breakpoint_status(&BreakPointUpdateStatus::new(
-                *x,
-                BreakPointStatus::Inactive,
-            ))
-        })
-    }
-
-    pub fn enable_all_breakpoints(&self) {
-        let mut breakpoints_ids = vec!();
-        self.breakpoints
-            .borrow_mut()
-            .deref_mut()
-            .iter_mut()
-            .for_each(|x| {
-                breakpoints_ids.push(*x.0)
-            });
-        breakpoints_ids.iter().for_each(|x| {
-            self.add_breakpoint_status(&BreakPointUpdateStatus::new(
-                *x,
-                BreakPointStatus::Inactive,
-            ))
-        })
-    }
-
-    pub fn disable_all_breakpoints(&self) {
-        let mut breakpoints_ids = vec!();
-        self.breakpoints
-            .borrow_mut()
-            .deref_mut()
-            .iter_mut()
-            .for_each(|x| {
-                breakpoints_ids.push(*x.0)
-            });
-        breakpoints_ids.iter().for_each(|x| {
-            self.add_breakpoint_status(&BreakPointUpdateStatus::new(
-                *x,
-                BreakPointStatus::Disabled,
-            ))
-        })
     }
 
     pub fn push_cycle_stack(&self) {

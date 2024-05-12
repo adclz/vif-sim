@@ -347,7 +347,6 @@ impl Kernel {
         self.program_raw_pointers.borrow_mut().filter_dangling();
         self.program_raw_pointers.borrow_mut().reset_all(channel).unwrap();
         channel.reset_unit_tests();
-        channel.reset_breakpoints();
     }
 
     pub fn clear_program(&mut self, channel: &Broadcast) {

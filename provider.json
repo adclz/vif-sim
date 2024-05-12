@@ -1,118 +1,217 @@
 {
-  "name": "@adclz/standard-pack",
-  "protocol": "vif-comp-s7",
+  "name": "@vifjs/standard",
+  "filter_operations": {
+    "eq": {
+      "AnyInteger": [
+        "AnyInteger",
+        "AnyBinary",
+        "AnyFloat"
+      ],
+      "AnyBinary": [
+        "AnyInteger",
+        "AnyBinary",
+        "AnyFloat"
+      ],
+      "AnyFloat": [
+        "AnyInteger",
+        "PlcBinary",
+        "AnyFloat"
+      ],
+      "Time": [
+        "LTime",
+        "Time"
+      ]
+    },
+    "cmp": {
+      "AnyInteger": [
+        "AnyInteger",
+        "AnyBinary",
+        "AnyFloat"
+      ],
+      "AnyBinary": [
+        "AnyInteger",
+        "AnyBinary",
+        "AnyFloat"
+      ],
+      "AnyFloat": [
+        "AnyInteger",
+        "PlcBinary",
+        "AnyFloat"
+      ],
+      "Time": [
+        "LTime",
+        "Time"
+      ]
+    },
+    "mul": {
+      "AnyInteger": [
+        "AnyInteger",
+        "AnyBinary",
+        "AnyFloat"
+      ],
+      "AnyBinary": [
+        "AnyInteger",
+        "AnyBinary",
+        "AnyFloat"
+      ],
+      "AnyFloat": [
+        "AnyInteger",
+        "PlcBinary",
+        "AnyFloat"
+      ],
+      "Time": [
+        "AnyInteger"
+      ],
+      "LTime": [
+        "AnyInteger"
+      ]
+    },
+    "div": {
+      "AnyInteger": [
+        "AnyInteger",
+        "AnyBinary",
+        "AnyFloat"
+      ],
+      "AnyBinary": [
+        "AnyInteger",
+        "AnyBinary",
+        "AnyFloat"
+      ],
+      "AnyFloat": [
+        "AnyInteger",
+        "PlcBinary",
+        "AnyFloat"
+      ],
+      "Time": [
+        "AnyInteger"
+      ],
+      "LTime": [
+        "AnyInteger"
+      ]
+    },
+    "add": {
+      "AnyInteger": [
+        "AnyInteger",
+        "AnyBinary",
+        "AnyFloat"
+      ],
+      "AnyBinary": [
+        "AnyInteger",
+        "AnyBinary",
+        "AnyFloat"
+      ],
+      "AnyFloat": [
+        "AnyInteger",
+        "PlcBinary",
+        "AnyFloat"
+      ],
+      "Time": [
+        "Time",
+        "DInt"
+      ],
+      "LTime": [
+        "Time",
+        "LTime",
+        "LInt"
+      ],
+      "Tod": [
+        "Time",
+        "DInt"
+      ],
+      "LTod": [
+        "Time",
+        "LTime",
+        "LInt"
+      ]
+    },
+    "sub": {
+      "AnyInteger": [
+        "AnyInteger",
+        "AnyBinary",
+        "AnyFloat"
+      ],
+      "AnyBinary": [
+        "AnyInteger",
+        "AnyBinary",
+        "AnyFloat"
+      ],
+      "AnyFloat": [
+        "AnyInteger",
+        "PlcBinary",
+        "AnyFloat"
+      ],
+      "Time": [
+        "Time",
+        "DInt"
+      ],
+      "LTime": [
+        "Time",
+        "LTime",
+        "LInt"
+      ],
+      "Tod": [
+        "Time",
+        "DInt"
+      ],
+      "LTod": [
+        "Time",
+        "LTime",
+        "LInt"
+      ]
+    }
+  },
   "exclude_sections": {
-    "output": [
-      "IEC_TIMER",
-      "IEC_COUNTER"
-    ],
     "temp": [
-      "Instance",
-      "IEC_TIMER",
-      "IEC_COUNTER"
+      "Instance"
     ],
     "constant": [
       "Instance",
       "Udt",
       "Struct",
-      "Array",
-      "IEC_TIMER",
-      "IEC_COUNTER"
+      "Array"
     ],
     "return": [
       "Instance",
       "Struct",
-      "Array",
-      "IEC_TIMER",
-      "IEC_COUNTER"
+      "Array"
     ]
-  },
-  "type_aliases": {
-    "Custom": "Word"
   },
   "override_return": {
     "sub": {
-      "Time": [["Tod", "Tod"]],
-      "LTime": [["LTod", "LTod"]]
-    }
-  },
-  "filter_operations": {
-    "eq": {
-      "AnyInteger": ["AnyInteger", "AnyBinary", "AnyFloat"],
-      "AnyBinary": ["AnyInteger", "AnyBinary", "AnyFloat"],
-      "AnyFloat": ["AnyInteger", "AnyBinary", "AnyFloat"],
-      "Time": ["LTime", "Time"],
-      "Date": ["Date"]
-    },
-    "cmp": {
-      "AnyInteger": ["AnyInteger", "AnyBinary", "AnyFloat"],
-      "AnyBinary": ["AnyInteger", "AnyBinary", "AnyFloat"],
-      "AnyFloat": ["AnyInteger", "AnyBinary", "AnyFloat"],
-      "Time": ["LTime", "Time"],
-      "Date": ["Date"]
-    },
-    "mul": {
-      "AnyInteger": ["AnyInteger", "AnyBinary", "AnyFloat"],
-      "AnyBinary": ["AnyInteger", "AnyBinary", "AnyFloat"],
-      "AnyFloat": ["AnyInteger", "AnyBinary", "AnyFloat"],
-      "Time": ["AnyInteger"],
-      "LTime": ["AnyInteger"]
-    },
-    "div": {
-      "AnyInteger": ["AnyInteger", "AnyBinary", "AnyFloat"],
-      "AnyBinary": ["AnyInteger", "AnyBinary", "AnyFloat"],
-      "AnyFloat": ["AnyInteger", "AnyBinary", "AnyFloat"],
-      "Time": ["AnyInteger"],
-      "LTime": ["AnyInteger"]
-    },
-    "add": {
-      "AnyInteger": ["AnyInteger", "AnyBinary", "AnyFloat"],
-      "AnyBinary": ["AnyInteger", "AnyBinary", "AnyFloat"],
-      "AnyFloat": ["AnyInteger", "AnyBinary", "AnyFloat"],
-      "Time": ["Time", "DInt"],
-      "LTime": ["Time", "LTime", "LInt"],
-      "Tod": ["Time", "DInt"],
-      "LTod": ["Time", "LTime", "LInt"],
-      "Date": ["Tod", "LTod"]
-    },
-    "sub": {
-      "AnyInteger": ["AnyInteger", "AnyBinary", "AnyFloat"],
-      "AnyBinary": ["AnyInteger", "AnyBinary", "AnyFloat"],
-      "AnyFloat": ["AnyInteger", "AnyBinary", "AnyFloat"],
-      "Time": ["Time", "DInt"],
-      "LTime": ["Time", "LTime", "LInt"],
-      "Tod": ["Time", "DInt"],
-      "LTod": ["Time", "LTime", "LInt"],
-      "Date": ["Date"]
+      "Time": [
+        [
+          "Tod",
+          "Tod"
+        ]
+      ]
     }
   },
   "file:///F_TRIG": {
     "ty": "fb",
     "src": {
-      "trace": {
-        "file": "src\\resources\\operations\\bit-logic\\F_trig.ts",
-        "column": 28,
-        "line": 35
-      },
+      "id": 30,
       "interface": {
         "ty": "interface",
         "src": {
           "input": {
             "CLK": {
               "ty": "Bool",
-              "src": {}
+              "src": {
+              }
             }
           },
           "output": {
             "Q": {
               "ty": "Bool",
-              "src": {}
+              "src": {
+              }
             }
           },
           "static": {
             "Stat_Bit": {
               "ty": "Bool",
-              "src": {}
+              "src": {
+              }
             }
           }
         }
@@ -121,9 +220,11 @@
         {
           "ty": "if",
           "src": {
+            "id": 61,
             "_if": {
               "ty": "compare",
               "src": {
+                "id": 60,
                 "compare": {
                   "ty": "local",
                   "src": {
@@ -145,6 +246,7 @@
                 "cont_with": {
                   "ty": "compare",
                   "src": {
+                    "id": 59,
                     "compare": {
                       "ty": "local",
                       "src": {
@@ -168,6 +270,7 @@
               {
                 "ty": "asg",
                 "src": {
+                  "id": 62,
                   "assign": {
                     "ty": "local",
                     "src": {
@@ -189,6 +292,7 @@
               {
                 "ty": "asg",
                 "src": {
+                  "id": 63,
                   "assign": {
                     "ty": "local",
                     "src": {
@@ -211,6 +315,7 @@
         {
           "ty": "asg",
           "src": {
+            "id": 64,
             "assign": {
               "ty": "local",
               "src": {
@@ -235,30 +340,29 @@
   "file:///R_TRIG": {
     "ty": "fb",
     "src": {
-      "trace": {
-        "file": "src\\resources\\operations\\bit-logic\\R_trig.ts",
-        "column": 28,
-        "line": 35
-      },
+      "id": 34,
       "interface": {
         "ty": "interface",
         "src": {
           "input": {
             "CLK": {
               "ty": "Bool",
-              "src": {}
+              "src": {
+              }
             }
           },
           "output": {
             "Q": {
               "ty": "Bool",
-              "src": {}
+              "src": {
+              }
             }
           },
           "static": {
             "Stat_Bit": {
               "ty": "Bool",
-              "src": {}
+              "src": {
+              }
             }
           }
         }
@@ -267,9 +371,11 @@
         {
           "ty": "if",
           "src": {
+            "id": 67,
             "_if": {
               "ty": "compare",
               "src": {
+                "id": 66,
                 "compare": {
                   "ty": "local",
                   "src": {
@@ -291,6 +397,7 @@
                 "cont_with": {
                   "ty": "compare",
                   "src": {
+                    "id": 65,
                     "compare": {
                       "ty": "local",
                       "src": {
@@ -314,6 +421,7 @@
               {
                 "ty": "asg",
                 "src": {
+                  "id": 68,
                   "assign": {
                     "ty": "local",
                     "src": {
@@ -335,6 +443,7 @@
               {
                 "ty": "asg",
                 "src": {
+                  "id": 69,
                   "assign": {
                     "ty": "local",
                     "src": {
@@ -357,6 +466,7 @@
         {
           "ty": "asg",
           "src": {
+            "id": 70,
             "assign": {
               "ty": "local",
               "src": {
@@ -381,6 +491,7 @@
   "file:///TP": {
     "ty": "template",
     "src": {
+      "id": 35,
       "body": [
         {
           "ty": "#timer_sm",
@@ -388,6 +499,7 @@
             "start": {
               "ty": "compare",
               "src": {
+                "id": 72,
                 "compare": {
                   "ty": "#inner",
                   "src": {
@@ -425,6 +537,7 @@
               {
                 "ty": "asg",
                 "src": {
+                  "id": 76,
                   "assign": {
                     "ty": "#inner",
                     "src": {
@@ -446,6 +559,7 @@
               {
                 "ty": "asg",
                 "src": {
+                  "id": 78,
                   "assign": {
                     "ty": "#inner",
                     "src": {
@@ -478,7 +592,8 @@
                 }
               }
             ],
-            "on_timer_reset": []
+            "on_timer_reset": [
+            ]
           }
         }
       ]
@@ -487,6 +602,7 @@
   "file:///TON": {
     "ty": "template",
     "src": {
+      "id": 36,
       "body": [
         {
           "ty": "#timer_sm",
@@ -494,6 +610,7 @@
             "start": {
               "ty": "compare",
               "src": {
+                "id": 83,
                 "compare": {
                   "ty": "#inner",
                   "src": {
@@ -514,6 +631,7 @@
             "reset": {
               "ty": "compare",
               "src": {
+                "id": 85,
                 "compare": {
                   "ty": "#inner",
                   "src": {
@@ -551,6 +669,7 @@
               {
                 "ty": "asg",
                 "src": {
+                  "id": 89,
                   "assign": {
                     "ty": "#inner",
                     "src": {
@@ -572,6 +691,7 @@
               {
                 "ty": "asg",
                 "src": {
+                  "id": 91,
                   "assign": {
                     "ty": "#inner",
                     "src": {
@@ -591,6 +711,7 @@
               {
                 "ty": "asg",
                 "src": {
+                  "id": 94,
                   "assign": {
                     "ty": "#inner",
                     "src": {
@@ -614,6 +735,7 @@
               {
                 "ty": "asg",
                 "src": {
+                  "id": 96,
                   "assign": {
                     "ty": "#inner",
                     "src": {
@@ -654,13 +776,16 @@
   "file:///TOF": {
     "ty": "template",
     "src": {
+      "id": 37,
       "body": [
         {
           "ty": "if",
           "src": {
+            "id": 102,
             "_if": {
               "ty": "compare",
               "src": {
+                "id": 101,
                 "compare": {
                   "ty": "#inner",
                   "src": {
@@ -682,6 +807,7 @@
               {
                 "ty": "asg",
                 "src": {
+                  "id": 104,
                   "assign": {
                     "ty": "#inner",
                     "src": {
@@ -699,7 +825,8 @@
                 }
               }
             ],
-            "_else": []
+            "_else": [
+            ]
           }
         },
         {
@@ -721,6 +848,7 @@
             "reset": {
               "ty": "compare",
               "src": {
+                "id": 108,
                 "compare": {
                   "ty": "#inner",
                   "src": {
@@ -758,6 +886,7 @@
               {
                 "ty": "asg",
                 "src": {
+                  "id": 112,
                   "assign": {
                     "ty": "#inner",
                     "src": {
@@ -779,6 +908,7 @@
               {
                 "ty": "asg",
                 "src": {
+                  "id": 114,
                   "assign": {
                     "ty": "#inner",
                     "src": {
@@ -815,6 +945,7 @@
               {
                 "ty": "asg",
                 "src": {
+                  "id": 118,
                   "assign": {
                     "ty": "#inner",
                     "src": {
@@ -855,6 +986,7 @@
   "file:///CTU": {
     "ty": "template",
     "src": {
+      "id": 38,
       "body": [
         {
           "ty": "#counter_sm",
@@ -862,6 +994,7 @@
             "increment": {
               "ty": "compare",
               "src": {
+                "id": 126,
                 "compare": {
                   "ty": "#r_trig",
                   "src": {
@@ -886,11 +1019,12 @@
                 "cont_with": {
                   "ty": "compare",
                   "src": {
+                    "id": 125,
                     "compare": {
                       "ty": "#inner",
                       "src": {
                         "path": [
-                          "R"
+                          "RESET"
                         ]
                       }
                     },
@@ -908,11 +1042,12 @@
             "reset": {
               "ty": "compare",
               "src": {
+                "id": 128,
                 "compare": {
                   "ty": "#inner",
                   "src": {
                     "path": [
-                      "R"
+                      "RESET"
                     ]
                   }
                 },
@@ -945,11 +1080,12 @@
               {
                 "ty": "asg",
                 "src": {
+                  "id": 136,
                   "assign": {
                     "ty": "#inner",
                     "src": {
                       "path": [
-                        "QU"
+                        "Q"
                       ]
                     }
                   },
@@ -962,16 +1098,18 @@
                 }
               }
             ],
-            "on_counter_down": [],
+            "on_counter_down": [
+            ],
             "on_counter_reset": [
               {
                 "ty": "asg",
                 "src": {
+                  "id": 132,
                   "assign": {
                     "ty": "#inner",
                     "src": {
                       "path": [
-                        "QU"
+                        "Q"
                       ]
                     }
                   },
@@ -1007,6 +1145,7 @@
   "file:///CTD": {
     "ty": "template",
     "src": {
+      "id": 39,
       "body": [
         {
           "ty": "#counter_sm",
@@ -1014,6 +1153,7 @@
             "decrement": {
               "ty": "compare",
               "src": {
+                "id": 142,
                 "compare": {
                   "ty": "#r_trig",
                   "src": {
@@ -1038,11 +1178,12 @@
                 "cont_with": {
                   "ty": "compare",
                   "src": {
+                    "id": 141,
                     "compare": {
                       "ty": "#inner",
                       "src": {
                         "path": [
-                          "R"
+                          "LOAD"
                         ]
                       }
                     },
@@ -1060,11 +1201,12 @@
             "reset": {
               "ty": "compare",
               "src": {
+                "id": 144,
                 "compare": {
                   "ty": "#inner",
                   "src": {
                     "path": [
-                      "R"
+                      "LOAD"
                     ]
                   }
                 },
@@ -1093,16 +1235,18 @@
                 ]
               }
             },
-            "on_counter_up": [],
+            "on_counter_up": [
+            ],
             "on_counter_down": [
               {
                 "ty": "asg",
                 "src": {
+                  "id": 148,
                   "assign": {
                     "ty": "#inner",
                     "src": {
                       "path": [
-                        "QD"
+                        "Q"
                       ]
                     }
                   },
@@ -1119,11 +1263,12 @@
               {
                 "ty": "asg",
                 "src": {
+                  "id": 150,
                   "assign": {
                     "ty": "#inner",
                     "src": {
                       "path": [
-                        "QD"
+                        "Q"
                       ]
                     }
                   },
@@ -1156,73 +1301,157 @@
       ]
     }
   },
-  "file:///IEC_TIMER": {
+  "file:///CTDInstance": {
     "ty": "udt",
     "src": {
-      "attributes": {
-        "author": "Simatic",
-        "family": "IEC",
-        "instructionName": "IEC_TIMER",
-        "libVersion": 1,
-        "name": "IEC_TMR"
-      },
-      "name": "IEC_TIMER",
+      "id": 5,
+      "name": "CTDInstance",
       "interface": {
-        "IN": {
+        "CD": {
           "ty": "Bool",
-          "src": {}
+          "src": {
+          }
         },
-        "PT": {
-          "ty": "Time",
-          "src": {}
+        "LOAD": {
+          "ty": "Bool",
+          "src": {
+          }
+        },
+        "PV": {
+          "ty": "Int",
+          "src": {
+          }
         },
         "Q": {
           "ty": "Bool",
-          "src": {}
+          "src": {
+          }
         },
-        "ET": {
-          "ty": "Time",
-          "src": {}
+        "CV": {
+          "ty": "Int",
+          "src": {
+          }
         }
       }
     }
   },
-  "file:///IEC_COUNTER": {
+  "file:///CTUInstance": {
     "ty": "udt",
     "src": {
-      "name": "IEC_COUNTER",
+      "id": 11,
+      "name": "CTUInstance",
       "interface": {
         "CU": {
           "ty": "Bool",
-          "src": {}
+          "src": {
+          }
         },
-        "CD": {
+        "RESET": {
           "ty": "Bool",
-          "src": {}
-        },
-        "R": {
-          "ty": "Bool",
-          "src": {}
-        },
-        "LD": {
-          "ty": "Bool",
-          "src": {}
+          "src": {
+          }
         },
         "PV": {
           "ty": "Int",
-          "src": {}
+          "src": {
+          }
         },
-        "QU": {
+        "Q": {
           "ty": "Bool",
-          "src": {}
-        },
-        "QD": {
-          "ty": "Bool",
-          "src": {}
+          "src": {
+          }
         },
         "CV": {
           "ty": "Int",
-          "src": {}
+          "src": {
+          }
+        }
+      }
+    }
+  },
+  "file:///TPInstance": {
+    "ty": "udt",
+    "src": {
+      "id": 16,
+      "name": "TPInstance",
+      "interface": {
+        "IN": {
+          "ty": "Bool",
+          "src": {
+          }
+        },
+        "PT": {
+          "ty": "Time",
+          "src": {
+          }
+        },
+        "Q": {
+          "ty": "Bool",
+          "src": {
+          }
+        },
+        "ET": {
+          "ty": "Time",
+          "src": {
+          }
+        }
+      }
+    }
+  },
+  "file:///TOFInstance": {
+    "ty": "udt",
+    "src": {
+      "id": 21,
+      "name": "TOFInstance",
+      "interface": {
+        "IN": {
+          "ty": "Bool",
+          "src": {
+          }
+        },
+        "PT": {
+          "ty": "Time",
+          "src": {
+          }
+        },
+        "Q": {
+          "ty": "Bool",
+          "src": {
+          }
+        },
+        "ET": {
+          "ty": "Time",
+          "src": {
+          }
+        }
+      }
+    }
+  },
+  "file:///TONInstance": {
+    "ty": "udt",
+    "src": {
+      "id": 26,
+      "name": "TONInstance",
+      "interface": {
+        "IN": {
+          "ty": "Bool",
+          "src": {
+          }
+        },
+        "PT": {
+          "ty": "Time",
+          "src": {
+          }
+        },
+        "Q": {
+          "ty": "Bool",
+          "src": {
+          }
+        },
+        "ET": {
+          "ty": "Time",
+          "src": {
+          }
         }
       }
     }

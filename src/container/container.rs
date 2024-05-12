@@ -31,7 +31,7 @@ use crate::js::typed_array::shiftLeft;
 use crate::{error, key_reader};
 use crate::container::error::error::Stop;
 use crate::parser::main::exclude::{parse_type_aliases, parse_return_operations, parse_exclude_sections, parse_exclude_types, parse_filter_operations};
-use crate::kernel::plc::operations::unit::breakpoint::{BreakPointStatus, BreakPointUpdateStatus, enableBreakpoint, pause_simulation, disableBreakpoint};
+use crate::container::simulation::pause::{enableBreakpoint, pause_simulation, disableBreakpoint};
 
 pub static DELAYED_TIMERS: Lazy<Arc<Mutex<HashMap<u64, Duration>>>> =
     Lazy::new(|| Arc::new(Mutex::new(HashMap::new())));
@@ -532,30 +532,20 @@ impl Container {
     }
 
     pub fn disable_breakpoint(&self, data: u64) {
-        self.channel.add_breakpoint_status(&BreakPointUpdateStatus::new(
-            data,
-            BreakPointStatus::Disabled));
-        self.channel.add_message(&format!("Disabled breakpoint {}", data));
+        self.channel.disable_breakpoint();
+        self.channel.add_message(&format!("Disabled breakpoint"));
         self.channel.publish();
     }
 
     pub fn enable_breakpoint(&self, data: u64) {
-        self.channel.add_breakpoint_status(&BreakPointUpdateStatus::new(
-            data,
-            BreakPointStatus::Inactive));
+        self.channel.activate_breakpoint(data);
         self.channel.add_message(&format!("Enabled breakpoint {}", data));
         self.channel.publish();
     }
 
     pub fn disable_all_breakpoints(&self) {
-        self.channel.disable_all_breakpoints();
+        self.channel.clear_breakpoints();
         self.channel.add_message(&format!("Disabled all breakpoints"));
-        self.channel.publish();
-    }
-
-    pub fn enable_all_breakpoints(&self) {
-        self.channel.enable_all_breakpoints();
-        self.channel.add_message(&format!("Enabled all breakpoints"));
         self.channel.publish();
     }
 
@@ -603,12 +593,12 @@ pub fn read_sab_commands(channel: &Broadcast) -> bool {
                     }
                 }
                 3 => { // 3 = Enable all breakpoints
-                    channel.enable_all_breakpoints();
+                    //channel.clear_breakpoints();
                     channel.add_message(&"Enabled all breakpoints".to_string());
                     channel.publish();
                 }
                 4 => { // 4 = Disable all breakpoints
-                    channel.disable_all_breakpoints();
+                    channel.clear_breakpoints();
                     channel.add_message(&"Disabled all breakpoints".to_string());
                     channel.publish();
                 }

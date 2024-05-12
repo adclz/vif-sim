@@ -155,6 +155,6 @@ mod tests {
         let mut kernel = Kernel::default();
         let channel = Broadcast::new(&uuid);
         parse_program(&serde_json::from_str(data).unwrap(), &mut kernel, &channel).unwrap();
-        assert_eq!(kernel.try_build_program_interfaces(&channel), Err(Stop::new("Invalid member name: test already exists".into(), &None, &None)));
+        assert_eq!(kernel.try_build_program_interfaces(&channel), Err(Stop::new("Invalid member name: test already exists".into(), &None, None)));
     }
 }

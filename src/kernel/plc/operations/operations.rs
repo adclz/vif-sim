@@ -44,10 +44,9 @@ use std::ops::Deref;
 use std::rc::{Rc};
 use crate::kernel::plc::operations::unit::block::UnitBlock;
 use crate::kernel::plc::operations::unit::log::UnitLog;
-use crate::kernel::plc::operations::unit::breakpoint::BreakpointJson;
+use crate::container::simulation::pause::pause_simulation;
 use crate::kernel::plc::operations::unit::test::UnitTestJson;
 use fixedstr::str256;
-use crate::parser::trace::trace::FileTrace;
 use crate::kernel::plc::types::primitives::string::wchar::wchar;
 use crate::kernel::plc::types::primitives::string::wstring::wstr256;
 
@@ -96,7 +95,7 @@ pub struct Operation {
     name: MaybeHeapOrStatic,
     return_early: bool,
     return_ptr: Option<LocalPointer>,
-    trace: Option<FileTrace>,
+    id: u64,
     closure: Rc<RefCell<dyn FnMut(&Broadcast) -> Result<(), Stop>>>,
 }
 
@@ -106,14 +105,14 @@ impl Operation {
         closure: impl FnMut(&Broadcast) -> Result<(), Stop> + 'static,
         return_ptr: Option<LocalPointer>,
         return_early: bool,
-        trace: &Option<FileTrace>
+        id: u64
     ) -> Self {
         Self {
             name,
             return_early,
             return_ptr: return_ptr.clone(),
             closure: Rc::new(RefCell::new(closure)),
-            trace: trace.clone()
+            id
         }
     }
 }
@@ -132,8 +131,13 @@ impl Operation {
         self.return_early
     }
 
-    pub fn borrow_closure(&self) -> RefMut<dyn FnMut(&Broadcast) -> Result<(), Stop>> {
-        RefMut::map(self.closure.borrow_mut(), |a| a)
+    pub fn borrow_closure(&self, channel: &Broadcast) -> Result<RefMut<dyn FnMut(&Broadcast) -> Result<(), Stop>>, Stop> {
+        if channel.is_breakpoint_enabled(self.id) {
+            pause_simulation(channel, Some(self.id))?;
+        }
+        Ok(RefMut::map(self.closure.borrow_mut(), |a| {
+            a
+        }))
     }
 }
 
@@ -189,12 +193,12 @@ pub trait RuntimeOperationTrait {
 
 impl RuntimeOperationTrait for RunTimeOperation {
     fn with_void(&self, channel: &Broadcast) -> Result<(), Stop> {
-        self.borrow_closure()(channel)
+        self.borrow_closure(channel)?(channel)
             .map_err(|e|
                 match &self.name.0 {
                     None => e,
                     Some(a) => e.add_sim_trace(&format!("{}", self.name))
-                }.maybe_file_trace(&self.trace)
+                }.add_id(self.id)
             )?;
         match &self.return_ptr {
             Some(a) => Err(error!(format!(
@@ -228,7 +232,6 @@ create_json_operations!(
     UnitTestJson,
     UnitLog,
     UnitBlock,
-    BreakpointJson,
     TimerStateMachine,
     CounterStateMachine,
     TemplateImpl,
@@ -309,12 +312,12 @@ macro_rules! impl_family {
                         match &self.return_ptr {
                             None => Err(error!(format!("Operation return type '{}' expected, got void instead", stringify!($simple_family)))),
                             Some(ptr) => {
-                                self.borrow_closure()(channel)
+                                self.borrow_closure(channel)?(channel)
             .map_err(|e|
                 match &self.name.0 {
                     None => e,
                     Some(a) => e.add_sim_trace(&format!("{}", self.name))
-                }.maybe_file_trace(&self.trace)
+                }.add_id(self.id)
             )?;
                                 ptr.[<with_$simple_family:snake>](channel, |a| {
                                     f(&a)
@@ -328,12 +331,12 @@ macro_rules! impl_family {
                         match &self.return_ptr {
                             None => Err(error!(format!("Operation return type '{}' expected, got void instead", stringify!($complex_family)))),
                             Some(ptr) => {
-                                self.borrow_closure()(channel)
+                                self.borrow_closure(channel)?(channel)
             .map_err(|e|
                 match &self.name.0 {
                     None => e,
                     Some(a) => e.add_sim_trace(&format!("{}", self.name))
-                }.maybe_file_trace(&self.trace)
+                }.add_id(self.id)
             )?;
                                 ptr.[<with_$complex_family:snake>](channel, |a| {
                                     f(&a)
@@ -415,7 +418,7 @@ macro_rules! impl_primitive_stmt {
                         match &self.return_ptr {
                             None => Err(error!(format!("Return type of operation is not {}, got void", stringify!($primitive)))),
                             Some(a) => {
-                                self.borrow_closure()(channel).map_err(|e| e.maybe_file_trace(&self.trace))?;
+                                self.borrow_closure(channel)?(channel).map_err(|e| e.add_id(self.id))?;
                                 a.[<as_$primitive>](channel)
                             }
                         }

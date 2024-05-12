@@ -36,7 +36,7 @@ class NodeDispatcher {
             monitor_schemas: store.get_monitor_schemas,
             monitor_changes: store.get_monitor_changes,
             breakpoints: store.get_breakpoints,
-            breakpoints_statuses: store.get_breakpoints_statuses,
+            current_breakpoint: store.get_current_breakpoint,
             unit_tests: store.get_unit_tests,
             unit_tests_statuses: store.get_unit_tests_statuses,
             entry_points: store.get_entry_points,
@@ -58,14 +58,8 @@ class NodeDispatcher {
             id: x.get_id,
             value: x.get_value
         }))
-        if (received_store.breakpoints) filtered_store.breakpoints = received_store.breakpoints.map(x => ({
-            id: x.get_id,
-            status: x.status
-        }))
-        if (received_store.breakpoints_statuses) filtered_store.breakpoints_statuses = received_store.breakpoints_statuses.map(x => ({
-            id: x.get_id,
-            status: x.get_status
-        }))
+        if (received_store.breakpoints) filtered_store.breakpoints = received_store.breakpoints
+        if (received_store.current_breakpoint) filtered_store.current_breakpoint = received_store.current_breakpoint
         if (received_store.unit_tests) filtered_store.unit_tests = received_store.unit_tests.map(x => ({
             id: x.get_id,
             description: x.get_description,
@@ -125,7 +119,6 @@ const dispatcher = function () {
         let broadcast
         let store = null
 
-        let breakpoint_statuses_memos = []
         let unit_tests_statuses_memos = []
 
         let parse_provider_status_memo = null
@@ -143,9 +136,6 @@ const dispatcher = function () {
                     store = e.store
                     if (typeof store.unit_tests_statuses !== "undefined")
                         unit_tests_statuses_memos.push(...store.unit_tests_statuses)
-
-                    if (typeof store.breakpoints_statuses !== "undefined")
-                        breakpoint_statuses_memos.push(...store.breakpoints_statuses)
 
                     if (typeof store.parse_provider_status !== "undefined")
                         parse_provider_status_memo = store.parse_provider_status
@@ -181,12 +171,7 @@ const dispatcher = function () {
                             type: 3, changes: store_copy.monitor_changes
                         })
 
-                        if (breakpoint_statuses_memos.length) {
-                            broadcast.postMessage({
-                                type: 4, statuses: breakpoint_statuses_memos
-                            })
-                            breakpoint_statuses_memos = []
-                        }
+                        if (store_copy.current_breakpoint) broadcast.postMessage({type: 4, current: store_copy.current_breakpoint})
 
                         if (unit_tests_statuses_memos.length) {
                             broadcast.postMessage({

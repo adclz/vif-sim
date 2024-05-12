@@ -19,7 +19,6 @@ use crate::kernel::plc::operations::internal::f_trig::F_Trig;
 use crate::kernel::plc::operations::operations::{NewJsonOperation, JsonOperation};
 use crate::kernel::plc::operations::unit::block::UnitBlock;
 use crate::kernel::plc::operations::unit::log::UnitLog;
-use crate::kernel::plc::operations::unit::breakpoint::BreakpointJson;
 use crate::kernel::plc::operations::unit::test::UnitTestJson;
 use crate::container::error::error::{Stop};
 use crate::kernel::plc::operations::binary::rotate_left::RotateLeft;
@@ -72,7 +71,6 @@ pub fn parse_json_target(json: &Value) -> Result<JsonTarget, Stop> {
         "unit_test" => Ok(JsonTarget::Operation(Box::new(JsonOperation::UnitTestJson(UnitTestJson::new(src)?)))),
         "unit_log" => Ok(JsonTarget::Operation(Box::new(JsonOperation::UnitLog(UnitLog::new(src)?)))),
         "unit_block" => Ok(JsonTarget::Operation(Box::new(JsonOperation::UnitBlock(UnitBlock::new(src)?)))),
-        "breakpoint" => Ok(JsonTarget::Operation(Box::new(JsonOperation::BreakpointJson(BreakpointJson::new(src)?)))),
 
         // Return
         "return" => Ok(JsonTarget::Operation(Box::new(JsonOperation::Return(Return::new(src)?)))),
