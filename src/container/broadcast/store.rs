@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 use wasm_bindgen::JsValue;
 use wasm_bindgen::prelude::wasm_bindgen;
 use crate::container::container::{ParseStatus, SimulationStatus};
@@ -10,6 +10,8 @@ use crate::kernel::plc::operations::unit::test::{UnitTest, UnitTestUpdateStatus}
 use serde::{Deserialize, Serialize, Serializer};
 use wasm_bindgen::convert::IntoWasmAbi;
 use wasm_bindgen::describe::WasmDescribe;
+use crate::kernel::plc::types::primitives::traits::primitive_traits::SerializeValue;
+use crate::kernel::registry::Kernel;
 
 #[derive(Tsify)]
 #[wasm_bindgen(skip_typescript)]
@@ -110,15 +112,15 @@ macro_rules! impl_serialize {
     }
 }
 
+// Creates all fields of the store
 impl_store!(
     stack => Option<Stack>,
     messages => Option<Vec<String>>,
     warnings => Option<Vec<String>>,
     error => Option<Stop>,
-    monitor_schemas => Option<Vec<MonitorSchema>>,
-    monitor_changes => Option<Vec<MonitorChange>>,
+    monitoring => Vec<Monitoring>,
     breakpoints => CustomHashSet,
-    current_breakpoint => Option<u64>,
+    current_breakpoint => Option<u32>,
     unit_tests => Option<Vec<UnitTest>>,
     unit_tests_statuses => Option<Vec<UnitTestUpdateStatus>>,
     entry_points => Option<Vec<String>>,
@@ -127,18 +129,19 @@ impl_store!(
     parse_program_status => Option<ParseStatus>
 );
 
+// Fields that can be serialized directly
 impl_serialize!(
     stack => JsValue,
     error => JsValue
 );
 
+// Fields that are moved when the getter is accessed
 impl_take!(
     messages => Option<Vec<String>>,
     warnings => Option<Vec<String>>,
-    monitor_schemas => Option<Vec<MonitorSchema>>,
-    monitor_changes => Option<Vec<MonitorChange>>,
     breakpoints => CustomHashSet,
-    current_breakpoint => Option<u64>,
+    monitoring => Vec<Monitoring>,
+    current_breakpoint => Option<u32>,
     unit_tests => Option<Vec<UnitTest>>,
     unit_tests_statuses => Option<Vec<UnitTestUpdateStatus>>,
     entry_points => Option<Vec<String>>,
@@ -149,9 +152,41 @@ impl_take!(
 
 #[wasm_bindgen]
 #[derive(Default, Clone)]
-pub struct CustomHashSet(HashSet<u64>);
+pub struct CustomHashSet(HashSet<u32>);
+
+#[derive(Clone)]
+#[derive(Tsify)]
+#[wasm_bindgen(skip_typescript)]
+pub struct Monitoring {
+    id: u32,
+    #[tsify(type = "boolean | number | string")]
+    value: JsValue
+}
+
+#[wasm_bindgen]
+impl Monitoring {
+    #[wasm_bindgen(getter)]
+    pub fn get_id(&self) -> u32 {
+        self.id
+    }
+
+    #[wasm_bindgen(getter)]
+    pub fn get_value(&mut self) -> JsValue {
+        std::mem::take(&mut self.value)
+    }
+}
 
 impl Store {
+    pub fn build_monitor(&mut self, kernel: &Kernel) {
+        #[cfg(target_arch = "wasm32")]
+        kernel.monitor_raw_pointers
+            .borrow()
+            .iter()
+            .for_each(|(id , ptr)| {
+                self.monitoring.push(Monitoring { id: *id, value: unsafe { (**ptr).get_value() } } );
+            });
+    }
+    
     pub fn move_and_reset(&mut self) -> Store {
         std::mem::take(self)
     }
@@ -172,23 +207,15 @@ impl Store {
         self.error = Some(error.clone())
     }
 
-    pub fn add_monitor_schema(&mut self, schema: &MonitorSchema) {
-        self.monitor_schemas.get_or_insert_with(Vec::new).push(schema.clone());
-    }
-
-    pub fn add_monitor_change(&mut self, change: &MonitorChange) {
-        self.monitor_changes.get_or_insert_with(Vec::new).push(change.clone());
-    }
-
-    pub fn add_breakpoint(&mut self, id: u64) {
+    pub fn add_breakpoint(&mut self, id: u32) {
         self.breakpoints.0.insert(id);
     }
 
-    pub fn remove_breakpoint(&mut self, id: u64) {
+    pub fn remove_breakpoint(&mut self, id: u32) {
         self.breakpoints.0.remove(&id);
     }
 
-    pub fn activate_breakpoint(&mut self, id: u64) {
+    pub fn activate_breakpoint(&mut self, id: u32) {
         self.current_breakpoint = Some(id);
     }
 

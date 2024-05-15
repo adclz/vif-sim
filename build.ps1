@@ -4,7 +4,7 @@
 #
 
 # Run wasm-pack
-wasm-pack build --out-dir pkg_web --target web
+wasm-pack build --dev --out-dir pkg_web --target web
 
 # Edit package.json
 $packageJsonPath = "pkg_web/package.json"
@@ -75,7 +75,7 @@ Remove-Item "pkg_web/dist/tsconfig.json"
 #
 
 # Run wasm-pack
-wasm-pack build --out-dir pkg_node --target nodejs --features node
+wasm-pack build --dev --out-dir pkg_node --target nodejs --features node
 
 # Edit package.json
 $packageJsonPath = "pkg_node/package.json"

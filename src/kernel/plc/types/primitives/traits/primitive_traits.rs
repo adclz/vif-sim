@@ -9,14 +9,14 @@ use crate::kernel::plc::types::primitives::floats::plc_float::PlcFloat;
 use crate::kernel::plc::types::primitives::integers::plc_integer::PlcInteger;
 use crate::kernel::plc::types::primitives::string::plc_string::PlcString;
 use crate::kernel::plc::types::primitives::string::wchar::wchar;
-use crate::kernel::plc::types::primitives::string::wstring::wstr256;
 use crate::kernel::plc::types::primitives::timers::plc_time::PlcTime;
 use crate::kernel::plc::types::primitives::tod::plc_tod::PlcTod;
 use camelpaste::paste;
-use fixedstr::str256;
 
 use std::fmt::{Display, Formatter};
 use std::rc::Rc;
+use wasm_bindgen::JsValue;
+use wasm_bindgen::prelude::wasm_bindgen;
 
 use crate::kernel::plc::types::primitives::boolean::bool::Bool;
 use crate::kernel::plc::types::primitives::boolean::bit_access::BitAccess;
@@ -39,15 +39,16 @@ use crate::kernel::plc::types::primitives::floats::lreal::LReal;
 use crate::kernel::plc::types::primitives::floats::real::Real;
 
 use crate::kernel::plc::types::primitives::string::_char::_Char;
-use crate::kernel::plc::types::primitives::string::_string::_String;
+use crate::kernel::plc::types::primitives::string::_string::{_String, plcstr};
 use crate::kernel::plc::types::primitives::string::wchar::WChar;
-use crate::kernel::plc::types::primitives::string::wstring::WString;
+use crate::kernel::plc::types::primitives::string::wstring::{plcwstr, WString};
 
 use crate::kernel::plc::types::primitives::timers::lTime::LTime;
 use crate::kernel::plc::types::primitives::timers::time::Time;
 
 use crate::kernel::plc::types::primitives::tod::ltod::LTod;
 use crate::kernel::plc::types::primitives::tod::tod::Tod;
+use crate::kernel::registry::Kernel;
 
 pub trait RawMut {
     fn reset_ptr(&mut self, channel: &Broadcast);
@@ -55,7 +56,11 @@ pub trait RawMut {
 
 #[enum_dispatch::enum_dispatch]
 pub trait ToggleMonitor {
-    fn set_monitor(&mut self, activate: bool);
+    fn set_monitor(&self, kernel: &Kernel);
+}
+
+pub trait SerializeValue {
+    fn get_value(&self) -> JsValue;
 }
 
 pub trait PrimitiveTrait {
@@ -64,7 +69,9 @@ pub trait PrimitiveTrait {
     /// Creates a new PlcPrimitive from a native type.
     ///
     /// The provided value is also the default value.
-    fn new(value: &Self::Native) -> Result<Self::PlcPrimitive, Stop>;
+    fn new(value: &Self::Native, id: u32) -> Result<Self::PlcPrimitive, Stop>;
+    
+    fn new_default(id: u32) -> Self::PlcPrimitive;
 
     /// Borrows the value field.
     fn get(&self, channel: &Broadcast) -> Result<Self::Native, Stop>;
@@ -78,18 +85,15 @@ pub trait PrimitiveTrait {
 
     /// Resets the native value.
     ///
-    /// Basically the value field copies the default field.
+    /// Basically the value field is a copy of the default field.
     fn reset(&mut self, channel: &Broadcast);
 
     /// Returns the id of this type.
     ///
     /// Since ids are defined with an AtomicUsize, they are all unique
-    fn get_id(&self) -> usize;
+    fn get_id(&self) -> u32;
 
     fn get_type_id(&self) -> TypeId;
-
-    /// Sends an event to the main broadcast with the id of this type and the field value.
-    fn monitor(&self, channel: &Broadcast);
 }
 
 macro_rules! primitive_traits {
@@ -118,7 +122,7 @@ macro_rules! primitive_traits {
 }
 
 primitive_traits!(
-    bool, u8, i8, u16, i16, u32, i32, u64, i64, f32, f64, str256, char, wstr256, wchar
+    bool, u8, i8, u16, i16, u32, i32, u64, i64, f32, f64, plcstr, char, plcwstr, wchar
 );
 
 pub trait RawDisplay {

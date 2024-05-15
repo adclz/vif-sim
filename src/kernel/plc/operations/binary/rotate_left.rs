@@ -14,7 +14,7 @@ use crate::kernel::rust::operations::{box_rotate_left_plc_primitive};
 pub struct RotateLeft {
     rotate: JsonTarget,
     rotate_with: JsonTarget,
-    id: u64,
+    id: u32,
 }
 
 impl NewJsonOperation for RotateLeft {
@@ -27,6 +27,8 @@ impl NewJsonOperation for RotateLeft {
                 id => as_u64,
             }
         );
+
+        let id = id as u32;
 
         let rotate = parse_json_target(&rotate)?;
         let rotate_with = parse_json_target(&rotate_with)?;

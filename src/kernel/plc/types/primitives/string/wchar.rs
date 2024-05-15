@@ -5,10 +5,10 @@ use crate::container::error::error::Stop;
 use crate::kernel::plc::types::primitives::traits::family_traits::*;
 use crate::kernel::plc::types::primitives::traits::primitive_traits::*;
 use crate::kernel::plc::types::primitives::traits::meta_data::*;
-use crate::{error, impl_primitive_all};
+use crate::{error, impl_primitive_all, key_reader};
 use serde::ser::SerializeStruct;
 use serde::{Serialize, Serializer};
-use serde_json::Value;
+use serde_json::{Map, Value};
 use smart_default::SmartDefault;
 use std::any::{Any, TypeId};
 use std::fmt::{Display, Formatter};
@@ -19,13 +19,12 @@ use crate::kernel::registry::get_string;
 
 pub type wchar = char;
 
-#[derive(Clone, SmartDefault)]
+#[derive(Clone)]
 pub struct WChar {
     value: wchar,
     default: wchar,
-    #[default(_code = "get_id()")]
-    id: usize,
-    monitor: bool,
+
+    id: u32,
     read_only: bool,
     alias: Option<usize>,
     path: usize
@@ -33,15 +32,18 @@ pub struct WChar {
 
 impl_primitive_all!(WChar, char);
 
-impl TryFrom<&Value> for WChar {
+impl TryFrom<&Map<String, Value>> for WChar {
     type Error = Stop;
 
-    fn try_from(value: &Value) -> Result<Self, Self::Error> {
-        match value.as_str() {
-            None => Err(error!(format!("Invalid value {} for WChar", value))),
-            Some(a) => Ok(WChar::new(
-                &char::from_str(a).map_err(|e| error!(format!("{}", e)))?,
-            )?),
-        }
+    fn try_from(data: &Map<String, Value>) -> Result<Self, Self::Error> {
+        key_reader!(
+            format!("Parse WChar"),
+            data {
+                value => as_str,
+                id => as_u64,
+            }
+        );
+        let id = id as u32;
+        WChar::new(&char::from_str(value).map_err(|e| error!(format!("{}", e)))?, id)
     }
 }

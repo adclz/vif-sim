@@ -12,12 +12,13 @@ use crate::kernel::rust::operations::{box_atan_plc_primitive, box_tan_plc_primit
 use crate::kernel::plc::types::primitives::floats::plc_float::PlcFloat;
 use crate::kernel::plc::types::primitives::floats::real::Real;
 use crate::kernel::arch::local::r#type::LocalType;
+use crate::kernel::plc::types::primitives::traits::primitive_traits::PrimitiveTrait;
 
 
 #[derive(Clone)]
 pub struct ATan {
     atan: JsonTarget,
-    id: u64,
+    id: u32,
 }
 
 impl NewJsonOperation for ATan {
@@ -29,6 +30,8 @@ impl NewJsonOperation for ATan {
                 id => as_u64,
             }
         );
+
+        let id = id as u32;
 
         let atan = parse_json_target(&atan)?;
 
@@ -47,7 +50,7 @@ impl BuildJsonOperation for ATan {
         registry: &Kernel,
         channel: &Broadcast
     ) -> Result<RunTimeOperation, Stop> {
-        let atan = self.atan.solve_to_ref(interface, template, Some(LocalType::PlcFloat(PlcFloat::Real(Real::default()))), registry, channel)?;
+        let atan = self.atan.solve_to_ref(interface, template, Some(LocalType::PlcFloat(PlcFloat::Real(Real::new_default(0)))), registry, channel)?;
         box_atan_plc_primitive(&atan, self.id, registry)
     }
 }

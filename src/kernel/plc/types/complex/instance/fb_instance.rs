@@ -12,16 +12,16 @@ use crate::kernel::plc::operations::operations::{Operation, RunTimeOperation, Ru
 use crate::kernel::plc::pou::fb::Fb;
 use crate::kernel::plc::types::primitives::traits::primitive_traits::{RawMut, ToggleMonitor};
 use crate::kernel::plc::types::primitives::string::wchar::wchar;
-use crate::kernel::plc::types::primitives::string::wstring::wstr256;
+use crate::kernel::plc::types::primitives::string::wstring::{plcwstr};
 use crate::kernel::arch::local::pointer::LocalPointerAndPath;
 use crate::kernel::registry::{get_full_path, get_string, Kernel};
 use crate::{error, impl_primitive_traits};
 use camelpaste::paste;
-use fixedstr::str256;
 
 use serde::{Serialize, Serializer};
 use std::collections::HashMap;
 use std::fmt::{Display, Formatter};
+use crate::kernel::plc::types::primitives::string::_string::plcstr;
 use crate::kernel::plc::types::primitives::traits::meta_data::{MaybeHeapOrStatic, MetaData, SetMetaData};
 use crate::kernel::plc::types::primitives::traits::primitive_traits::{AsMutPrimitive, Primitive};
 
@@ -33,15 +33,15 @@ pub struct FbInstance {
     of: Option<String>,
     read_only: bool,
     path: usize,
-    id: u64
+    id: u32
 }
 
 impl_primitive_traits!(FbInstance, {
     bool, [direct false], [stop Err(error!(format!("Can't convert an instance into a primitive")))], [none Err(error!(format!("Can't convert an instance into a primitive")))],
     char, [direct false], [stop Err(error!(format!("Can't convert an instance into a primitive")))], [none Err(error!(format!("Can't convert an instance into a primitive")))],
     wchar, [direct false], [stop Err(error!(format!("Can't convert an instance into a primitive")))], [none Err(error!(format!("Can't convert an instance into a primitive")))],
-    str256, [direct false], [stop Err(error!(format!("Can't convert an instance into a primitive")))], [none Err(error!(format!("Can't convert an instance into a primitive")))],
-    wstr256, [direct false], [stop Err(error!(format!("Can't convert an instance into a primitive")))], [none Err(error!(format!("Can't convert an instance into a primitive")))],
+    plcstr, [direct false], [stop Err(error!(format!("Can't convert an instance into a primitive")))], [none Err(error!(format!("Can't convert an instance into a primitive")))],
+    plcwstr, [direct false], [stop Err(error!(format!("Can't convert an instance into a primitive")))], [none Err(error!(format!("Can't convert an instance into a primitive")))],
     f32, [direct false], [stop Err(error!(format!("Can't convert an instance into a primitive")))], [none Err(error!(format!("Can't convert an instance into a primitive")))],
     f64, [direct false], [stop Err(error!(format!("Can't convert an instance into a primitive")))], [none Err(error!(format!("Can't convert an instance into a primitive")))],
     u8, [direct false], [stop Err(error!(format!("Can't convert an instance into a primitive")))], [none Err(error!(format!("Can't convert an instance into a primitive")))],
@@ -110,8 +110,8 @@ impl SetMetaData for FbInstance {
 }
 
 impl ToggleMonitor for FbInstance {
-    fn set_monitor(&mut self, activate: bool) {
-        self.interface.set_monitor(activate)
+    fn set_monitor(&self, kernel: &Kernel) {
+        self.interface.set_monitor(kernel)
     }
 }
 
@@ -131,7 +131,7 @@ impl Serialize for FbInstance {
 }
 
 impl FbInstance {
-    pub fn from_fb(of: Option<String>, id: u64, interface: SectionInterface, body: Vec<JsonTarget>, registry: &Kernel, channel: &Broadcast) -> Result<Self, Stop> {
+    pub fn from_fb(of: Option<String>, id: u32, interface: SectionInterface, body: Vec<JsonTarget>, registry: &Kernel, channel: &Broadcast) -> Result<Self, Stop> {
         Ok(Self {
             interface,
             body,

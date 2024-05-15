@@ -24,7 +24,7 @@ pub struct Call {
     call: JsonTarget,
     name: usize,
     interface: HashMap<Section, Vec<(Vec<String>, JsonTarget)>>,
-    id: u64,
+    id: u32,
 }
 
 #[macro_export]
@@ -62,6 +62,8 @@ impl NewJsonOperation for Call {
                 id => as_u64,
             }
         );
+
+        let id = id as u32;
 
         let call_interface = interface["src"].as_object().unwrap();
 

@@ -14,7 +14,8 @@ macro_rules! create_block_interface {
     $interface: expr,
     $registry: ident,
     $channel: ident,
-    $({ $section: ident }),+) => {
+    $({ $section: ident }),+,
+    $monitor: ident) => {
         camelpaste::paste! {
             {
                 let mut all_names: Vec<usize> = vec!();
@@ -25,7 +26,7 @@ macro_rules! create_block_interface {
                 "return" => Ok(()),
                 $(stringify!([<$section:lower>]) => {
                     // Creates the section
-                    let section_struct = parse_struct_interface(value, $registry, $channel, &Some(Section::$section))?;
+                    let section_struct = parse_struct_interface(value, $registry, $channel, &Some(Section::$section), $monitor)?;
                     
                     // Checks if names exists in another section
                     let names = section_struct.get_names();

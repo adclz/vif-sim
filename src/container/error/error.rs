@@ -10,7 +10,7 @@ use wasm_bindgen::prelude::wasm_bindgen;
 #[wasm_bindgen(skip_typescript)]
 pub struct Stop {
     error: String,
-    id_stack: Vec<u64>,
+    id_stack: Vec<u32>,
     sim_stack: Vec<String>,
 }
 
@@ -55,7 +55,7 @@ impl Stop {
     pub fn serialize(&self) -> JsValue {
         serde_wasm_bindgen::to_value(self).unwrap()
     }
-    pub fn new(message: String, sim_trace: &Option<String>, id: Option<u64>) -> Self {
+    pub fn new(message: String, sim_trace: &Option<String>, id: Option<u32>) -> Self {
         let mut id_vec = Vec::new();
         if id.is_some() {
             id_vec.push(*id.as_ref().unwrap());
@@ -66,11 +66,15 @@ impl Stop {
             sim_stack_vec.push(sim_trace.as_ref().unwrap().clone());
         }
 
-        Self {
+        let err = Self {
             error: message,
             id_stack: id_vec,
             sim_stack: sim_stack_vec
-        }
+        };
+        
+        /*#[cfg(not(target_arch = "wasm32-unknown-unknown"))]
+        panic!("{}", err);*/
+        err
     }
 
     pub fn add_sim_trace(mut self, stack: &str) -> Self {
@@ -78,7 +82,7 @@ impl Stop {
         self
     }
 
-    pub fn add_id(mut self, id: u64) -> Self {
+    pub fn add_id(mut self, id: u32) -> Self {
         self.id_stack.push(id);
         self
     }

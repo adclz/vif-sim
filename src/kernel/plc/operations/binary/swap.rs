@@ -14,7 +14,7 @@ use crate::kernel::rust::operations::{box_swap_bytes_plc_primitive};
 #[derive(Clone)]
 pub struct Swap {
     swap: JsonTarget,
-    id: u64,
+    id: u32,
 }
 
 impl NewJsonOperation for Swap {
@@ -26,6 +26,8 @@ impl NewJsonOperation for Swap {
                 id => as_u64,
             }
         );
+
+        let id = id as u32;
 
         let swap = parse_json_target(swap)?;
 

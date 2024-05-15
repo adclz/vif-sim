@@ -12,12 +12,13 @@ use crate::kernel::rust::operations::{box_ceil_plc_primitive, box_trunc_plc_prim
 use crate::kernel::plc::types::primitives::floats::plc_float::PlcFloat;
 use crate::kernel::plc::types::primitives::floats::real::Real;
 use crate::kernel::arch::local::r#type::LocalType;
+use crate::kernel::plc::types::primitives::traits::primitive_traits::PrimitiveTrait;
 
 
 #[derive(Clone)]
 pub struct Ceil {
     ceil: JsonTarget,
-    id: u64,
+    id: u32,
 }
 
 impl NewJsonOperation for Ceil {
@@ -29,6 +30,8 @@ impl NewJsonOperation for Ceil {
                 id => as_u64,
             }
         );
+
+        let id = id as u32;
 
         let ceil = parse_json_target(&ceil)?;
 
@@ -47,7 +50,7 @@ impl BuildJsonOperation for Ceil {
         registry: &Kernel,
         channel: &Broadcast
     ) -> Result<RunTimeOperation, Stop> {
-        let ceil = self.ceil.solve_to_ref(interface, template, Some(LocalType::PlcFloat(PlcFloat::Real(Real::default()))), registry, channel)?;
+        let ceil = self.ceil.solve_to_ref(interface, template, Some(LocalType::PlcFloat(PlcFloat::Real(Real::new_default(0)))), registry, channel)?;
         box_ceil_plc_primitive(&ceil, self.id, registry)
     }
 }

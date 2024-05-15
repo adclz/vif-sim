@@ -3,9 +3,9 @@ use crate::container::error::error::Stop;
 use crate::kernel::plc::types::primitives::traits::family_traits::GetRawPointerPrimitive;
 use crate::kernel::plc::types::primitives::traits::primitive_traits::{AsMutPrimitive, Primitive, PrimitiveTrait, RawMut};
 use crate::kernel::plc::types::primitives::string::_char::_Char;
-use crate::kernel::plc::types::primitives::string::_string::_String;
+use crate::kernel::plc::types::primitives::string::_string::{_String, plcstr};
 use crate::kernel::plc::types::primitives::string::wchar::{wchar, WChar};
-use crate::kernel::plc::types::primitives::string::wstring::{wstr256, WString};
+use crate::kernel::plc::types::primitives::string::wstring::{plcwstr, WString};
 use crate::{create_family, error, impl_primitive_traits, key_reader};
 use camelpaste::paste;
 use fixedstr::str256;
@@ -22,8 +22,8 @@ impl_primitive_traits!(PlcString, {
     bool, [direct false], [stop Err(error!(format!("0")))], [none Err(error!(format!("0")))],
     char, [self.is__char], [get_mut as_mut__char], [get as__char],
     wchar, [self.is_w_char], [get_mut as_mut_w_char], [get as_w_char],
-    str256, [self.is__string], [get_mut as_mut__string], [get as__string],
-    wstr256, [self.is_w_string], [get_mut as_mut_w_string], [get as_w_string],
+    plcstr, [self.is__string], [get_mut as_mut__string], [get as__string],
+    plcwstr, [self.is_w_string], [get_mut as_mut_w_string], [get as_w_string],
     f32, [direct false], [stop Err(error!(format!("0")))], [none Err(error!(format!("0")))],
     f64, [direct false], [stop Err(error!(format!("0")))], [none Err(error!(format!("0")))],
     u8, [direct false], [stop Err(error!(format!("0")))], [none Err(error!(format!("0")))],
@@ -36,25 +36,27 @@ impl_primitive_traits!(PlcString, {
     i64, [direct false], [stop Err(error!(format!("0")))], [none Err(error!(format!("0")))]
 });
 
-impl TryFrom<(&Map<String, Value>, &str)> for PlcString {
+impl TryFrom<&Map<String, Value>> for PlcString {
     type Error = Stop;
 
-    fn try_from(src: (&Map<String, Value>, &str)) -> Result<Self, Self::Error> {
-        let _src = src.0;
-        let ty = src.1;
+    fn try_from(data: &Map<String, Value>) -> Result<Self, Self::Error> {
         key_reader!(
-           format!("Parse PlcString {}", ty),
-           _src {
-                value?,
+           format!("Parse PlcString"),
+           data {
+                ty => as_str,
+                src => {
+                    value?,
+                    id => as_u64,
+                }
             }
         );
-
+        let id = id as u32;
         match value {
             None => match ty {
-                "Char" => Ok(Self::_Char(_Char::default())),
-                "String" => Ok(Self::_String(_String::default())),
-                "WChar" => Ok(Self::WChar(WChar::default())),
-                "WString" => Ok(Self::WString(WString::default())),
+                "Char" => Ok(Self::_Char(_Char::new_default(id))),
+                "String" => Ok(Self::_String(_String::new_default(id))),
+                "WChar" => Ok(Self::WChar(WChar::new_default(id))),
+                "WString" => Ok(Self::WString(WString::new_default(id))),
                 _ => Err(error!(
                     format!("Invalid PlcString type: {}", ty),
                     format!("Parse PlcString")
@@ -70,10 +72,10 @@ impl TryFrom<(&Map<String, Value>, &str)> for PlcString {
                                     "Parse PlcString".to_string()
                                 ))
                             } else {
-                                Ok(Self::_Char(_Char::new(&char::from_str(v).unwrap())?))
+                                Ok(Self::_Char(_Char::new(&char::from_str(v).unwrap(), id)?))
                             }
                         }
-                        "String" => Ok(Self::_String(_String::new(&v.into())?)),
+                        "String" => Ok(Self::_String(_String::new(&plcstr(v.into()), id)?)),
                         "WChar" => {
                             if v.len() > 1 {
                                 Err(error!(
@@ -81,10 +83,10 @@ impl TryFrom<(&Map<String, Value>, &str)> for PlcString {
                                     "Parse PlcString".to_string()
                                 ))
                             } else {
-                                Ok(Self::WChar(WChar::new(&char::from_str(v).unwrap())?))
+                                Ok(Self::WChar(WChar::new(&char::from_str(v).unwrap(), id)?))
                             }
                         }
-                        "WString" => Ok(Self::WString(WString::new(&v.into())?)),
+                        "WString" => Ok(Self::WString(WString::new(&plcwstr(v.into()), id)?)),
                         _ => Err(error!(
                             format!("Invalid PlcString type: {}", ty),
                             "Parse PlcString".to_string()

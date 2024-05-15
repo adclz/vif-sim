@@ -14,6 +14,7 @@ use uuid::Uuid;
 use wasm_bindgen::JsValue;
 use crate::container::broadcast::store::{MonitorChange, MonitorSchema, Store};
 use crate::kernel::plc::operations::unit::test::{UnitTest, UnitTestStatus, UnitTestUpdateStatus};
+use crate::kernel::registry::Kernel;
 
 pub struct Broadcast {
     #[cfg(target_arch = "wasm32")]
@@ -30,8 +31,8 @@ pub struct Broadcast {
 
     store: Rc<RefCell<Store>>,
 
-    unit_tests: Rc<RefCell<HashMap<u64, UnitTest>>>,
-    breakpoints: Rc<RefCell<HashSet<u64>>>,
+    unit_tests: Rc<RefCell<HashMap<u32, UnitTest>>>,
+    breakpoints: Rc<RefCell<HashSet<u32>>>,
 
     stack: Rc<RefCell<Stack>>,
 }
@@ -136,38 +137,34 @@ impl Broadcast {
     }*/
 
     /// Checks if a breakpoint is enabled
-    pub fn is_breakpoint_enabled(&self, id: u64) -> bool {
+    pub fn is_breakpoint_enabled(&self, id: u32) -> bool {
         self.breakpoints.borrow().deref().contains(&id)
     }
 
     // Adds a breakpoint (set from outside) 
-    pub fn add_breakpoint(&self, id: u64) {
+    pub fn add_breakpoint(&self, id: u32) {
         self.breakpoints.borrow_mut().insert(id);
         self.store.borrow_mut().add_breakpoint(id);
     }
     
+    pub fn build_monitor(&self, kernel: &Kernel) {
+        self.store.borrow_mut().build_monitor(kernel);
+    }
+    
     /// Removes a breakpoint (set from outside)
-    pub fn remove_breakpoint(&self, id: u64) {
+    pub fn remove_breakpoint(&self, id: u32) {
         self.breakpoints.borrow_mut().remove(&id);
         self.store.borrow_mut().remove_breakpoint(id)
     }
     
     /// Activate breakpoint
-    pub fn activate_breakpoint(&self, id: u64) {
+    pub fn activate_breakpoint(&self, id: u32) {
         self.store.borrow_mut().activate_breakpoint(id);
     }
 
     /// Disable breakpoint
     pub fn disable_breakpoint(&self) {
         self.store.borrow_mut().disable_breakpoint();
-    }
-
-    pub fn add_monitor_schema(&self, schema: &MonitorSchema) {
-        self.store.borrow_mut().add_monitor_schema(schema)
-    }
-
-    pub fn add_monitor_change(&self, schema: &MonitorChange) {
-        self.store.borrow_mut().add_monitor_change(schema)
     }
 
     pub fn set_simulation_status(&self, status: &SimulationStatus) {

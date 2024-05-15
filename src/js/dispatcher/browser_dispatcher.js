@@ -28,8 +28,7 @@ export class BrowserDispatcher {
             messages: store.get_messages,
             warnings: store.get_warnings,
             error: store.get_error,
-            monitor_schemas: store.get_monitor_schemas,
-            monitor_changes: store.get_monitor_changes,
+            monitoring: store.get_monitoring,
             breakpoints: store.get_breakpoints,
             current_breakpoint: store.get_current_breakpoint,
             unit_tests: store.get_unit_tests,
@@ -45,11 +44,7 @@ export class BrowserDispatcher {
         if (received_store.messages) filtered_store.messages = received_store.messages
         if (received_store.warnings) filtered_store.warnings = received_store.warnings
         if (received_store.error) filtered_store.error = received_store.error
-        if (received_store.monitor_schemas) filtered_store.monitor_schemas = received_store.monitor_schemas.map(x => ({
-            path: x.get_path,
-            value: x.get_value
-        }))
-        if (received_store.monitor_changes) filtered_store.monitor_changes = received_store.monitor_changes.map(x => ({
+        if (received_store.monitoring) filtered_store.monitoring = received_store.monitoring.map(x => ({
             id: x.get_id,
             value: x.get_value
         }))
@@ -158,8 +153,8 @@ const dispatcher = function () {
                         
                         // Changes
 
-                        if (store_copy.monitor_changes) broadcast.postMessage({
-                            type: 3, changes: store_copy.monitor_changes
+                        if (store_copy.monitoring) broadcast.postMessage({
+                            type: 3, changes: store_copy.monitoring
                         })
 
                         if (store_copy.current_breakpoint) broadcast.postMessage({type: 4, current: store_copy.current_breakpoint})
@@ -173,34 +168,30 @@ const dispatcher = function () {
 
                         // Schemas
 
-                        if (store_copy.monitor_schemas) broadcast.postMessage({
-                            type: 6, schemas: store_copy.monitor_schemas
-                        })
-
                         if (store_copy.breakpoints) broadcast.postMessage({
-                            type: 7, breakpoints: store_copy.breakpoints
+                            type: 6, breakpoints: store_copy.breakpoints
                         })
 
                         if (store_copy.unit_tests) broadcast.postMessage({
-                            type: 8, unit_tests: store_copy.unit_tests
+                            type: 7, unit_tests: store_copy.unit_tests
                         })
 
-                        if (store_copy.stack) broadcast.postMessage({type: 9, stack: store_copy.stack})
+                        if (store_copy.stack) broadcast.postMessage({type: 8, stack: store_copy.stack})
 
-                        if (store_copy.entry_points) broadcast.postMessage({type: 10, entries: store_copy.entry_points})
+                        if (store_copy.entry_points) broadcast.postMessage({type: 9, entries: store_copy.entry_points})
 
                         // Statuses
 
                         if (simulation_status_memo !== null) {
-                            broadcast.postMessage({type: 11, status: simulation_status_memo})
+                            broadcast.postMessage({type: 10, status: simulation_status_memo})
                             simulation_status_memo = null
                         }
                         if (parse_provider_status_memo !== null) {
-                            broadcast.postMessage({type: 12, status: parse_provider_status_memo})
+                            broadcast.postMessage({type: 11, status: parse_provider_status_memo})
                             parse_provider_status_memo = null
                         }
                         if (parse_program_status_memo !== null) {
-                            broadcast.postMessage({type: 13, status: parse_program_status_memo})
+                            broadcast.postMessage({type: 12, status: parse_program_status_memo})
                             parse_program_status_memo = null
                         }
                     }

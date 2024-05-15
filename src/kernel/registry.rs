@@ -22,6 +22,7 @@ use crate::kernel::arch::constant::r#type::ConstantType;
 use bimap::BiMap;
 use once_cell::sync::Lazy;
 use crate::container::container::COUNTER;
+use crate::kernel::plc::types::primitives::traits::primitive_traits::{PrimitiveTrait, SerializeValue};
 
 pub static STRINGS: Lazy<Arc<Mutex<BiMap<String, usize>>>> =
     Lazy::new(|| Arc::new(Mutex::new(BiMap::new())));
@@ -138,6 +139,8 @@ pub struct Kernel {
     pub raw_pointers_collector: RefCell<RawPointers>,
     pub provider_raw_pointers: RefCell<RawPointers>,
     pub program_raw_pointers: RefCell<RawPointers>,
+    
+    pub monitor_raw_pointers: RefCell<HashMap<u32, *const dyn SerializeValue>>,
 
     exclude_types: Vec<String>,
     filter_operations: HashMap<Operation, HashMap<FirstType, HashSet<SecondType>>>,
@@ -161,6 +164,7 @@ impl Default for Kernel {
 
             raw_pointers_collector: RefCell::new(RawPointers::default()),
             provider_raw_pointers: RefCell::new(RawPointers::default()),
+            monitor_raw_pointers: RefCell::new(HashMap::new()),
             program_raw_pointers: RefCell::new(RawPointers::default()),
             exclude_types: vec!(),
             filter_operations: HashMap::default(),

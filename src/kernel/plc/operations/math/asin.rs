@@ -12,12 +12,13 @@ use crate::kernel::rust::operations::{box_asin_plc_primitive, box_sin_plc_primit
 use crate::kernel::plc::types::primitives::floats::plc_float::PlcFloat;
 use crate::kernel::plc::types::primitives::floats::real::Real;
 use crate::kernel::arch::local::r#type::LocalType;
+use crate::kernel::plc::types::primitives::traits::primitive_traits::PrimitiveTrait;
 
 
 #[derive(Clone)]
 pub struct ASin {
     asin: JsonTarget,
-    id: u64,
+    id: u32,
 }
 
 impl NewJsonOperation for ASin {
@@ -29,6 +30,8 @@ impl NewJsonOperation for ASin {
                 id => as_u64,
             }
         );
+
+        let id = id as u32;
 
         let asin = parse_json_target(&asin)?;
 
@@ -47,7 +50,7 @@ impl BuildJsonOperation for ASin {
         registry: &Kernel,
         channel: &Broadcast
     ) -> Result<RunTimeOperation, Stop> {
-        let asin = self.asin.solve_to_ref(interface, template, Some(LocalType::PlcFloat(PlcFloat::Real(Real::default()))), registry, channel)?;
+        let asin = self.asin.solve_to_ref(interface, template, Some(LocalType::PlcFloat(PlcFloat::Real(Real::new_default(0)))), registry, channel)?;
         box_asin_plc_primitive(&asin, self.id, registry)
     }
 }

@@ -9,12 +9,15 @@ use crate::kernel::plc::operations::operations::{Operation, RunTimeOperation, Ru
 use crate::kernel::arch::local::pointer::LocalPointer;
 use crate::kernel::registry::{get_or_insert_global_string, Kernel};
 use crate::container::error::error::Stop;
-use crate::{error, key_reader};
+use crate::{create_block_interface, error, key_reader};
 use serde_json::{Map, Value};
 use std::collections::HashMap;
 use crate::parser::body::json_target::JsonTarget;
 use crate::container::broadcast::broadcast::Broadcast;
 use crate::kernel::plc::types::primitives::traits::meta_data::MaybeHeapOrStatic;
+use crate::kernel::plc::types::primitives::traits::primitive_traits::ToggleMonitor;
+use crate::parser::interface::interface::parse_struct_interface;
+use crate::kernel::registry::get_string;
 
 pub struct InstanceDb {
     json: Map<String, Value>,
@@ -22,7 +25,7 @@ pub struct InstanceDb {
     interface_status: InterfaceStatus,
     body_status: BodyStatus,
     body: Vec<JsonTarget>,
-    id: u64
+    id: u32
 }
 
 impl PrivateInstanceAccessors for InstanceDb {
@@ -125,7 +128,7 @@ impl DeferredBuilder for InstanceDb {
             interface_status: InterfaceStatus::Default,
             body_status: BodyStatus::Default,
             body: Vec::new(),
-            id: json["id"].as_u64().unwrap(),
+            id: json["id"].as_u64().unwrap() as u32,
         }
     }
 
@@ -137,6 +140,9 @@ impl DeferredBuilder for InstanceDb {
             format!("Parse instance db -> interface"),
             data {
                 of => as_str,
+                interface => {
+                    src => as_object,
+                }
             }
         );
 
@@ -146,13 +152,21 @@ impl DeferredBuilder for InstanceDb {
             Some(self.id)
         ))?;
         if as_type.is_fb() {
-            self.interface = as_type
-                .as_mut_fb()?
-                .clone_interface(registry, channel)
+            create_block_interface!(
+            src, self.interface, registry, channel,
+            { Input },
+            { Output },
+            { InOut },
+            { Static },
+            { Temp },
+            { Constant },
+            true
+        )
                 .map_err(|e| {
-                    e.add_sim_trace(&format!("Parse instance db -> interface"))
+                    e.add_sim_trace("Build Fb Interface")
                         .add_id(self.id)
                 })?;
+            self.interface.set_monitor(registry);
             self.interface_status = InterfaceStatus::Solved;
             Ok(())
         } else {

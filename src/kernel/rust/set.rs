@@ -18,7 +18,7 @@ macro_rules! primitive_links {
     }),+
     ) => {
         pub fn box_set_plc_primitive<T: 'static + MetaData + Primitive + AsMutPrimitive + Clone + Display, 
-        Y : 'static + MetaData + Primitive + Clone + Display>(variable1: &T, variable2: &Y, trace: u64, silent: bool, kernel: &Kernel) -> Result<RunTimeOperation, Stop>{
+        Y : 'static + MetaData + Primitive + Clone + Display>(variable1: &T, variable2: &Y, trace: u32, silent: bool, kernel: &Kernel) -> Result<RunTimeOperation, Stop>{
             kernel.check_filtered_operation(&"assign", variable1, variable2)?;
             paste! {
                 $(
@@ -93,8 +93,8 @@ primitive_links!(
     { i64, [u8, u16, u32, u64, i8, i16, i32, i64] },
     { f32, [f32] },
     { f64, [f32, f64] },
-    { str256, [str256] },
+    { plcstr, [plcstr] },
     { char, [char] },
-    { wstr256, [wstr256] },
+    { plcwstr, [plcwstr] },
     { wchar, [wchar] }
 );

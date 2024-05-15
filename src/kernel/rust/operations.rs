@@ -23,7 +23,7 @@ macro_rules! box_create_checked_operation_primitive {
     ) => {
         paste! {
             pub fn [<box_$op_fn _plc_primitive>]<T: 'static + MetaData + Primitive + Clone + Display + IntoLocalType, 
-            Y : 'static + MetaData + Primitive + Clone + Display>(variable1: &T, variable2: &Y, trace: u64, kernel: &Kernel) -> Result<RunTimeOperation, Stop>{
+            Y : 'static + MetaData + Primitive + Clone + Display>(variable1: &T, variable2: &Y, trace: u32, kernel: &Kernel) -> Result<RunTimeOperation, Stop>{
                 kernel.check_filtered_operation(&stringify!($op_fn), variable1, variable2)?;
                 $(
                     if variable1.[<is_$primitive>]() {
@@ -73,7 +73,7 @@ macro_rules! box_create_checked_operation_primitive_on_self {
     }),+
     ) => {
         paste! {
-            pub fn [<box_$op_fn _plc_primitive>]<T: 'static + MetaData + Primitive + Clone + Display + IntoLocalType>(variable1: &T, trace: u64, kernel: &Kernel) -> Result<RunTimeOperation, Stop>{
+            pub fn [<box_$op_fn _plc_primitive>]<T: 'static + MetaData + Primitive + Clone + Display + IntoLocalType>(variable1: &T, trace: u32, kernel: &Kernel) -> Result<RunTimeOperation, Stop>{
                 $(
                     if variable1.[<is_$primitive>]() {
                         let return_ptr = LocalPointer::new(variable1.transform()?);
@@ -109,7 +109,7 @@ macro_rules! box_create_operation_primitive {
     ) => {
         paste! {
             pub fn [<box_$op_fn _plc_primitive>]<T: 'static + MetaData + Primitive + Clone + Display + IntoLocalType, 
-            Y : 'static + MetaData + Primitive + Clone + Display>(variable1: &T, variable2: &Y, trace: u64, kernel: &Kernel) -> Result<RunTimeOperation, Stop>{
+            Y : 'static + MetaData + Primitive + Clone + Display>(variable1: &T, variable2: &Y, trace: u32, kernel: &Kernel) -> Result<RunTimeOperation, Stop>{
                 kernel.check_filtered_operation(&stringify!($op_fn), variable1, variable2)?;
                 $(
                     if variable1.[<is_$primitive>]() {
@@ -158,7 +158,7 @@ macro_rules! box_create_operation_primitive_on_self {
     }),+
     ) => {
         paste! {
-            pub fn [<box_$op_fn _plc_primitive>]<T: 'static + MetaData + Primitive + Clone + Display + IntoLocalType>(variable1: &T, trace: u64, kernel: &Kernel) -> Result<RunTimeOperation, Stop>{
+            pub fn [<box_$op_fn _plc_primitive>]<T: 'static + MetaData + Primitive + Clone + Display + IntoLocalType>(variable1: &T, trace: u32, kernel: &Kernel) -> Result<RunTimeOperation, Stop>{
                 $(
                     if variable1.[<is_$primitive>]() {
                         let return_ptr = LocalPointer::new(variable1.transform()?);

@@ -5,10 +5,10 @@ use crate::container::error::error::Stop;
 use crate::kernel::plc::types::primitives::traits::family_traits::*;
 use crate::kernel::plc::types::primitives::traits::primitive_traits::*;
 use crate::kernel::plc::types::primitives::traits::meta_data::*;
-use crate::{error, impl_primitive_all};
+use crate::{error, impl_primitive_all, key_reader};
 use serde::ser::SerializeStruct;
 use serde::{Serialize, Serializer};
-use serde_json::Value;
+use serde_json::{Map, Value};
 use smart_default::SmartDefault;
 use std::any::{Any, TypeId};
 use std::fmt::{Display, Formatter};
@@ -16,13 +16,12 @@ use std::borrow::Cow;
 use crate::kernel::registry::Kernel;
 use crate::kernel::registry::get_string;
 
-#[derive(Clone, SmartDefault)]
+#[derive(Clone)]
 pub struct Tod {
     value: u32,
     default: u32,
-    #[default(_code = "get_id()")]
-    id: usize,
-    monitor: bool,
+
+    id: u32,
     read_only: bool,
     alias: Option<usize>,
     path: usize
@@ -30,16 +29,19 @@ pub struct Tod {
 
 impl_primitive_all!(Tod, u32);
 
-impl TryFrom<&Value> for Tod {
+impl TryFrom<&Map<String, Value>> for Tod {
     type Error = Stop;
 
-    fn try_from(value: &Value) -> Result<Self, Self::Error> {
-        match value.as_u64() {
-            None => Err(error!(format!("Invalid value {} for Tod", value))),
-            Some(a) => Ok(Tod::new(
-                &a.try_into().map_err(|e| error!(format!("{}", e)))?,
-            )?),
-        }
+    fn try_from(data: &Map<String, Value>) -> Result<Self, Self::Error> {
+        key_reader!(
+            format!("Parse Tod"),
+            data {
+                value => as_u64,
+                id => as_u64,
+            }
+        );
+        let id = id as u32;
+        Tod::new(&value.try_into().map_err(|e| error!(format!("{}", e)))?, id)
     }
 }
 

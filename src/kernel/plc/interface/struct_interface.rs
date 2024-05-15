@@ -9,7 +9,7 @@ use crate::kernel::plc::types::primitives::traits::primitive_traits::ToggleMonit
 use crate::kernel::plc::types::primitives::traits::primitive_traits::RawMut;
 use crate::kernel::arch::local::pointer::{LocalPointer, LocalPointerAndPath};
 use crate::kernel::arch::local::r#type::LocalType;
-use crate::kernel::registry::get_string;
+use crate::kernel::registry::{get_string, Kernel};
 
 pub struct StructInterface(HashMap<usize, LocalPointer>);
 
@@ -72,9 +72,9 @@ impl AsMut<HashMap<usize, LocalPointer>> for StructInterface {
 }
 
 impl ToggleMonitor for StructInterface {
-    fn set_monitor(&mut self, activate: bool) {
+    fn set_monitor(&self, kernel: &Kernel) {
         self.0.iter()
-            .for_each(|x| x.1.as_ref().borrow_mut().deref_mut().set_monitor(activate))
+            .for_each(|x| x.1.as_ref().borrow_mut().deref_mut().set_monitor(kernel))
     }
 }
 

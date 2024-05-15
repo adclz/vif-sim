@@ -12,11 +12,12 @@ use crate::kernel::rust::operations::{box_cos_plc_primitive};
 use crate::kernel::plc::types::primitives::floats::plc_float::PlcFloat;
 use crate::kernel::plc::types::primitives::floats::real::Real;
 use crate::kernel::arch::local::r#type::LocalType;
+use crate::kernel::plc::types::primitives::traits::primitive_traits::PrimitiveTrait;
 
 #[derive(Clone)]
 pub struct Cos {
     cos: JsonTarget,
-    id: u64,
+    id: u32,
 }
 
 impl NewJsonOperation for Cos {
@@ -28,6 +29,8 @@ impl NewJsonOperation for Cos {
                 id => as_u64,
             }
         );
+
+        let id = id as u32;
 
         let cos = parse_json_target(&cos)?;
 
@@ -46,7 +49,7 @@ impl BuildJsonOperation for Cos {
         registry: &Kernel,
         channel: &Broadcast
     ) -> Result<RunTimeOperation, Stop> {
-        let cos = self.cos.solve_to_ref(interface, template, Some(LocalType::PlcFloat(PlcFloat::Real(Real::default()))), registry, channel)?;
+        let cos = self.cos.solve_to_ref(interface, template, Some(LocalType::PlcFloat(PlcFloat::Real(Real::new_default(0)))), registry, channel)?;
         box_cos_plc_primitive(&cos, self.id, registry)
     }
 }

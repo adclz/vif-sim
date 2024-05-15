@@ -11,7 +11,7 @@ pub struct Template {
     interface_status: InterfaceStatus,
     body_status: BodyStatus,
     body: Vec<Value>,
-    id: u64,
+    id: u32,
 }
 
 impl DeferredBuilder for Template {
@@ -21,7 +21,7 @@ impl DeferredBuilder for Template {
             interface_status: InterfaceStatus::Default,
             body_status: BodyStatus::Default,
             body: Vec::new(),
-            id: json["id"].as_u64().unwrap(),
+            id: json["id"].as_u64().unwrap() as u32,
         }
     }
 

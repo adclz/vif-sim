@@ -11,14 +11,14 @@ use crate::kernel::plc::types::primitives::integers::uint::UInt;
 use crate::kernel::plc::types::primitives::integers::ulint::ULInt;
 use crate::kernel::plc::types::primitives::integers::usint::USInt;
 use crate::kernel::plc::types::primitives::string::wchar::wchar;
-use crate::kernel::plc::types::primitives::string::wstring::wstr256;
 use crate::kernel::plc::types::primitives::traits::crement::Crement;
 use crate::{create_family, error, impl_primitive_traits, key_reader};
 use camelpaste::paste;
-use fixedstr::str256;
 
 use serde::Serializer;
 use serde_json::{Map, Value};
+use crate::kernel::plc::types::primitives::string::_string::plcstr;
+use crate::kernel::plc::types::primitives::string::wstring::plcwstr;
 
 create_family!(
     #[enum_dispatch(Crement, MetaData, SetMetaData, ToggleMonitor)]
@@ -29,8 +29,8 @@ impl_primitive_traits!(PlcInteger, {
     bool, [direct false], [stop Err(error!(format!("0")))], [none Err(error!(format!("0")))],
     char, [direct false], [stop Err(error!(format!("0")))], [none Err(error!(format!("0")))],
     wchar, [direct false], [stop Err(error!(format!("0")))], [none Err(error!(format!("0")))],
-    str256, [direct false], [stop Err(error!(format!("0")))], [none Err(error!(format!("0")))],
-    wstr256, [direct false], [stop Err(error!(format!("0")))], [none Err(error!(format!("0")))],
+    plcstr, [direct false], [stop Err(error!(format!("0")))], [none Err(error!(format!("0")))],
+    plcwstr, [direct false], [stop Err(error!(format!("0")))], [none Err(error!(format!("0")))],
     f32, [direct false], [stop Err(error!(format!("0")))], [none Err(error!(format!("0")))],
     f64, [direct false], [stop Err(error!(format!("0")))], [none Err(error!(format!("0")))],
     u8, [self.is_u_s_int], [get_mut as_mut_u_s_int], [get as_u_s_int],
@@ -43,6 +43,7 @@ impl_primitive_traits!(PlcInteger, {
     i64, [self.is_l_int], [get_mut as_mut_l_int], [get as_l_int]
 });
 
+/*
 impl From<u64> for PlcInteger {
     fn from(value: u64) -> Self {
         match value {
@@ -82,32 +83,34 @@ impl TryFrom<&str> for PlcInteger {
             },
         }
     }
-}
+}*/
 
-impl TryFrom<(&Map<String, Value>, &str)> for PlcInteger {
+impl TryFrom<&Map<String, Value>> for PlcInteger {
     type Error = Stop;
 
-    fn try_from(src: (&Map<String, Value>, &str)) -> Result<Self, Self::Error> {
-        let _src = src.0;
-        let ty = src.1;
+    fn try_from(data: &Map<String, Value>) -> Result<Self, Self::Error> {
         key_reader!(
-            format!("Parse PlcInteger {}", ty),
-            _src {
-                value?,
+           format!("Parse PlcInteger"),
+           data {
+                ty => as_str,
+                src => {
+                    value?,
+                    id => as_u64,
+                }
             }
         );
-
+        let id = id as u32;
         match value {
             None => match ty {
-                "SInt" => Ok(PlcInteger::SInt(SInt::default())),
-                "Int" => Ok(PlcInteger::Int(Int::default())),
-                "DInt" => Ok(PlcInteger::DInt(DInt::default())),
-                "LInt" => Ok(PlcInteger::LInt(LInt::default())),
+                "SInt" => Ok(PlcInteger::SInt(SInt::new_default(id))),
+                "Int" => Ok(PlcInteger::Int(Int::new_default(id))),
+                "DInt" => Ok(PlcInteger::DInt(DInt::new_default(id))),
+                "LInt" => Ok(PlcInteger::LInt(LInt::new_default(id))),
 
-                "USInt" => Ok(PlcInteger::USInt(USInt::default())),
-                "UInt" => Ok(PlcInteger::UInt(UInt::default())),
-                "UDInt" => Ok(PlcInteger::UDInt(UDInt::default())),
-                "ULInt" => Ok(PlcInteger::ULInt(ULInt::default())),
+                "USInt" => Ok(PlcInteger::USInt(USInt::new_default(id))),
+                "UInt" => Ok(PlcInteger::UInt(UInt::new_default(id))),
+                "UDInt" => Ok(PlcInteger::UDInt(UDInt::new_default(id))),
+                "ULInt" => Ok(PlcInteger::ULInt(ULInt::new_default(id))),
                 _ => Err(error!(
                     format!("Invalid PlcInteger type: {}", ty),
                     "Parse PlcInteger".to_string()
@@ -116,14 +119,14 @@ impl TryFrom<(&Map<String, Value>, &str)> for PlcInteger {
             Some(value) => {
                 if let Some(v) = value.as_i64() {
                     match ty {
-                        "SInt" => Ok(PlcInteger::SInt(SInt::new(&(v as i8))?)),
-                        "Int" => Ok(PlcInteger::Int(Int::new(&(v as i16))?)),
-                        "DInt" => Ok(PlcInteger::DInt(DInt::new(&(v as i32))?)),
-                        "LInt" => Ok(PlcInteger::LInt(LInt::new(&(v))?)),
-                        "USInt" => Ok(PlcInteger::USInt(USInt::new(&(v as u8))?)),
-                        "UInt" => Ok(PlcInteger::UInt(UInt::new(&(v as u16))?)),
-                        "UDInt" => Ok(PlcInteger::UDInt(UDInt::new(&(v as u32))?)),
-                        "ULInt" => Ok(PlcInteger::ULInt(ULInt::new(&(v as u64))?)),
+                        "SInt" => Ok(PlcInteger::SInt(SInt::new(&(v as i8), id)?)),
+                        "Int" => Ok(PlcInteger::Int(Int::new(&(v as i16), id)?)),
+                        "DInt" => Ok(PlcInteger::DInt(DInt::new(&(v as i32), id)?)),
+                        "LInt" => Ok(PlcInteger::LInt(LInt::new(&(v), id)?)),
+                        "USInt" => Ok(PlcInteger::USInt(USInt::new(&(v as u8), id)?)),
+                        "UInt" => Ok(PlcInteger::UInt(UInt::new(&(v as u16), id)?)),
+                        "UDInt" => Ok(PlcInteger::UDInt(UDInt::new(&(v as u32), id)?)),
+                        "ULInt" => Ok(PlcInteger::ULInt(ULInt::new(&(v as u64), id)?)),
                         _ => Err(error!(
                             format!("Invalid PlcInteger type: {}", ty),
                             "Parse PlcInteger".to_string()
@@ -131,28 +134,28 @@ impl TryFrom<(&Map<String, Value>, &str)> for PlcInteger {
                     }
                 } else if let Some(v) = value.as_u64() {
                     match ty {
-                        "SInt" => Ok(PlcInteger::SInt(SInt::new(&(v as i8))?)),
-                        "Int" => Ok(PlcInteger::Int(Int::new(&(v as i16))?)),
-                        "DInt" => Ok(PlcInteger::DInt(DInt::new(&(v as i32))?)),
-                        "LInt" => Ok(PlcInteger::LInt(LInt::new(&(v as i64))?)),
-                        "USInt" => Ok(PlcInteger::USInt(USInt::new(&(v as u8))?)),
-                        "UInt" => Ok(PlcInteger::UInt(UInt::new(&(v as u16))?)),
-                        "UDInt" => Ok(PlcInteger::UDInt(UDInt::new(&(v as u32))?)),
-                        "ULInt" => Ok(PlcInteger::ULInt(ULInt::new(&(v))?)),
+                        "SInt" => Ok(PlcInteger::SInt(SInt::new(&(v as i8), id)?)),
+                        "Int" => Ok(PlcInteger::Int(Int::new(&(v as i16), id)?)),
+                        "DInt" => Ok(PlcInteger::DInt(DInt::new(&(v as i32), id)?)),
+                        "LInt" => Ok(PlcInteger::LInt(LInt::new(&(v as i64), id)?)),
+                        "USInt" => Ok(PlcInteger::USInt(USInt::new(&(v as u8), id)?)),
+                        "UInt" => Ok(PlcInteger::UInt(UInt::new(&(v as u16), id)?)),
+                        "UDInt" => Ok(PlcInteger::UDInt(UDInt::new(&(v as u32), id)?)),
+                        "ULInt" => Ok(PlcInteger::ULInt(ULInt::new(&(v), id)?)),
                         _ => Err(error!(
                             format!("Invalid PlcInteger type: {}", ty),
                             "Parse PlcInteger".to_string()
                         )),
                     }
-                } else if let Some(v) = value.as_str() {
-                    match ty {
-                        "LInt" => Ok(PlcInteger::try_from(v)?),
-                        "ULInt" => Ok(PlcInteger::try_from(v)?),
-                        _ => Err(error!(
-                            format!("Invalid PlcInteger type: {}", ty),
-                            "Parse PlcInteger".to_string()
-                        )),
-                    }
+                    /*} else if let Some(v) = value.as_str() {
+                        match ty {
+                            "LInt" => Ok(PlcInteger::try_from(v, id)?),
+                            "ULInt" => Ok(PlcInteger::try_from(v,id)?),
+                            _ => Err(error!(
+                                format!("Invalid PlcInteger type: {}", ty),
+                                "Parse PlcInteger".to_string()
+                            )),
+                        }*/
                 } else {
                     Err(error!(
                         format!("Invalid PlcInteger value: {}", value),

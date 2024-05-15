@@ -34,6 +34,7 @@ use crate::kernel::plc::types::primitives::tod::plc_tod::PlcTod;
 use crate::kernel::plc::types::primitives::tod::tod::Tod;
 use crate::kernel::arch::constant::r#type::ConstantType;
 use crate::kernel::arch::local::r#type::{IntoLocalType, LocalType};
+use crate::kernel::plc::types::primitives::traits::primitive_traits::PrimitiveTrait;
 use crate::kernel::registry::Kernel;
 
 pub fn parse_constant_type(
@@ -51,61 +52,55 @@ pub fn parse_constant_type(
 
     match ty {
         "Implicit" => {
-            key_reader!(
-                format!("Parse constant value"),
-                src {
-                    value,
-                }
-            );
             match force_constant_type {
                 None => Err(error!("Implicit constant but vif could not determine the context. Maybe wrap your value in a primitive ?".to_string())),
                 Some(a) => {
                     match a {
-                        LocalType::PlcBool(_) => Ok(ConstantType::PlcBool(PlcBool::Bool(Bool::try_from(value)?))),
+                        LocalType::PlcBool(_) => Ok(ConstantType::PlcBool(PlcBool::Bool(Bool::try_from(src)?))),
                         LocalType::PlcInteger(b) => {
                             match b {
-                                PlcInteger::USInt(_) => Ok(ConstantType::PlcInteger(PlcInteger::USInt(USInt::try_from(value)?))),
-                                PlcInteger::SInt(_) => Ok(ConstantType::PlcInteger(PlcInteger::SInt(SInt::try_from(value)?))),
-                                PlcInteger::UInt(_) => Ok(ConstantType::PlcInteger(PlcInteger::UInt(UInt::try_from(value)?))),
-                                PlcInteger::Int(_) => Ok(ConstantType::PlcInteger(PlcInteger::Int(Int::try_from(value)?))),
-                                PlcInteger::UDInt(_) => Ok(ConstantType::PlcInteger(PlcInteger::UDInt(UDInt::try_from(value)?))),
-                                PlcInteger::DInt(_) => Ok(ConstantType::PlcInteger(PlcInteger::DInt(DInt::try_from(value)?))),
-                                PlcInteger::ULInt(_) => Ok(ConstantType::PlcInteger(PlcInteger::ULInt(ULInt::try_from(value)?))),
-                                PlcInteger::LInt(_) => Ok(ConstantType::PlcInteger(PlcInteger::LInt(LInt::try_from(value)?))),
+                                PlcInteger::USInt(_) => Ok(ConstantType::PlcInteger(PlcInteger::USInt(USInt::try_from(src)?))),
+                                PlcInteger::SInt(_) => Ok(ConstantType::PlcInteger(PlcInteger::SInt(SInt::try_from(src)?))),
+                                PlcInteger::UInt(_) => Ok(ConstantType::PlcInteger(PlcInteger::UInt(UInt::try_from(src)?))),
+                                PlcInteger::Int(_) => Ok(ConstantType::PlcInteger(PlcInteger::Int(Int::try_from(src)?))),
+                                PlcInteger::UDInt(_) => Ok(ConstantType::PlcInteger(PlcInteger::UDInt(UDInt::try_from(src)?))),
+                                PlcInteger::DInt(_) => Ok(ConstantType::PlcInteger(PlcInteger::DInt(DInt::try_from(src)?))),
+                                PlcInteger::ULInt(_) => Ok(ConstantType::PlcInteger(PlcInteger::ULInt(ULInt::try_from(src)?))),
+                                PlcInteger::LInt(_) => Ok(ConstantType::PlcInteger(PlcInteger::LInt(LInt::try_from(src)?))),
                             }
                         }
                         LocalType::PlcFloat(b) => {
                             match b {
-                                PlcFloat::Real(_) => Ok(ConstantType::PlcFloat(PlcFloat::Real(Real::try_from(value)?))),
-                                PlcFloat::LReal(_) => Ok(ConstantType::PlcFloat(PlcFloat::LReal(LReal::try_from(value)?))),
+                                PlcFloat::Real(_) => Ok(ConstantType::PlcFloat(PlcFloat::Real(Real::try_from(src)?))),
+                                PlcFloat::LReal(_) => Ok(ConstantType::PlcFloat(PlcFloat::LReal(LReal::try_from(src)?))),
                             }
                         }
                         LocalType::PlcBinary(b) => {
                             match b {
-                                PlcBinary::Byte(_) => Ok(ConstantType::PlcBinary(PlcBinary::Byte(Byte::try_from(value)?))),
-                                PlcBinary::Word(_) => Ok(ConstantType::PlcBinary(PlcBinary::Word(Word::try_from(value)?))),
-                                PlcBinary::DWord(_) => Ok(ConstantType::PlcBinary(PlcBinary::DWord(DWord::try_from(value)?))),
-                                PlcBinary::LWord(_) => Ok(ConstantType::PlcBinary(PlcBinary::LWord(LWord::try_from(value)?))),
+                                PlcBinary::Byte(_) => Ok(ConstantType::PlcBinary(PlcBinary::Byte(Byte::try_from(src)?))),
+                                PlcBinary::Word(_) => Ok(ConstantType::PlcBinary(PlcBinary::Word(Word::try_from(src)?))),
+                                PlcBinary::DWord(_) => Ok(ConstantType::PlcBinary(PlcBinary::DWord(DWord::try_from(src)?))),
+                                PlcBinary::LWord(_) => Ok(ConstantType::PlcBinary(PlcBinary::LWord(LWord::try_from(src)?))),
                             }
                         }
                         LocalType::PlcTime(b) => {
                             match b {
-                                PlcTime::Time(_) => Ok(ConstantType::PlcTime(PlcTime::Time(Time::try_from(value)?))),
-                                PlcTime::LTime(_) => Ok(ConstantType::PlcTime(PlcTime::LTime(LTime::try_from(value)?))),
+                                PlcTime::Time(_) => Ok(ConstantType::PlcTime(PlcTime::Time(Time::try_from(src)?))),
+                                PlcTime::LTime(_) => Ok(ConstantType::PlcTime(PlcTime::LTime(LTime::try_from(src)?))),
                             }
                         }
                         LocalType::PlcTod(b) => {
                             match b {
-                                PlcTod::Tod(_) => Ok(ConstantType::PlcTod(PlcTod::Tod(Tod::try_from(value)?))),
-                                PlcTod::LTod(_) => Ok(ConstantType::PlcTod(PlcTod::LTod(LTod::try_from(value)?))),
+                                PlcTod::Tod(_) => Ok(ConstantType::PlcTod(PlcTod::Tod(Tod::try_from(src)?))),
+                                PlcTod::LTod(_) => Ok(ConstantType::PlcTod(PlcTod::LTod(LTod::try_from(src)?))),
                             }
                         }
                         LocalType::PlcString(b) => {
                             match b {
-                                PlcString::_Char(_) => Ok(ConstantType::PlcString(PlcString::_Char(_Char::try_from(value)?))),
-                                PlcString::_String(_) => Ok(ConstantType::PlcString(PlcString::_String(_String::try_from(value)?))),
-                                PlcString::WChar(_) => Ok(ConstantType::PlcString(PlcString::WChar(WChar::try_from(value)?))),
-                                PlcString::WString(_) => Ok(ConstantType::PlcString(PlcString::WString(WString::try_from(value)?))),
+                                PlcString::_Char(_) => Ok(ConstantType::PlcString(PlcString::_Char(_Char::try_from(src)?))),
+                                PlcString::_String(_) => Ok(ConstantType::PlcString(PlcString::_String(_String::try_from(src)?))),
+                                PlcString::WChar(_) => Ok(ConstantType::PlcString(PlcString::WChar(WChar::try_from(src)?))),
+                                PlcString::WString(_) => Ok(ConstantType::PlcString(PlcString::WString(WString::try_from(src)?))),
                             }
                         }
                         _ => Err(error!("Unknown constant type".to_string()))
@@ -136,51 +131,51 @@ pub fn parse_constant_type(
         },
 
         // Bool
-        "Bool" => Ok(ConstantType::PlcBool(PlcBool::try_from((src, ty))?)),
+        "Bool" => Ok(ConstantType::PlcBool(PlcBool::try_from(json)?)),
 
         // Binary
-        "Byte" | "Word" | "DWord" | "LWord" => Ok(ConstantType::PlcBinary(PlcBinary::try_from((src, ty))?)),
+        "Byte" | "Word" | "DWord" | "LWord" => Ok(ConstantType::PlcBinary(PlcBinary::try_from(json)?)),
 
         // Integers
         "SInt" | "Int" | "DInt" | "LInt" | "USInt" | "UInt" | "UDInt" | "ULInt" =>
-            Ok(ConstantType::PlcInteger(PlcInteger::try_from((src, ty))?)),
+            Ok(ConstantType::PlcInteger(PlcInteger::try_from((json))?)),
 
         // Floats
-        "Real" | "LReal" => Ok(ConstantType::PlcFloat(PlcFloat::try_from((src, ty))?)),
+        "Real" | "LReal" => Ok(ConstantType::PlcFloat(PlcFloat::try_from(json)?)),
 
         // Time
-        "Time" | "LTime" => Ok(ConstantType::PlcTime(PlcTime::try_from((src, ty))?)),
+        "Time" | "LTime" => Ok(ConstantType::PlcTime(PlcTime::try_from(json)?)),
 
         // TOD
-        "Tod" | "LTod" => Ok(ConstantType::PlcTod(PlcTod::try_from((src, ty))?)),
+        "Tod" | "LTod" => Ok(ConstantType::PlcTod(PlcTod::try_from(json)?)),
 
         //String
-        "String" | "Char" | "WString" | "WChar" => Ok(ConstantType::PlcString(PlcString::try_from((src, ty))?)),
+        "String" | "Char" | "WString" | "WChar" => Ok(ConstantType::PlcString(PlcString::try_from(json)?)),
         _ => Err(error!(format!("Unknown constant type: {}", ty))),
     }
 }
 
 pub fn create_default_constant_from_str(identifier: &str) -> Result<ConstantType, Stop> {
     match identifier {
-        "Bool" => Ok(ConstantType::PlcBool(PlcBool::Bool(Bool::default()))),
-        "Byte" => Ok(ConstantType::PlcBinary(PlcBinary::Byte(Byte::default()))),
-        "Word" => Ok(ConstantType::PlcBinary(PlcBinary::Word(Word::default()))),
-        "DWord" => Ok(ConstantType::PlcBinary(PlcBinary::DWord(DWord::default()))),
-        "LWord" => Ok(ConstantType::PlcBinary(PlcBinary::LWord(LWord::default()))),
-        "SInt" => Ok(ConstantType::PlcInteger(PlcInteger::SInt(SInt::default()))),
-        "Int" => Ok(ConstantType::PlcInteger(PlcInteger::Int(Int::default()))),
-        "DInt" => Ok(ConstantType::PlcInteger(PlcInteger::DInt(DInt::default()))),
-        "LInt" => Ok(ConstantType::PlcInteger(PlcInteger::LInt(LInt::default()))),
-        "USInt" => Ok(ConstantType::PlcInteger(PlcInteger::USInt(USInt::default()))),
-        "UInt" => Ok(ConstantType::PlcInteger(PlcInteger::UInt(UInt::default()))),
-        "UDInt" => Ok(ConstantType::PlcInteger(PlcInteger::UDInt(UDInt::default()))),
-        "ULInt" => Ok(ConstantType::PlcInteger(PlcInteger::ULInt(ULInt::default()))),
-        "Real" => Ok(ConstantType::PlcFloat(PlcFloat::Real(Real::default()))),
-        "LReal" => Ok(ConstantType::PlcFloat(PlcFloat::LReal(LReal::default()))),
-        "Time" => Ok(ConstantType::PlcTime(PlcTime::Time(Time::default()))),
-        "LTime" => Ok(ConstantType::PlcTime(PlcTime::LTime(LTime::default()))),
-        "Tod" => Ok(ConstantType::PlcTod(PlcTod::Tod(Tod::default()))),
-        "LTod" => Ok(ConstantType::PlcTod(PlcTod::LTod(LTod::default()))),
+        "Bool" => Ok(ConstantType::PlcBool(PlcBool::Bool(Bool::new_default(0)))),
+        "Byte" => Ok(ConstantType::PlcBinary(PlcBinary::Byte(Byte::new_default(0)))),
+        "Word" => Ok(ConstantType::PlcBinary(PlcBinary::Word(Word::new_default(0)))),
+        "DWord" => Ok(ConstantType::PlcBinary(PlcBinary::DWord(DWord::new_default(0)))),
+        "LWord" => Ok(ConstantType::PlcBinary(PlcBinary::LWord(LWord::new_default(0)))),
+        "SInt" => Ok(ConstantType::PlcInteger(PlcInteger::SInt(SInt::new_default(0)))),
+        "Int" => Ok(ConstantType::PlcInteger(PlcInteger::Int(Int::new_default(0)))),
+        "DInt" => Ok(ConstantType::PlcInteger(PlcInteger::DInt(DInt::new_default(0)))),
+        "LInt" => Ok(ConstantType::PlcInteger(PlcInteger::LInt(LInt::new_default(0)))),
+        "USInt" => Ok(ConstantType::PlcInteger(PlcInteger::USInt(USInt::new_default(0)))),
+        "UInt" => Ok(ConstantType::PlcInteger(PlcInteger::UInt(UInt::new_default(0)))),
+        "UDInt" => Ok(ConstantType::PlcInteger(PlcInteger::UDInt(UDInt::new_default(0)))),
+        "ULInt" => Ok(ConstantType::PlcInteger(PlcInteger::ULInt(ULInt::new_default(0)))),
+        "Real" => Ok(ConstantType::PlcFloat(PlcFloat::Real(Real::new_default(0)))),
+        "LReal" => Ok(ConstantType::PlcFloat(PlcFloat::LReal(LReal::new_default(0)))),
+        "Time" => Ok(ConstantType::PlcTime(PlcTime::Time(Time::new_default(0)))),
+        "LTime" => Ok(ConstantType::PlcTime(PlcTime::LTime(LTime::new_default(0)))),
+        "Tod" => Ok(ConstantType::PlcTod(PlcTod::Tod(Tod::new_default(0)))),
+        "LTod" => Ok(ConstantType::PlcTod(PlcTod::LTod(LTod::new_default(0)))),
         _ => Err(error!(format!("Invalid type {}", identifier)))
     }
 }

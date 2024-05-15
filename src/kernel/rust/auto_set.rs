@@ -10,7 +10,7 @@ use crate::kernel::plc::types::primitives::traits::primitive_traits::{AsMutPrimi
 use crate::kernel::registry::Kernel;
 
 pub fn box_set_auto<T: 'static + MetaData + WithMutFamily + WithTypeFamily + Clone + Display + IsFamily + AsMutPrimitive + Primitive, 
-    Y: 'static + MetaData + WithRefFamily + WithTypeFamily + Clone + Display + IsFamily + Primitive>(o1: &T, o2: &Y, trace: u64, registry: &Kernel) -> Result<RunTimeOperation, Stop> {
+    Y: 'static + MetaData + WithRefFamily + WithTypeFamily + Clone + Display + IsFamily + Primitive>(o1: &T, o2: &Y, trace: u32, registry: &Kernel) -> Result<RunTimeOperation, Stop> {
     if o1.is_complex() && o2.is_complex() {
         box_set_plc_complex(o1, o2, trace, registry)
     }

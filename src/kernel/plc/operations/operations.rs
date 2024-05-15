@@ -46,9 +46,7 @@ use crate::kernel::plc::operations::unit::block::UnitBlock;
 use crate::kernel::plc::operations::unit::log::UnitLog;
 use crate::container::simulation::pause::pause_simulation;
 use crate::kernel::plc::operations::unit::test::UnitTestJson;
-use fixedstr::str256;
 use crate::kernel::plc::types::primitives::string::wchar::wchar;
-use crate::kernel::plc::types::primitives::string::wstring::wstr256;
 
 use crate::kernel::plc::operations::binary::rotate_left::RotateLeft;
 use crate::kernel::plc::operations::binary::rotate_right::RotateRight;
@@ -69,6 +67,8 @@ use crate::kernel::plc::operations::math::round::Round;
 use crate::kernel::plc::operations::math::sqr::Sqr;
 use crate::kernel::plc::operations::math::sqrt::Sqrt;
 use crate::kernel::plc::operations::math::trunc::Trunc;
+use crate::kernel::plc::types::primitives::string::_string::plcstr;
+use crate::kernel::plc::types::primitives::string::wstring::plcwstr;
 use crate::kernel::plc::types::primitives::traits::meta_data::{MaybeHeapOrStatic, MetaData, SetMetaData};
 use crate::kernel::plc::types::primitives::traits::primitive_traits::Primitive;
 
@@ -95,7 +95,7 @@ pub struct Operation {
     name: MaybeHeapOrStatic,
     return_early: bool,
     return_ptr: Option<LocalPointer>,
-    id: u64,
+    id: u32,
     closure: Rc<RefCell<dyn FnMut(&Broadcast) -> Result<(), Stop>>>,
 }
 
@@ -105,7 +105,7 @@ impl Operation {
         closure: impl FnMut(&Broadcast) -> Result<(), Stop> + 'static,
         return_ptr: Option<LocalPointer>,
         return_early: bool,
-        id: u64
+        id: u32
     ) -> Self {
         Self {
             name,
@@ -437,7 +437,7 @@ impl_primitive_stmt!(
         u32, i32,
         u64, i64,
         f32, f64,
-        str256, char,
-        wstr256, wchar
+        plcstr, char,
+        plcwstr, wchar
     }
 );

@@ -8,16 +8,16 @@ use crate::kernel::plc::types::primitives::traits::family_traits::{IsFamily};
 use crate::kernel::plc::types::primitives::traits::primitive_traits::ToggleMonitor;
 use crate::kernel::plc::types::primitives::traits::primitive_traits::RawMut;
 use crate::kernel::plc::types::primitives::string::wchar::wchar;
-use crate::kernel::plc::types::primitives::string::wstring::wstr256;
+use crate::kernel::plc::types::primitives::string::wstring::plcwstr;
 use crate::kernel::arch::local::pointer::{LocalPointer, LocalPointerAndPath};
 use crate::kernel::registry::{get_full_path, get_string, Kernel};
 use crate::{error, impl_primitive_traits, key_reader, required_key};
 use camelpaste::paste;
-use fixedstr::str256;
 
 use serde::{Serialize, Serializer};
 use serde_json::{Map, Value};
 use std::fmt::{Display, Formatter};
+use crate::kernel::plc::types::primitives::string::_string::plcstr;
 use crate::kernel::plc::types::primitives::traits::meta_data::{MetaData, SetMetaData};
 use crate::kernel::plc::types::primitives::traits::primitive_traits::{AsMutPrimitive, Primitive};
 
@@ -69,8 +69,8 @@ impl SetMetaData for PlcStruct {
 }
 
 impl ToggleMonitor for PlcStruct {
-    fn set_monitor(&mut self, activate: bool) {
-        self.interface.set_monitor(activate)
+    fn set_monitor(&self, kernel: &Kernel) {
+        self.interface.set_monitor(kernel)
     }
 }
 
@@ -93,8 +93,8 @@ impl_primitive_traits!(PlcStruct, {
     bool, [direct false], [stop Err(error!(format!("Can't convert a struct into a primitive")))], [none Err(error!(format!("Can't convert a struct into a primitive")))],
     char, [direct false], [stop Err(error!(format!("Can't convert a struct into a primitive")))], [none Err(error!(format!("Can't convert a struct into a primitive")))],
     wchar, [direct false], [stop Err(error!(format!("Can't convert a struct into a primitive")))], [none Err(error!(format!("Can't convert a struct into a primitive")))],
-    str256, [direct false], [stop Err(error!(format!("Can't convert a struct into a primitive")))], [none Err(error!(format!("Can't convert a struct into a primitive")))],
-    wstr256, [direct false], [stop Err(error!(format!("Can't convert a struct into a primitive")))], [none Err(error!(format!("Can't convert a struct into a primitive")))],
+    plcstr, [direct false], [stop Err(error!(format!("Can't convert a struct into a primitive")))], [none Err(error!(format!("Can't convert a struct into a primitive")))],
+    plcwstr, [direct false], [stop Err(error!(format!("Can't convert a struct into a primitive")))], [none Err(error!(format!("Can't convert a struct into a primitive")))],
     f32, [direct false], [stop Err(error!(format!("Can't convert a struct into a primitive")))], [none Err(error!(format!("Can't convert a struct into a primitive")))],
     f64, [direct false], [stop Err(error!(format!("Can't convert a struct into a primitive")))], [none Err(error!(format!("Can't convert a struct into a primitive")))],
     u8, [direct false], [stop Err(error!(format!("Can't convert a struct into a primitive")))], [none Err(error!(format!("Can't convert a struct into a primitive")))],
@@ -129,6 +129,7 @@ impl PlcStruct {
         json: &Map<String, Value>,
         registry: &Kernel,
         channel: &Broadcast,
+        monitor: bool
     ) -> Result<Self, Stop> {
         key_reader!(
             format!("Parse Struct interface"),
@@ -144,7 +145,7 @@ impl PlcStruct {
             path: 0_usize
         };
 
-        parse_struct_interface(&interface, registry, channel, &None)?
+        parse_struct_interface(&interface, registry, channel, &None, monitor)?
             .as_ref()
             .iter()
             .for_each(|(name, pointer)| {

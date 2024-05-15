@@ -15,7 +15,7 @@ use crate::kernel::rust::operations::{box_shr_plc_primitive};
 pub struct Shr {
     shr: JsonTarget,
     shr_with: JsonTarget,
-    id: u64,
+    id: u32,
 }
 
 impl NewJsonOperation for Shr {
@@ -28,6 +28,8 @@ impl NewJsonOperation for Shr {
                 id => as_u64,
             }
         );
+
+        let id = id as u32;
 
         let shr = parse_json_target(&shr)?;
         let shr_with = parse_json_target(&shr_with)?;

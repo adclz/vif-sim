@@ -9,7 +9,7 @@ use crate::kernel::plc::types::primitives::traits::primitive_traits::ToggleMonit
 use crate::kernel::plc::types::primitives::traits::primitive_traits::RawMut;
 use crate::kernel::arch::local::pointer::{LocalPointer, LocalPointerAndPath};
 use crate::kernel::arch::local::r#type::LocalType;
-use crate::kernel::registry::get_string;
+use crate::kernel::registry::{get_string, Kernel};
 
 pub struct ArrayInterface(Vec<LocalPointer>);
 
@@ -40,10 +40,10 @@ impl From<Vec<LocalPointer>> for ArrayInterface {
 }
 
 impl ToggleMonitor for ArrayInterface {
-    fn set_monitor(&mut self, activate: bool) {
+    fn set_monitor(&self, kernel: &Kernel) {
         self
             .iter()
-            .for_each(|x| x.as_ref().borrow_mut().deref_mut().set_monitor(activate))
+            .for_each(|x| x.as_ref().borrow_mut().deref_mut().set_monitor(kernel))
     }
 }
 

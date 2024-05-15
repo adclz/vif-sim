@@ -7,6 +7,7 @@ use std::rc::Rc;
 use camelpaste::paste;
 use serde::{Serialize, Serializer};
 use serde_json::{Map, Value};
+use wasm_bindgen::JsValue;
 use crate::container::broadcast::broadcast::Broadcast;
 use crate::container::error::error::Stop;
 use crate::{error, key_reader};
@@ -23,7 +24,7 @@ use crate::kernel::registry::Kernel;
 pub struct BitAccess {
     get_closure: Rc<RefCell<dyn Fn(&Broadcast) -> Result<bool, Stop>>>,
     set_closure: Rc<RefCell<dyn FnMut(&Broadcast) -> Result<(), Stop>>>,
-    id: u64,
+    id: u32,
     of: LocalPointer,
     at: u64,
     monitor: bool
@@ -44,6 +45,8 @@ impl BitAccess {
                 id => as_u64,
             }
         );
+        
+        let id = id as u32;
 
         let of = parse_json_target(of)
             .map_err(|e| {
@@ -123,8 +126,8 @@ impl SetMetaData for BitAccess {
 }
 
 impl ToggleMonitor for BitAccess {
-    fn set_monitor(&mut self, activate: bool) {
-        self.monitor = false
+    fn set_monitor(&self, kernel: &Kernel) {
+        // do nothing
     }
 }
 
@@ -132,8 +135,12 @@ impl PrimitiveTrait for BitAccess {
     type Native = bool;
     type PlcPrimitive = BitAccess;
 
-    fn new(value: &Self::Native) -> Result<Self::PlcPrimitive, Stop> {
+    fn new(value: &Self::Native, id: u32) -> Result<Self::PlcPrimitive, Stop> {
         Err(error!(format!("A bit access can't be created manually, this should not happen")))
+    }
+
+    fn new_default(id: u32) -> Self::PlcPrimitive {
+        todo!()
     }
 
     fn get(&self, channel: &Broadcast) -> Result<Self::Native, Stop> {
@@ -152,16 +159,12 @@ impl PrimitiveTrait for BitAccess {
         panic!("A bit access can't be reset, this should not happen")
     }
 
-    fn get_id(&self) -> usize {
+    fn get_id(&self) -> u32 {
         panic!("A bit access does not have an id, this should not happen")
     }
 
     fn get_type_id(&self) -> TypeId {
         panic!("A bit access does not have an type id, this should not happen")
-    }
-
-    fn monitor(&self, channel: &Broadcast) {
-        panic!("A bit access can't be monitored, this should not happen")
     }
 }
 

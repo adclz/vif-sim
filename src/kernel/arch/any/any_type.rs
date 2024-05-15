@@ -25,12 +25,11 @@ use crate::kernel::plc::types::primitives::traits::family_traits::{IsFamily, Wit
 use crate::kernel::plc::types::primitives::traits::primitive_traits::{Primitive};
 use crate::kernel::plc::types::primitives::traits::meta_data::{MetaData, HeapOrStatic, MaybeHeapOrStatic};
 use std::ops::Deref;
-use fixedstr::str256;
-use crate::kernel::plc::types::primitives::string::wstring::wstr256;
 use crate::kernel::plc::types::primitives::string::wchar::wchar;
 use std::borrow::Cow;
 use crate::kernel::registry::Kernel;
-
+use crate::kernel::plc::types::primitives::string::_string::plcstr;
+use crate::kernel::plc::types::primitives::string::wstring::plcwstr;
 #[enum_dispatch::enum_dispatch(IsFamily, WithTypeFamily, WithRefFamily, Primitive, IntoLocalType, MetaData)]
 #[derive(Clone)]
 pub enum AnyRefType {

@@ -17,7 +17,7 @@ pub struct GlobalDb {
     interface: SectionInterface,
     interface_status: InterfaceStatus,
     body_status: BodyStatus,
-    id: u64,
+    id: u32,
 }
 
 impl GlobalDb {
@@ -45,7 +45,7 @@ impl DeferredBuilder for GlobalDb {
             interface: SectionInterface::new(),
             interface_status: InterfaceStatus::Default,
             body_status: BodyStatus::Solved,
-            id: json["id"].as_u64().unwrap()
+            id: json["id"].as_u64().unwrap() as u32
         }
     }
 
@@ -64,7 +64,8 @@ impl DeferredBuilder for GlobalDb {
 
         create_block_interface!(
             src, self.interface, registry, channel,
-            { Static }
+            { Static },
+            true
         ).map_err(|e| e.add_sim_trace(&format!("Build Global Db"))
             .add_id(self.id))?;
         

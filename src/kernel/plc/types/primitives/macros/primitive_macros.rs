@@ -166,21 +166,40 @@ macro_rules! impl_primitive_serialize {
 macro_rules! impl_primitive_base {
     ($primitive: ident, $inner_type: ident) => {
         impl ToggleMonitor for $primitive {
-            fn set_monitor(&mut self, activate: bool) {
-                self.monitor = activate
+            fn set_monitor(&self, kernel: &Kernel) {
+                kernel
+                .monitor_raw_pointers
+                .borrow_mut()
+                .insert(self.id, self as *const dyn SerializeValue);
+            }
+        }
+
+        impl SerializeValue for $primitive {
+            fn get_value(&self) -> wasm_bindgen::JsValue {
+                serde_wasm_bindgen::to_value(&self.value).unwrap()
             }
         }
 
         impl PrimitiveTrait for $primitive {
             type Native = $inner_type;
             type PlcPrimitive = $primitive;
+            
+            fn new_default(id: u32) -> Self::PlcPrimitive {
+                Self {
+                    default: $inner_type::default(),
+                    value: $inner_type::default(),
+                    id,
+                    read_only: false,
+                    alias: None,
+                    path: 0_usize
+                }
+            }
 
-            fn new(value: &$inner_type) -> Result<Self::PlcPrimitive, Stop> {
+            fn new(value: &$inner_type, id: u32) -> Result<Self::PlcPrimitive, Stop> {
                 Ok(Self {
-                    default: value.clone(),
-                    value: value.clone(),
-                    id: get_id(),
-                    monitor: false,
+                    default: *value,
+                    value: *value,
+                    id,
                     read_only: false,
                     alias: None,
                     path: 0_usize
@@ -193,9 +212,6 @@ macro_rules! impl_primitive_base {
 
             fn set(&mut self, value: $inner_type, channel: &Broadcast) -> Result<(), Stop> {
                 self.value = value;
-                if self.monitor {
-                    self.monitor(channel);
-                };
                 Ok(())
             }
 
@@ -207,14 +223,9 @@ macro_rules! impl_primitive_base {
 
             fn reset(&mut self, channel: &Broadcast) {
                 self.value = self.default;
-                self.monitor(channel)
             }
 
-            fn monitor(&self, channel: &Broadcast) {
-                channel.add_monitor_change(&MonitorChange::new(self.id, format!("{}", self.raw_display())))
-            }
-
-            fn get_id(&self) -> usize {
+            fn get_id(&self) -> u32 {
                 self.id
             }
 

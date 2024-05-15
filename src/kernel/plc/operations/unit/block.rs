@@ -16,7 +16,7 @@ use crate::kernel::plc::types::primitives::traits::meta_data::{HeapOrStatic, May
 pub struct UnitBlock {
     blocks: Vec<JsonTarget>,
     description: String,
-    id: u64,
+    id: u32,
 }
 
 impl NewJsonOperation for UnitBlock {
@@ -29,6 +29,8 @@ impl NewJsonOperation for UnitBlock {
                 id => as_u64,
             }
         );
+
+        let id = id as u32;
 
         Ok(Self {
             blocks: block

@@ -30,7 +30,7 @@ pub struct Compare {
     operator: String,
     cont: Option<String>,
     cont_with: Option<Map<String, Value>>,
-    id: u64,
+    id: u32,
 }
 
 impl NewJsonOperation for Compare {
@@ -45,6 +45,8 @@ impl NewJsonOperation for Compare {
                 id => as_u64,
             }
         );
+
+        let id = id as u32;
 
         let compare = parse_json_target(&compare).map_err(|e| {
             e.add_sim_trace(&format!("Parse Compare -> Parse first param"))
@@ -128,7 +130,7 @@ pub fn get_cmp_targets(
 }
 
 pub fn box_cmp(
-    id: u64,
+    id: u32,
     compare: &AnyRefType,
     with: &AnyRefType,
     operator: &str,
@@ -217,9 +219,7 @@ impl BuildJsonOperation for Compare {
         )
         .map_err(|e| e.add_id(self.id))?;
 
-        let return_ptr = Some(LocalPointer::new(LocalType::PlcBool(PlcBool::Bool(
-            Bool::new(&false)?,
-        ))));
+        let return_ptr = Some(LocalPointer::new(LocalType::PlcBool(PlcBool::Bool(Bool::new_default(0)))));
         let return_ptr_clone = return_ptr.clone();
 
         match &self.cont {

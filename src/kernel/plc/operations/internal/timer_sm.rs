@@ -35,7 +35,7 @@ pub struct TimerStateMachine {
 
     started: Rc<RefCell<bool>>,
     previous_duration: Rc<RefCell<Instant>>,
-    id: u64,
+    id: u32,
 }
 
 impl Clone for TimerStateMachine {
@@ -75,6 +75,8 @@ impl NewJsonOperation for TimerStateMachine {
                 id => as_u64,
             }
         );
+
+        let id = id as u32;
         
         Ok(Self {
             start: parse_json_target(start)?,

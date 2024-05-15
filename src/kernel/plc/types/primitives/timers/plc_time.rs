@@ -4,7 +4,6 @@ use crate::container::error::error::Stop;
 use crate::kernel::plc::types::primitives::traits::family_traits::GetRawPointerPrimitive;
 use crate::kernel::plc::types::primitives::traits::primitive_traits::{AsMutPrimitive, Primitive, PrimitiveTrait, RawMut};
 use crate::kernel::plc::types::primitives::string::wchar::wchar;
-use crate::kernel::plc::types::primitives::string::wstring::wstr256;
 use crate::kernel::plc::types::primitives::timers::lTime::LTime;
 use crate::kernel::plc::types::primitives::timers::time::Time;
 use crate::{create_family, error, impl_primitive_traits, key_reader};
@@ -13,6 +12,8 @@ use fixedstr::str256;
 
 use serde::Serializer;
 use serde_json::{Map, Value};
+use crate::kernel::plc::types::primitives::string::_string::plcstr;
+use crate::kernel::plc::types::primitives::string::wstring::plcwstr;
 
 create_family!(
     #[enum_dispatch(TimeDuration, MetaData, SetMetaData, ToggleMonitor)]
@@ -23,8 +24,8 @@ impl_primitive_traits!(PlcTime, {
     bool, [direct false], [stop Err(error!(format!("0")))], [none Err(error!(format!("0")))],
     char, [direct false], [stop Err(error!(format!("0")))], [none Err(error!(format!("0")))],
     wchar, [direct false], [stop Err(error!(format!("0")))], [none Err(error!(format!("0")))],
-    str256, [direct false], [stop Err(error!(format!("0")))], [none Err(error!(format!("0")))],
-    wstr256, [direct false], [stop Err(error!(format!("0")))], [none Err(error!(format!("0")))],
+    plcstr, [direct false], [stop Err(error!(format!("0")))], [none Err(error!(format!("0")))],
+    plcwstr, [direct false], [stop Err(error!(format!("0")))], [none Err(error!(format!("0")))],
     f32, [direct false], [stop Err(error!(format!("0")))], [none Err(error!(format!("0")))],
     f64, [direct false], [stop Err(error!(format!("0")))], [none Err(error!(format!("0")))],
     u8, [direct false], [stop Err(error!(format!("0")))], [none Err(error!(format!("0")))],
@@ -37,6 +38,7 @@ impl_primitive_traits!(PlcTime, {
     i64, [self.is_l_time], [get_mut as_mut_l_time], [get as_l_time]
 });
 
+/*
 impl From<i64> for PlcTime {
     fn from(value: i64) -> Self {
         match value {
@@ -46,25 +48,27 @@ impl From<i64> for PlcTime {
             }
         }
     }
-}
+}*/
 
-impl TryFrom<(&Map<String, Value>, &str)> for PlcTime {
+impl TryFrom<&Map<String, Value>> for PlcTime {
     type Error = Stop;
 
-    fn try_from(src: (&Map<String, Value>, &str)) -> Result<Self, Self::Error> {
-        let _src = src.0;
-        let ty = src.1;
+    fn try_from(data: &Map<String, Value>) -> Result<Self, Self::Error> {
         key_reader!(
-            format!("Parse PlcTime {}", ty),
-            _src {
-                value?,
+           format!("Parse PlcTime"),
+           data {
+                ty => as_str,
+                src => {
+                    value?,
+                    id => as_u64,
+                }
             }
         );
-
+        let id = id as u32;
         match value {
             None => match ty {
-                "Time" => Ok(PlcTime::Time(Time::default())),
-                "LTime" => Ok(PlcTime::LTime(LTime::default())),
+                "Time" => Ok(PlcTime::Time(Time::new_default(id))),
+                "LTime" => Ok(PlcTime::LTime(LTime::new_default(id))),
                 _ => Err(error!(
                     format!("Invalid PlcTime type: {}", ty),
                     "Parse PlcTime".to_string()
@@ -73,8 +77,8 @@ impl TryFrom<(&Map<String, Value>, &str)> for PlcTime {
             Some(value) => {
                 if let Some(v) = value.as_i64() {
                     match ty {
-                        "Time" => Ok(PlcTime::Time(Time::new(&(v as i32))?)),
-                        "LTime" => Ok(PlcTime::LTime(LTime::new(&(v))?)),
+                        "Time" => Ok(PlcTime::Time(Time::new(&(v as i32), id)?)),
+                        "LTime" => Ok(PlcTime::LTime(LTime::new(&(v), id)?)),
                         _ => Err(error!(
                             format!("Invalid PlcTime type: {}", ty),
                             "Parse PlcTime".to_string()

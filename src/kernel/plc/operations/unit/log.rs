@@ -43,7 +43,7 @@ impl Display for StringOrRuntimeTarget {
 #[derive(Clone)]
 pub struct UnitLog {
     fmt: Vec<StringOrJsonTarget>,
-    id: u64,
+    id: u32,
 }
 
 impl NewJsonOperation for UnitLog {
@@ -56,6 +56,8 @@ impl NewJsonOperation for UnitLog {
                 id => as_u64,
             }
         );
+
+        let id = id as u32;
 
         let mut fmt = Vec::new();
         let mut curr_index = 0;

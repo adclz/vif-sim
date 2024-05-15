@@ -20,7 +20,7 @@ macro_rules! box_ord_primitive {
     }),+
     ) => {
         pub fn box_ord_plc_primitive<T: 'static + MetaData + Primitive + Clone + Display, 
-        Y : 'static + MetaData + Primitive + Clone + Display>(variable1: &T, variable2: &Y, trace: u64, kernel: &Kernel) -> Result<Box<dyn Fn(&Broadcast) -> Result<Option<Ordering>, Stop>>, Stop>{
+        Y : 'static + MetaData + Primitive + Clone + Display>(variable1: &T, variable2: &Y, trace: u32, kernel: &Kernel) -> Result<Box<dyn Fn(&Broadcast) -> Result<Option<Ordering>, Stop>>, Stop>{
             paste! {
                 kernel.check_filtered_operation(&"cmp", variable1, variable2)?;
                 $(
@@ -60,8 +60,8 @@ box_ord_primitive!(
     { i64, [u8, u16, u32, u64, i8, i16, i32, i64] },
     { f32, [f32] },
     { f64, [f32, f64] },
-    { str256, [str256] },
+    { plcstr, [plcstr] },
     { char, [char] },
-    { wstr256, [wstr256] },
+    { plcwstr, [plcwstr] },
     { wchar, [wchar] }
 );

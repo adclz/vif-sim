@@ -21,7 +21,7 @@ pub struct Fc {
     interface_status: InterfaceStatus,
     body_status: BodyStatus,
     body: Vec<JsonTarget>,
-    id: u64
+    id: u32
 }
 
 impl Fc {
@@ -70,7 +70,7 @@ impl DeferredBuilder for Fc {
             interface_status: InterfaceStatus::Default,
             body_status: BodyStatus::Default,
             body: Vec::new(),
-            id: json["id"].as_u64().unwrap()
+            id: json["id"].as_u64().unwrap() as u32
         }
     }
 
@@ -93,7 +93,8 @@ impl DeferredBuilder for Fc {
             { Output },
             { InOut },
             { Temp },
-            { Constant }
+            { Constant },
+            false
         ).map_err(|e| e.add_sim_trace(&format!("Build Fc"))
             .add_id(self.id))?;
 
@@ -104,7 +105,7 @@ impl DeferredBuilder for Fc {
                 "return" => {
                     let json = value.as_object().unwrap();
 
-                    self.interface.swap_return(LocalPointer::from(parse_local_type(json, registry, channel)?));
+                    self.interface.swap_return(LocalPointer::from(parse_local_type(json, registry, channel, false)?));
                     Ok(())
                 },
                 _ => Ok(())

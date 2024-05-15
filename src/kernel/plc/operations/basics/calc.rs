@@ -19,7 +19,7 @@ pub struct Calc {
     calc: JsonTarget,
     with: JsonTarget,
     operator: String,
-    id: u64,
+    id: u32,
 }
 
 impl Clone for Calc {
@@ -44,6 +44,8 @@ impl NewJsonOperation for Calc {
                 id => as_u64,
             }
         );
+
+        let id = id as u32;
 
         let calc = parse_json_target(&calc)?;
         let with = parse_json_target(&with)?;

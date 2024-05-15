@@ -14,7 +14,8 @@ pub fn parse_struct_interface(
     json: &Value,
     registry: &Kernel,
     channel: &Broadcast,
-    section: &Option<Section>
+    section: &Option<Section>,
+    monitor: bool
 ) -> Result<StructInterface, Stop> {
     let mut section_to_fill = HashMap::new();
     // Get all members
@@ -42,7 +43,10 @@ pub fn parse_struct_interface(
 
         let name = get_or_insert_global_string(name);
 
-        let mut pointer = LocalPointer::from(parse_local_type(json, registry, channel)?);
+        let mut pointer = LocalPointer::from(parse_local_type(json, registry, channel, monitor)?);
+        if monitor {
+            pointer.set_monitor(registry);
+        }
 
         // Checks if type is allowed
         registry.check_excluded_type(&pointer)?;

@@ -25,7 +25,7 @@ use crate::container::broadcast::broadcast::Broadcast;
 pub struct R_Trig {
     input: JsonTarget,
     stat_bit: Rc<RefCell<bool>>,
-    id: u64,
+    id: u32,
 }
 
 impl NewJsonOperation for R_Trig {
@@ -40,6 +40,8 @@ impl NewJsonOperation for R_Trig {
                 id => as_u64,
             }
         );
+
+        let id = id as u32;
 
         let input = parse_json_target(input).map_err(|e| {
             e.add_sim_trace("Build #R_Trig -> input")
@@ -69,7 +71,7 @@ impl BuildJsonOperation for R_Trig {
         let input = input.clone();
         let stat_bit = self.stat_bit.clone();
 
-        let return_trig = LocalPointer::new(LocalType::PlcBool(PlcBool::Bool(Bool::default())));
+        let return_trig = LocalPointer::new(LocalType::PlcBool(PlcBool::Bool(Bool::new_default(0))));
         let return_trig_clone = return_trig.clone();
 
         Ok(Box::new(Operation::new(

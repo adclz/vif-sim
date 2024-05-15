@@ -16,7 +16,7 @@ use crate::kernel::plc::types::primitives::traits::meta_data::{HeapOrStatic, May
 #[derive(Clone)]
 pub struct Reset {
     reset: Vec<JsonTarget>,
-    id: u64,
+    id: u32,
 }
 
 impl NewJsonOperation for Reset {
@@ -31,6 +31,8 @@ impl NewJsonOperation for Reset {
                 reset => as_array,
             }
         );
+
+        let id = id as u32;
 
         Ok(Self {
             reset: reset

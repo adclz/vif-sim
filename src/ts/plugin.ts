@@ -1,10 +1,9 @@
 import {
     Stop,
-    MonitorChange,
+    Monitoring,
     UnitTest,
     SimulationStatus,
     ParseStatus,
-    MonitorSchema,
     Stack,
     UnitTestStatus,
     UnitTestUpdateStatus
@@ -17,11 +16,10 @@ type Hooks = {
     "warnings": (cb: string[]) => void;
     "error": (cb: Stop) => void;
 
-    "monitor:changes": (cb: MonitorChange[]) => void;
+    "monitoring": (cb: Monitoring[]) => void;
     "breakpoint:current": (cb: number | undefined) => void;
     "unit-tests:statuses": (cb: UnitTestUpdateStatus[]) => void;
 
-    "monitor:schemas": (cb: MonitorSchema[]) => void;
     "breakpoints": (cb: number[]) => void;
     "unit-tests": (cb: UnitTest[]) => void;
     "simulation:stack": (cb: Stack) => void;
@@ -42,8 +40,6 @@ interface AsyncExecutor {
         pause(): Promise<void>
         clearProvider(): Promise<void>
         clearProgram(): Promise<void>
-        getMonitorSchemas(): MonitorSchema[]
-        getMonitorSchemasAsObject(): MonitorSchema[]
         getBreakpoints(): number[]
         getUnitTests(): UnitTest[]
     }>
@@ -57,7 +53,6 @@ export class Plugin extends VifEventEmitter<Hooks> {
     private eventsMap: Record<number, [string, string]>;
 
     private unitTests: UnitTest[] = []
-    private monitorSchemas: MonitorSchema[] = []
     private breakpoints: number[] = []
 
     constructor(name: string, interval: number) {
@@ -68,17 +63,16 @@ export class Plugin extends VifEventEmitter<Hooks> {
             0: ["messages", "messages"],
             1: ["warnings", "warnings"],
             2: ["error", "error"],
-            3: ["monitor:changes", "changes"],
+            3: ["monitoring", "changes"],
             4: ["breakpoint:current", "current"],
             5: ["unit-tests:statuses", "statuses"],
-            6: ["monitor:schemas", "schemas"],
-            7: ["breakpoints", "breakpoints"],
-            8: ["unit-tests", "unit_tests"],
-            9: ["simulation:stack", "stack"],
-            10: ["simulation:entry-points", "entries"],
-            11: ["simulation:status", "status"],
-            12: ["parse-provider:status", "status"],
-            13: ["parse-program:status", "status"]
+            6: ["breakpoints", "breakpoints"],
+            7: ["unit-tests", "unit_tests"],
+            8: ["simulation:stack", "stack"],
+            9: ["simulation:entry-points", "entries"],
+            10: ["simulation:status", "status"],
+            11: ["parse-provider:status", "status"],
+            12: ["parse-program:status", "status"]
         }
     }
 
@@ -92,7 +86,6 @@ export class Plugin extends VifEventEmitter<Hooks> {
 
                 this.broadcast.addEventListener("message", ev => {
                     const eventType = this.eventsMap[ev.data.type]
-                    console.log(ev)
                     if (eventType) {
                         this.emit(eventType[0] as keyof Hooks, ev.data[eventType[1]])
                     }
@@ -222,13 +215,6 @@ export class Plugin extends VifEventEmitter<Hooks> {
                 )))
         }
 
-        const getMonitorSchemas = () => this.monitorSchemas
-
-        const getMonitorSchemasAsObject = () => {
-            let root: Record<string, any> = {};
-            return this.monitorSchemas
-        }
-
         const getBreakpoints = () => this.breakpoints
         const getUnitTests = () => this.unitTests
 
@@ -273,16 +259,12 @@ export class Plugin extends VifEventEmitter<Hooks> {
                                             case "unit-tests":
                                                 this.unitTests = ev.data[eventType[1]]
                                                 break;
-                                            case "monitor:schemas":
-                                                this.monitorSchemas = ev.data[eventType[1]]
-                                                break;
                                             case "breakpoints":
                                                 this.breakpoints = ev.data[eventType[1]]
                                                 break;
                                             case "parse-program:status":
                                                 if (ev.data[eventType[1]] === ParseStatus.Empty) {
                                                     this.unitTests = []
-                                                    this.monitorSchemas = []
                                                     this.breakpoints = []
                                                 }
                                                 break;
@@ -298,8 +280,6 @@ export class Plugin extends VifEventEmitter<Hooks> {
                                     startAndWaitUnitTests,
                                     clearProvider,
                                     clearProgram,
-                                    getMonitorSchemas,
-                                    getMonitorSchemasAsObject,
                                     getBreakpoints,
                                     getUnitTests,
                                 })

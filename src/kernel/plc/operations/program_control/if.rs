@@ -21,7 +21,7 @@ pub struct If {
     _if: JsonTarget,
     then: Vec<JsonTarget>,
     _else: Option<Vec<JsonTarget>>,
-    id: u64
+    id: u32
 }
 
 impl NewJsonOperation for If {
@@ -35,6 +35,8 @@ impl NewJsonOperation for If {
                 id => as_u64,
             }
         );
+
+        let id = id as u32;
 
         let _if = parse_json_target(&_if).map_err(|e| {
             e.add_sim_trace(&format!("Parse If Operation"))

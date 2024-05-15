@@ -19,12 +19,14 @@ use crate::kernel::plc::types::primitives::string::plc_string::PlcString;
 use crate::kernel::plc::types::primitives::timers::plc_time::PlcTime;
 use crate::kernel::plc::types::primitives::tod::plc_tod::PlcTod;
 use crate::kernel::arch::local::r#type::{IntoLocalType, LocalType};
+use crate::kernel::plc::types::primitives::traits::primitive_traits::ToggleMonitor;
 use crate::kernel::registry::{get_or_insert_global_string, Kernel};
 
 pub fn parse_local_type(
     json: &Map<String, Value>,
     registry: &Kernel,
-    channel: &Broadcast
+    channel: &Broadcast,
+    monitor: bool
 ) -> Result<LocalType, Stop> {
     key_reader!(
             format!("Parse value"),
@@ -58,32 +60,36 @@ pub fn parse_local_type(
         },
 
         // Bool
-        "Bool" => Ok(LocalType::PlcBool(PlcBool::try_from((src, ty))?)),
+        "Bool" => { 
+            let mut ab = LocalType::PlcBool(PlcBool::try_from(json)?);
+            ab.set_monitor(registry);
+            Ok(ab)
+        },
 
         // Binary
-        "Byte" | "Word" | "DWord" | "LWord" => Ok(LocalType::PlcBinary(PlcBinary::try_from((src, ty))?)),
+        "Byte" | "Word" | "DWord" | "LWord" => Ok(LocalType::PlcBinary(PlcBinary::try_from(json)?)),
 
         // Integers
         "SInt" | "Int" | "DInt" | "LInt" | "USInt" | "UInt" | "UDInt" | "ULInt" =>
-            Ok(LocalType::PlcInteger(PlcInteger::try_from((src, ty))?)),
+            Ok(LocalType::PlcInteger(PlcInteger::try_from(json)?)),
 
         // Floats
-        "Real" | "LReal" => Ok(LocalType::PlcFloat(PlcFloat::try_from((src, ty))?)),
+        "Real" | "LReal" => Ok(LocalType::PlcFloat(PlcFloat::try_from(json)?)),
 
         // Time
-        "Time" | "LTime" => Ok(LocalType::PlcTime(PlcTime::try_from((src, ty))?)),
+        "Time" | "LTime" => Ok(LocalType::PlcTime(PlcTime::try_from(json)?)),
 
         // TOD
-        "Tod" | "LTod" => Ok(LocalType::PlcTod(PlcTod::try_from((src, ty))?)),
+        "Tod" | "LTod" => Ok(LocalType::PlcTod(PlcTod::try_from(json)?)),
 
         //String
-        "String" | "Char" | "WString" | "WChar" => Ok(LocalType::PlcString(PlcString::try_from((src, ty))?)),
+        "String" | "Char" | "WString" | "WChar" => Ok(LocalType::PlcString(PlcString::try_from(json)?)),
 
         // Struct
-        "Struct" => Ok(LocalType::PlcStruct(PlcStruct::from_json(src, registry, channel)?)),
+        "Struct" => Ok(LocalType::PlcStruct(PlcStruct::from_json(src, registry, channel, monitor)?)),
 
         // Array
-        "array" => Ok(LocalType::PlcArray(PlcArray::from_json(src, registry, channel)?)),
+        "array" => Ok(LocalType::PlcArray(PlcArray::from_json(src, registry, channel, monitor)?)),
 
         // From
 
@@ -118,7 +124,7 @@ pub fn parse_local_type(
                 match interface {
                     Some(a) => {
                         // Parse the received interface
-                        parse_struct_interface(a, registry, channel, &None)?
+                        parse_struct_interface(a, registry, channel, &None, true)?
                             .get_pointers_with_path(&vec!(), &vec!())
                             .iter()
                             .try_for_each(|x| {
@@ -160,6 +166,7 @@ pub fn parse_local_type(
                 }
             );
 
+            let id = id as u32;
             // get the instance in kernel
             let instance = registry.get(&get_or_insert_global_string(&of.to_string())).ok_or_else(move || error!(
                 format!("The Fb '{}' could not be found", of),
@@ -180,7 +187,7 @@ pub fn parse_local_type(
                 match interface {
                     Some(a) => {
                         // Parse the received interface
-                        parse_struct_interface(a, registry, channel, &None)?
+                        parse_struct_interface(a, registry, channel, &None, true)?
                             .get_pointers_with_path(&vec!(), &vec!())
                             .iter()
                             .try_for_each(|x| {

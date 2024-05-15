@@ -15,7 +15,6 @@ use wasm_bindgen::prelude::wasm_bindgen;
 use ansi_term::Colour::{Blue, Green, Purple, Yellow, Red};
 
 use web_time::{Duration, Instant};
-use crate::parser::main::monitor::parse_monitor;
 use crate::parser::main::program::parse_program;
 use crate::parser::main::provider::parse_provider;
 
@@ -33,7 +32,7 @@ use crate::container::error::error::Stop;
 use crate::parser::main::exclude::{parse_type_aliases, parse_return_operations, parse_exclude_sections, parse_exclude_types, parse_filter_operations};
 use crate::container::simulation::pause::{enableBreakpoint, pause_simulation, disableBreakpoint};
 
-pub static DELAYED_TIMERS: Lazy<Arc<Mutex<HashMap<u64, Duration>>>> =
+pub static DELAYED_TIMERS: Lazy<Arc<Mutex<HashMap<u32, Duration>>>> =
     Lazy::new(|| Arc::new(Mutex::new(HashMap::new())));
 
 pub static COUNTER: AtomicUsize = AtomicUsize::new(1);
@@ -347,11 +346,6 @@ impl Container {
             }
         };
 
-        if let Some(a) = monitor {
-            self.channel.add_message("Building Monitoring...");
-            parse_monitor(a, &self.channel, &mut self.registry);
-        };
-
         self.channel.add_message(&Green.paint("Parsing done").to_string());
 
         if let Some(a) = signature {
@@ -450,8 +444,14 @@ impl Container {
 
             match sim.start(entry).await {
                 Ok(should_continue) => match should_continue {
-                    true => self.channel.move_and_publish(),
-                    false => break
+                    true => {
+                        self.channel.build_monitor(&self.registry);
+                        self.channel.move_and_publish();
+                    },
+                    false => {
+                        self.channel.build_monitor(&self.registry);
+                        break; 
+                    }
                 },
                 Err(ref e) => {
                     self.channel.add_message(&format!(
@@ -531,13 +531,13 @@ impl Container {
         read_sab_commands(&self.channel);
     }
 
-    pub fn disable_breakpoint(&self, data: u64) {
+    pub fn disable_breakpoint(&self, data: u32) {
         self.channel.disable_breakpoint();
         self.channel.add_message(&format!("Disabled breakpoint"));
         self.channel.publish();
     }
 
-    pub fn enable_breakpoint(&self, data: u64) {
+    pub fn enable_breakpoint(&self, data: u32) {
         self.channel.activate_breakpoint(data);
         self.channel.add_message(&format!("Enabled breakpoint {}", data));
         self.channel.publish();
@@ -603,12 +603,16 @@ pub fn read_sab_commands(channel: &Broadcast) -> bool {
                     channel.publish();
                 }
                 5 => { // 5 Enable breakpoint
-                    enableBreakpoint(channel, window[1] as u64);
-                    channel.publish();
+                    if (is_running()) {
+                        enableBreakpoint(channel, window[1] as u32);
+                        channel.publish();
+                    }
                 }
                 6 => { // 6 Disable breakpoint
-                    disableBreakpoint(channel, window[1] as u64);
-                    channel.publish();
+                    if (is_running()) {
+                        disableBreakpoint(channel, window[1] as u32);
+                        channel.publish();
+                    }
                 }
                 _ => {}
             }

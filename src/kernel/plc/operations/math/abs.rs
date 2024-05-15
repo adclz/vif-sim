@@ -14,7 +14,7 @@ use crate::kernel::rust::operations::{box_abs_plc_primitive};
 #[derive(Clone)]
 pub struct Abs {
     abs: JsonTarget,
-    id: u64,
+    id: u32,
 }
 
 impl NewJsonOperation for Abs {
@@ -26,6 +26,8 @@ impl NewJsonOperation for Abs {
                 id => as_u64,
             }
         );
+
+        let id = id as u32;
 
         let abs = parse_json_target(&abs)?;
 

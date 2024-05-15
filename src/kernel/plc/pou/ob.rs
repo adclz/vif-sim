@@ -19,7 +19,7 @@ pub struct Ob {
     interface_status: InterfaceStatus,
     body_status: BodyStatus,
     body: Vec<RunTimeOperation>,
-    id: u64,
+    id: u32,
 }
 
 impl Ob {
@@ -51,7 +51,7 @@ impl DeferredBuilder for Ob {
             interface_status: InterfaceStatus::Default,
             body_status: BodyStatus::Default,
             body: Vec::new(),
-            id: json["id"].as_u64().unwrap(),
+            id: json["id"].as_u64().unwrap() as u32,
         }
     }
 
@@ -71,7 +71,8 @@ impl DeferredBuilder for Ob {
         create_block_interface!(
             src, self.interface, registry, channel,
             { Temp },
-            { Constant }
+            { Constant },
+            true
         )
         .map_err(|e| {
             e.add_sim_trace(&format!("Build Ob Interface"))

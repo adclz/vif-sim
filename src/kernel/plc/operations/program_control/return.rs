@@ -12,7 +12,7 @@ use crate::kernel::plc::types::primitives::traits::meta_data::{HeapOrStatic, May
 
 #[derive(Clone)]
 pub struct Return {
-    id: u64
+    id: u32
 }
 
 impl NewJsonOperation for Return {
@@ -26,6 +26,8 @@ impl NewJsonOperation for Return {
                 id => as_u64,
             }
         );
+
+        let id = id as u32;
 
         Ok(Self {id})
     }

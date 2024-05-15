@@ -13,11 +13,10 @@ use crate::kernel::plc::types::primitives::traits::family_traits::{GetRawPointer
 use crate::kernel::plc::types::primitives::traits::meta_data::{HeapOrStatic, MaybeHeapOrStatic, MetaData, SetMetaData};
 use crate::kernel::plc::types::primitives::floats::plc_float::PlcFloat;
 use crate::kernel::plc::types::primitives::integers::plc_integer::PlcInteger;
-use crate::kernel::plc::types::primitives::traits::primitive_traits::RawMut;
+use crate::kernel::plc::types::primitives::traits::primitive_traits::{RawMut, ToggleMonitor};
 use crate::kernel::plc::types::primitives::traits::primitive_traits::{AsMutPrimitive, Primitive};
 use crate::kernel::plc::types::primitives::string::plc_string::PlcString;
 use crate::kernel::plc::types::primitives::string::wchar::wchar;
-use crate::kernel::plc::types::primitives::string::wstring::wstr256;
 use crate::kernel::plc::types::primitives::timers::plc_time::PlcTime;
 use crate::kernel::plc::types::primitives::tod::plc_tod::PlcTod;
 use crate::kernel::arch::local::r#type::{IntoLocalType, LocalType};
@@ -30,6 +29,8 @@ use std::collections::HashMap;
 use std::fmt::{Display, Formatter};
 use std::ops::{Deref, DerefMut};
 use std::rc::Rc;
+use crate::kernel::plc::types::primitives::string::_string::plcstr;
+use crate::kernel::plc::types::primitives::string::wstring::plcwstr;
 use crate::kernel::registry::Kernel;
 
 pub struct LocalPointer {
@@ -159,9 +160,9 @@ impl_primitive_l!(LocalPointer {
     i64,
     f32,
     f64,
-    str256,
+    plcstr,
     char,
-    wstr256,
+    plcwstr,
     wchar
 });
 
@@ -189,8 +190,10 @@ impl LocalPointer {
     pub fn duplicate(&self) -> LocalPointer {
        Self::new(self.inner.borrow().deref().clone())
     }
+    pub(crate) fn set_monitor(&self, kernel: &Kernel) {
+        self.inner.borrow_mut().set_monitor(kernel);
+    }
 }
-
 impl IntoLocalType for LocalPointer {
     fn transform(&self) -> Result<LocalType, Stop> {
         self.inner.borrow().deref().transform()

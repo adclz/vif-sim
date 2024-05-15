@@ -1,10 +1,14 @@
-use std::time::Instant;
+use web_time::Instant;
 use ansi_term::Color::Yellow;
+use ansi_term::Colour::Green;
+use wasm_bindgen::UnwrapThrowExt;
 use crate::container::broadcast::broadcast::Broadcast;
-use crate::container::container::SimulationStatus;
+#[cfg(target_arch = "wasm32")]
+use crate::container::container::{read_sab_commands};
+use crate::container::container::{DELAYED_TIMERS, SimulationStatus};
 use crate::container::error::error::Stop;
 
-pub fn pause_simulation(channel: &Broadcast, id: Option<u64>) -> Result<(), Stop> {
+pub fn pause_simulation(channel: &Broadcast, id: Option<u32>) -> Result<(), Stop> {
     channel.add_message(
         &Yellow.paint("[Pause] Simulation paused").to_string());
     let earlier = Instant::now();
@@ -44,12 +48,12 @@ pub fn pause_simulation(channel: &Broadcast, id: Option<u64>) -> Result<(), Stop
     Ok(())
 }
 
-pub fn enableBreakpoint(channel: &Broadcast, bp: u64) {
+pub fn enableBreakpoint(channel: &Broadcast, bp: u32) {
     channel.add_breakpoint(bp);
     channel.add_message(&format!("Enabled breakpoint {}", bp))
 }
 
-pub fn disableBreakpoint(channel: &Broadcast, bp: u64) {
+pub fn disableBreakpoint(channel: &Broadcast, bp: u32) {
     channel.remove_breakpoint(bp);
     channel.add_message(&format!("Disabled breakpoint {}", bp))
 }

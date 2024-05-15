@@ -12,12 +12,13 @@ use crate::kernel::rust::operations::{box_trunc_plc_primitive};
 use crate::kernel::plc::types::primitives::floats::plc_float::PlcFloat;
 use crate::kernel::plc::types::primitives::floats::real::Real;
 use crate::kernel::arch::local::r#type::LocalType;
+use crate::kernel::plc::types::primitives::traits::primitive_traits::PrimitiveTrait;
 
 
 #[derive(Clone)]
 pub struct Trunc {
     trunc: JsonTarget,
-    id: u64,
+    id: u32,
 }
 
 impl NewJsonOperation for Trunc {
@@ -29,6 +30,8 @@ impl NewJsonOperation for Trunc {
                 id => as_u64,
             }
         );
+
+        let id = id as u32;
 
         let trunc = parse_json_target(&trunc)?;
 
@@ -47,7 +50,7 @@ impl BuildJsonOperation for Trunc {
         registry: &Kernel,
         channel: &Broadcast
     ) -> Result<RunTimeOperation, Stop> {
-        let trunc = self.trunc.solve_to_ref(interface, template, Some(LocalType::PlcFloat(PlcFloat::Real(Real::default()))), registry, channel)?;
+        let trunc = self.trunc.solve_to_ref(interface, template, Some(LocalType::PlcFloat(PlcFloat::Real(Real::new_default(0)))), registry, channel)?;
         box_trunc_plc_primitive(&trunc, self.id, registry)
     }
 }

@@ -10,7 +10,7 @@ use crate::kernel::plc::types::primitives::traits::primitive_traits::{Primitive,
 use crate::kernel::registry::Kernel;
 
 pub fn box_set_plc_complex<T: WithMutFamily + WithTypeFamily + Clone + IsFamily + AsMutPrimitive + Primitive, 
-    Y: WithRefFamily + WithTypeFamily + Clone + IsFamily + Primitive>(o1: &T, o2: &Y, trace: u64, registry: &Kernel) -> Result<RunTimeOperation, Stop> {
+    Y: WithRefFamily + WithTypeFamily + Clone + IsFamily + Primitive>(o1: &T, o2: &Y, trace: u32, registry: &Kernel) -> Result<RunTimeOperation, Stop> {
     let mut opexs = vec![];
 
     if o1.is_plc_struct() && o2.is_plc_struct() {

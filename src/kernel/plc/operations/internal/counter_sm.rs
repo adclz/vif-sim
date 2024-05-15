@@ -36,7 +36,7 @@ pub struct CounterStateMachine {
     on_counter_down: Vec<JsonTarget>,
     on_counter_reset: Vec<JsonTarget>,
     
-    id: u64,
+    id: u32,
 }
 
 impl NewJsonOperation for CounterStateMachine {
@@ -59,6 +59,8 @@ impl NewJsonOperation for CounterStateMachine {
                 id => as_u64,
             }
         );
+
+        let id = id as u32;
 
         Ok(Self {
             increment: increment.map(parse_json_target).transpose()?,

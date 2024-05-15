@@ -14,11 +14,9 @@ use crate::kernel::plc::types::primitives::integers::plc_integer::PlcInteger;
 use crate::kernel::plc::types::primitives::traits::primitive_traits::RawMut;
 use crate::kernel::plc::types::primitives::string::plc_string::PlcString;
 use crate::kernel::plc::types::primitives::string::wchar::wchar;
-use crate::kernel::plc::types::primitives::string::wstring::wstr256;
 use crate::kernel::plc::types::primitives::timers::plc_time::PlcTime;
 use crate::kernel::plc::types::primitives::tod::plc_tod::PlcTod;
 use camelpaste::paste;
-use fixedstr::str256;
 
 use std::fmt::{Display, Formatter};
 use std::rc::Rc;

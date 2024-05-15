@@ -20,7 +20,7 @@ pub struct FcInstance {
     interface: SectionInterface,
     body: Vec<JsonTarget>,
     name: usize,
-    id: u64
+    id: u32
 }
 
 impl PrivateInstanceAccessors for FcInstance {
@@ -46,7 +46,7 @@ impl Serialize for FcInstance {
 }
 
 impl FcInstance {
-    pub fn from(name: usize, id: u64, value: &mut Fc, registry: &Kernel, channel: &Broadcast) -> Result<Self, Stop> {
+    pub fn from(name: usize, id: u32, value: &mut Fc, registry: &Kernel, channel: &Broadcast) -> Result<Self, Stop> {
         Ok(Self {
             interface: value.clone_interface(registry, channel)?,
             body: value.clone_body(registry, channel)?,

@@ -20,7 +20,7 @@ pub struct Fb {
     interface_status: InterfaceStatus,
     body_status: BodyStatus,
     body: Vec<JsonTarget>,
-    id: u64
+    id: u32
 }
 
 impl Fb {
@@ -69,7 +69,7 @@ impl DeferredBuilder for Fb {
             interface_status: InterfaceStatus::Default,
             body_status: BodyStatus::Default,
             body: Vec::new(),
-            id: json["id"].as_u64().unwrap(),
+            id: json["id"].as_u64().unwrap() as u32,
         }
     }
 
@@ -93,7 +93,8 @@ impl DeferredBuilder for Fb {
             { InOut },
             { Static },
             { Temp },
-            { Constant }
+            { Constant },
+            false
         )
             .map_err(|e| {
                 e.add_sim_trace("Build Fb Interface")
@@ -132,7 +133,7 @@ impl DeferredBuilder for Fb {
 
                     Ok::<(), Stop>(())
                 })?;
-            registry.set_ignore_operation(false);
+            //registry.set_ignore_operation(false);
             Ok::<(), Stop>(())
         })() {
             Ok(_) => {

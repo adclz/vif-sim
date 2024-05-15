@@ -25,7 +25,7 @@ use crate::kernel::plc::types::primitives::traits::meta_data::{HeapOrStatic, May
 pub struct While {
     _while: JsonTarget,
     _do: Vec<JsonTarget>,
-    id: u64,
+    id: u32,
 }
 
 impl NewJsonOperation for While {
@@ -38,6 +38,8 @@ impl NewJsonOperation for While {
                 id => as_u64,
             }
         );
+
+        let id = id as u32;
 
         let _while = parse_json_target(_while).map_err(|e|e.add_id(id))?;
 

@@ -4,10 +4,10 @@ use crate::container::container::get_id;
 use crate::container::error::error::Stop;
 use crate::kernel::plc::types::primitives::traits::meta_data::{MetaData, SetMetaData};
 use crate::kernel::plc::types::primitives::traits::primitive_traits::*;
-use crate::{error, impl_primitive_base, impl_primitive_raw_mut, impl_primitive_serialize, impl_primitive_type_name};
+use crate::{error, impl_primitive_base, impl_primitive_raw_mut, impl_primitive_serialize, impl_primitive_type_name, key_reader};
 use serde::ser::SerializeStruct;
 use serde::{Serialize, Serializer};
-use serde_json::Value;
+use serde_json::{Map, Value};
 use smart_default::SmartDefault;
 use std::any::{Any, TypeId};
 use std::fmt::{Display, Formatter};
@@ -16,13 +16,11 @@ use crate::kernel::plc::types::primitives::floats::real::Real;
 use crate::kernel::registry::Kernel;
 use crate::kernel::registry::get_string;
 
-#[derive(Clone, SmartDefault)]
+#[derive(Clone)]
 pub struct LReal {
     default: f64,
     value: f64,
-    #[default(_code = "get_id()")]
-    id: usize,
-    monitor: bool,
+    id: u32,
     read_only: bool,
     alias: Option<usize>,
     path: usize
@@ -34,17 +32,25 @@ impl_primitive_raw_mut!(LReal, f64);
 impl_primitive_base!(LReal, f64);
 
 
-impl TryFrom<&Value> for LReal {
+impl TryFrom<&Map<String, Value>> for LReal {
     type Error = Stop;
 
-    fn try_from(value: &Value) -> Result<Self, Self::Error> {
+    fn try_from(data: &Map<String, Value>) -> Result<Self, Self::Error> {
+        key_reader!(
+            format!("Parse LReal"),
+            data {
+                value,
+                id => as_u64,
+            }
+        );
+        let id = id as u32;
         if let Some(a) = value.as_str() {
             let h = a
                 .parse::<f64>()
                 .map_err(|_| error!(format!("Failed to parse LReal from str {}", a)))?;
-            Ok(LReal::new(&h)?)
+            Ok(LReal::new(&h, id)?)
         } else if let Some(a) = value.as_f64() {
-            Ok(LReal::new(&a)?)
+            Ok(LReal::new(&a, id)?)
         } else {
             Err(error!(format!("Invalid value {} for LReal", value)))
         }

@@ -33,7 +33,7 @@ pub struct TemplateImpl {
     of: String,
     call_interface: HashMap<Section, Vec<(Vec<String>, JsonTarget)>>,
     inner: Value,
-    id: u64,
+    id: u32,
 }
 
 impl NewJsonOperation for TemplateImpl {
@@ -52,6 +52,8 @@ impl NewJsonOperation for TemplateImpl {
                 }
             }
         );
+        
+        let id = id as u32;
 
         let call_interface = call_interface["src"].as_object().unwrap();
 

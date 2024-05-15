@@ -29,7 +29,7 @@ pub struct For {
     to: JsonTarget,
     by: Option<JsonTarget>,
     _do: Vec<JsonTarget>,
-    id: u64,
+    id: u32,
 }
 
 impl NewJsonOperation for For {
@@ -45,6 +45,8 @@ impl NewJsonOperation for For {
                 id => as_u64,
             }
         );
+
+        let id = id as u32;
 
         let _for = parse_json_target(_for).map_err(|e|e.add_id(id))?;
         let with = parse_json_target(with).map_err(|e|e.add_id(id))?;

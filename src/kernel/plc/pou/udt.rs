@@ -14,7 +14,7 @@ pub struct Udt {
     interface: StructInterface,
     interface_status: InterfaceStatus,
     body_status: BodyStatus,
-    id: u64,
+    id: u32,
 }
 
 impl Udt {
@@ -43,7 +43,7 @@ impl DeferredBuilder for Udt {
             interface: StructInterface::new(),
             interface_status: InterfaceStatus::Default,
             body_status: BodyStatus::Solved,
-            id: json["id"].as_u64().unwrap()
+            id: json["id"].as_u64().unwrap() as u32
         }
     }
 
@@ -58,7 +58,7 @@ impl DeferredBuilder for Udt {
             }
         );
 
-        parse_struct_interface(&interface, registry, channel, &None)?
+        parse_struct_interface(&interface, registry, channel, &None, false)?
             .as_ref().iter().for_each(|(name, pointer)| {
             self.interface.as_mut().entry(name.clone()).or_insert_with(|| pointer.clone());
         });

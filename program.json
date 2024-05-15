@@ -6,13 +6,11 @@
       "line": 31
     }
   },
-  "monitor": [
-  ],
   "entry": "Main",
   "file:///Main": {
     "ty": "ob",
     "src": {
-      "id": 58,
+      "id": 60,
       "interface": {
         "ty": "interface",
         "src": {
@@ -20,26 +18,29 @@
             "test": {
               "ty": "Bool",
               "src": {
+                "id": 46
               }
             },
             "test2": {
               "ty": "Bool",
               "src": {
+                "id": 47
               }
             },
             "test3": {
               "ty": "array",
               "src": {
+                "id": 58,
                 "length": 10,
                 "of": {
                   "ty": "Bool",
                   "src": {
+                    "id": 48
                   }
                 },
                 "values": {
                   "ty": "array_values",
-                  "src": [
-                  ]
+                  "src": []
                 }
               }
             }
@@ -48,6 +49,7 @@
             "test4": {
               "ty": "Bool",
               "src": {
+                "id": 59
               }
             }
           }
@@ -57,13 +59,11 @@
         {
           "ty": "asg",
           "src": {
-            "id": 154,
+            "id": 229,
             "assign": {
-              "ty": "local_out",
+              "ty": "local",
               "src": {
                 "path": [
-                  "Main",
-                  "temp",
                   "test"
                 ]
               }
@@ -71,6 +71,7 @@
             "to": {
               "ty": "Implicit",
               "src": {
+                "id": 232,
                 "value": true
               }
             }
@@ -79,13 +80,11 @@
         {
           "ty": "asg",
           "src": {
-            "id": 155,
+            "id": 230,
             "assign": {
-              "ty": "local_out",
+              "ty": "local",
               "src": {
                 "path": [
-                  "Main",
-                  "temp",
                   "test3",
                   "[9]"
                 ]
@@ -94,6 +93,7 @@
             "to": {
               "ty": "Implicit",
               "src": {
+                "id": 233,
                 "value": true
               }
             }
@@ -102,11 +102,10 @@
         {
           "ty": "call",
           "src": {
-            "id": 156,
+            "id": 231,
             "interface": {
               "ty": "call_interface",
-              "src": {
-              }
+              "src": {}
             },
             "call": {
               "ty": "global",
@@ -132,6 +131,7 @@
             "test": {
               "ty": "Bool",
               "src": {
+                "id": 40
               }
             }
           }
@@ -141,16 +141,15 @@
         {
           "ty": "unit_log",
           "src": {
-            "id": 157,
+            "id": 234,
             "message": "Hello world!",
-            "format": [
-            ]
+            "format": []
           }
         },
         {
           "ty": "asg",
           "src": {
-            "id": 158,
+            "id": 235,
             "assign": {
               "ty": "local",
               "src": {
@@ -162,6 +161,7 @@
             "to": {
               "ty": "Implicit",
               "src": {
+                "id": 236,
                 "value": true
               }
             }
@@ -174,6 +174,13 @@
     "ty": "instance_db",
     "src": {
       "id": 42,
+      "of": "MyFirstFb"
+    }
+  },
+  "file:///MyFirstInstanceDb2": {
+    "ty": "instance_db",
+    "src": {
+      "id": 44,
       "of": "MyFirstFb"
     }
   }

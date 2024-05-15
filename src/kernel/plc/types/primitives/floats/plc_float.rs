@@ -5,13 +5,13 @@ use crate::kernel::plc::types::primitives::traits::primitive_traits::{AsMutPrimi
 use crate::kernel::plc::types::primitives::floats::lreal::{LReal};
 use crate::kernel::plc::types::primitives::floats::real::Real;
 use crate::kernel::plc::types::primitives::string::wchar::wchar;
-use crate::kernel::plc::types::primitives::string::wstring::wstr256;
 use crate::{create_family, error, impl_primitive_traits, key_reader};
 use crate::kernel::plc::types::primitives::floats::checked_float::TryIntoCheck;
 use camelpaste::paste;
-use fixedstr::str256;
 use serde::Serializer;
 use serde_json::{Map, Value};
+use crate::kernel::plc::types::primitives::string::_string::plcstr;
+use crate::kernel::plc::types::primitives::string::wstring::plcwstr;
 
 create_family!(
     #[enum_dispatch(MetaData, SetMetaData, ToggleMonitor)]
@@ -22,8 +22,8 @@ impl_primitive_traits!(PlcFloat, {
     bool, [direct false], [stop Err(error!(format!("0")))], [none Err(error!(format!("0")))],
     char, [direct false], [stop Err(error!(format!("0")))], [none Err(error!(format!("0")))],
     wchar, [direct false], [stop Err(error!(format!("0")))], [none Err(error!(format!("0")))],
-    str256, [direct false], [stop Err(error!(format!("0")))], [none Err(error!(format!("0")))],
-    wstr256, [direct false], [stop Err(error!(format!("0")))], [none Err(error!(format!("0")))],
+    plcstr, [direct false], [stop Err(error!(format!("0")))], [none Err(error!(format!("0")))],
+    plcwstr, [direct false], [stop Err(error!(format!("0")))], [none Err(error!(format!("0")))],
     f32, [self.is_real], [get_mut as_mut_real], [get as_real],
     f64, [self.is_l_real], [get_mut as_mut_l_real], [get as_l_real],
     u8, [direct false], [stop Err(error!(format!("0")))], [none Err(error!(format!("0")))],
@@ -36,29 +36,31 @@ impl_primitive_traits!(PlcFloat, {
     i64, [direct false], [stop Err(error!(format!("0")))], [none Err(error!(format!("0")))]
 });
 
-impl From<f64> for PlcFloat {
+/*impl From<f64> for PlcFloat {
     fn from(value: f64) -> Self {
         Self::LReal(LReal::new(&value).unwrap())
     }
-}
+}*/
 
-impl TryFrom<(&Map<String, Value>, &str)> for PlcFloat {
+impl TryFrom<&Map<String, Value>> for PlcFloat {
     type Error = Stop;
 
-    fn try_from(src: (&Map<String, Value>, &str)) -> Result<Self, Self::Error> {
-        let _src = src.0;
-        let ty = src.1;
+    fn try_from(data: &Map<String, Value>) -> Result<Self, Self::Error> {
         key_reader!(
-            format!("Parse PlcFloat {}", ty),
-            _src {
-                value?,
+           format!("Parse PlcFloat"),
+           data {
+                ty => as_str,
+                src => {
+                    value?,
+                    id => as_u64,
+                }
             }
         );
-
+        let id = id as u32;
         match value {
             None => match ty {
-                "Real" => Ok(PlcFloat::Real(Real::default())),
-                "LReal" => Ok(PlcFloat::LReal(LReal::default())),
+                "Real" => Ok(PlcFloat::Real(Real::new_default(id))),
+                "LReal" => Ok(PlcFloat::LReal(LReal::new_default(id))),
                 _ => Err(error!(
                     format!("Invalid PlcFloat type: {}", ty),
                     "Parse PlcFloat".to_string()
@@ -67,9 +69,9 @@ impl TryFrom<(&Map<String, Value>, &str)> for PlcFloat {
             Some(value) => {
                 if let Some(v) = value.as_f64() {
                     match ty {
-                        "Real" => Ok(PlcFloat::Real(Real::new(&TryIntoCheck::try_into(v).unwrap())?)),
+                        "Real" => Ok(PlcFloat::Real(Real::new(&TryIntoCheck::try_into(v).unwrap(), id)?)),
                         "LReal" => Ok(PlcFloat::LReal(LReal::new(
-                            &v,
+                            &v, id
                         )?)),
                         _ => Err(error!(
                             format!("Invalid PlcFloat type: {}", ty),

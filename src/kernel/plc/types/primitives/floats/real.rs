@@ -4,10 +4,10 @@ use crate::container::container::get_id;
 use crate::container::error::error::Stop;
 use crate::kernel::plc::types::primitives::traits::meta_data::{MetaData, SetMetaData};
 use crate::kernel::plc::types::primitives::traits::primitive_traits::*;
-use crate::{error, impl_primitive_base, impl_primitive_raw_mut, impl_primitive_serialize, impl_primitive_type_name};
+use crate::{error, impl_primitive_base, impl_primitive_raw_mut, impl_primitive_serialize, impl_primitive_type_name, key_reader};
 use serde::ser::SerializeStruct;
 use serde::{Serialize, Serializer};
-use serde_json::Value;
+use serde_json::{Map, Value};
 use smart_default::SmartDefault;
 use std::any::{Any, TypeId};
 use std::fmt::{Display, Formatter};
@@ -17,25 +17,32 @@ use crate::kernel::plc::types::primitives::binaries::byte::Byte;
 use crate::kernel::registry::Kernel;
 use crate::kernel::registry::get_string;
 
-#[derive(Clone, SmartDefault)]
+#[derive(Clone)]
 pub struct Real {
     default: f32,
     value: f32,
-    #[default(_code = "get_id()")]
-    id: usize,
-    monitor: bool,
+
+    id: u32,
     read_only: bool,
     alias: Option<usize>,
     path: usize
 }
 
-impl TryFrom<&Value> for Real {
+impl TryFrom<&Map<String, Value>> for Real {
     type Error = Stop;
 
-    fn try_from(value: &Value) -> Result<Self, Self::Error> {
+    fn try_from(data: &Map<String, Value>) -> Result<Self, Self::Error> {
+        key_reader!(
+            format!("Parse Real"),
+            data {
+                value,
+                id => as_u64,
+            }
+        );
+        let id = id as u32;
         match value.as_f64() {
             None => Err(error!(format!("Invalid value {} for Real", value))),
-            Some(a) => Ok(Real::new(&TryIntoCheck::try_into(a)?)?),
+            Some(a) => Ok(Real::new(&TryIntoCheck::try_into(a)?, id)?),
         }
     }
 }

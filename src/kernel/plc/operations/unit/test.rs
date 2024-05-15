@@ -29,13 +29,13 @@ use wasm_bindgen::JsValue;
 #[derive(Clone)]
 pub struct UnitTest {
     description: String,
-    id: u64,
+    id: u32,
     status: UnitTestStatus,
 }
 
 #[wasm_bindgen]
 impl UnitTest {
-    pub fn new(id: u64, description: String) -> Self {
+    pub fn new(id: u32, description: String) -> Self {
         Self {
             id,
             description,
@@ -49,7 +49,7 @@ impl UnitTest {
     }
 
     #[wasm_bindgen(getter)]
-    pub fn get_id(&self) -> u64 {
+    pub fn get_id(&self) -> u32 {
         self.id
     }
 
@@ -92,14 +92,14 @@ pub enum UnitTestStatus {
 #[wasm_bindgen(skip_typescript)]
 #[derive(Clone)]
 pub struct UnitTestUpdateStatus {
-    id: u64,
+    id: u32,
     status: UnitTestStatus,
     fail_message: Option<String>,
 }
 
 #[wasm_bindgen]
 impl UnitTestUpdateStatus {
-    pub fn new(id: u64, status: UnitTestStatus, fail_message: Option<String>) -> Self {
+    pub fn new(id: u32, status: UnitTestStatus, fail_message: Option<String>) -> Self {
         Self {
             id,
             status,
@@ -108,7 +108,7 @@ impl UnitTestUpdateStatus {
     }
 
     #[wasm_bindgen(getter)]
-    pub fn get_id(&self) -> u64 {
+    pub fn get_id(&self) -> u32 {
         self.id
     }
 
@@ -128,7 +128,7 @@ pub struct UnitTestJson {
     expect: JsonTarget,
     with: JsonTarget,
     operator: String,
-    id: u64,
+    id: u32,
 }
 
 impl Clone for UnitTestJson {
@@ -155,6 +155,8 @@ impl NewJsonOperation for UnitTestJson {
                 id => as_u64,
             }
         );
+
+        let id = id as u32;
 
         let expect = parse_json_target(&expect).map_err(|e| {
             e.add_sim_trace(&"Parse Unit tests -> Parse expect param".to_string())

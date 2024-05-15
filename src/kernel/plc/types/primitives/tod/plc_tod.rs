@@ -4,7 +4,6 @@ use crate::container::error::error::Stop;
 use crate::kernel::plc::types::primitives::traits::family_traits::GetRawPointerPrimitive;
 use crate::kernel::plc::types::primitives::traits::primitive_traits::{AsMutPrimitive, Primitive, PrimitiveTrait, RawMut};
 use crate::kernel::plc::types::primitives::string::wchar::wchar;
-use crate::kernel::plc::types::primitives::string::wstring::wstr256;
 use crate::kernel::plc::types::primitives::tod::ltod::LTod;
 use crate::kernel::plc::types::primitives::tod::tod::Tod;
 use crate::{create_family, error, impl_primitive_traits, key_reader};
@@ -13,6 +12,8 @@ use fixedstr::str256;
 
 use serde::Serializer;
 use serde_json::{Map, Value};
+use crate::kernel::plc::types::primitives::string::_string::plcstr;
+use crate::kernel::plc::types::primitives::string::wstring::plcwstr;
 
 create_family!(
     #[enum_dispatch(MetaData, SetMetaData, ToggleMonitor)]
@@ -23,8 +24,8 @@ impl_primitive_traits!(PlcTod, {
     bool, [direct false], [stop Err(error!(format!("0")))], [none Err(error!(format!("0")))],
     char, [direct false], [stop Err(error!(format!("0")))], [none Err(error!(format!("0")))],
     wchar, [direct false], [stop Err(error!(format!("0")))], [none Err(error!(format!("0")))],
-    str256, [direct false], [stop Err(error!(format!("0")))], [none Err(error!(format!("0")))],
-    wstr256, [direct false], [stop Err(error!(format!("0")))], [none Err(error!(format!("0")))],
+    plcstr, [direct false], [stop Err(error!(format!("0")))], [none Err(error!(format!("0")))],
+    plcwstr, [direct false], [stop Err(error!(format!("0")))], [none Err(error!(format!("0")))],
     f32, [direct false], [stop Err(error!(format!("0")))], [none Err(error!(format!("0")))],
     f64, [direct false], [stop Err(error!(format!("0")))], [none Err(error!(format!("0")))],
     u8, [direct false], [stop Err(error!(format!("0")))], [none Err(error!(format!("0")))],
@@ -37,6 +38,7 @@ impl_primitive_traits!(PlcTod, {
     i64, [direct false], [stop Err(error!(format!("0")))], [none Err(error!(format!("0")))]
 });
 
+/*
 impl From<u64> for PlcTod {
     fn from(value: u64) -> Self {
         match value {
@@ -44,25 +46,27 @@ impl From<u64> for PlcTod {
             _ => Self::LTod(LTod::new(&value).unwrap()),
         }
     }
-}
+}*/
 
-impl TryFrom<(&Map<String, Value>, &str)> for PlcTod {
+impl TryFrom<&Map<String, Value>> for PlcTod {
     type Error = Stop;
 
-    fn try_from(src: (&Map<String, Value>, &str)) -> Result<Self, Self::Error> {
-        let _src = src.0;
-        let ty = src.1;
+    fn try_from(data: &Map<String, Value>) -> Result<Self, Self::Error> {
         key_reader!(
-            format!("Parse PlcTod {}", ty),
-            _src {
-                value?,
+           format!("Parse PlcBinary"),
+           data {
+                ty => as_str,
+                src => {
+                    value?,
+                    id => as_u64,
+                }
             }
         );
-
+        let id = id as u32;
         match value {
             None => match ty {
-                "Tod" => Ok(PlcTod::Tod(Tod::default())),
-                "LTod" => Ok(PlcTod::LTod(LTod::default())),
+                "Tod" => Ok(PlcTod::Tod(Tod::new_default(id))),
+                "LTod" => Ok(PlcTod::LTod(LTod::new_default(id))),
                 _ => Err(error!(
                     format!("Invalid PlcTod type: {}", ty),
                     format!("Parse PlcTod")
@@ -71,8 +75,8 @@ impl TryFrom<(&Map<String, Value>, &str)> for PlcTod {
             Some(value) => {
                 if let Some(v) = value.as_u64() {
                     match ty {
-                        "Tod" => Ok(PlcTod::Tod(Tod::new(&(v as u32))?)),
-                        "LTod" => Ok(PlcTod::LTod(LTod::new(&v)?)),
+                        "Tod" => Ok(PlcTod::Tod(Tod::new(&(v as u32), id)?)),
+                        "LTod" => Ok(PlcTod::LTod(LTod::new(&v, id)?)),
                         _ => Err(error!(
                             format!("Invalid PlcTod type: {}", ty),
                             format!("Parse PlcTod")

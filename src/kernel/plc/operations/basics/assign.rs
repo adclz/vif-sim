@@ -15,7 +15,7 @@ use crate::container::broadcast::broadcast::Broadcast;
 pub struct Assign {
     assign: JsonTarget,
     to: JsonTarget,
-    id: u64,
+    id: u32,
 }
 
 impl NewJsonOperation for Assign {
@@ -26,6 +26,9 @@ impl NewJsonOperation for Assign {
                 id => as_u64, 
             }
         );
+
+        let id = id as u32;
+
         match(|| {
             key_reader!(
             format!("Parse Assign"),
