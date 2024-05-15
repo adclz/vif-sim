@@ -21,7 +21,6 @@ futures = "0.3.28"
 once_cell = "1.18.0"
 web-time = "0.2.3"
 enum_dispatch = "0.3.12"
-smart-default = "0.7.1"
 gloo-timers = { version = "0.3.0", features = ["futures"] }
 ansi_term = "0.12.1"
 uuid = { version ="1.6.1", features = ["v4", "js"] }
