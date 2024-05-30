@@ -1,5 +1,5 @@
-use std::cell::RefCell;
-use std::fmt::{Display, Formatter};
+use core::cell::RefCell;
+use core::fmt::{Display, Formatter};
 use std::rc::Rc;
 use crate::kernel::registry::Kernel;
 
@@ -70,7 +70,7 @@ pub enum HeapOrStatic {
 }
 
 impl Display for HeapOrStatic {
-    fn fmt(&self, f: &mut Formatter<'_>, ) -> std::fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>, ) -> core::fmt::Result {
         match self {
             HeapOrStatic::Static(a) => write!(f, "{}", a),
             HeapOrStatic::Heap(a) => write!(f, "{}", a),
@@ -83,7 +83,7 @@ impl Display for HeapOrStatic {
 pub struct MaybeHeapOrStatic(pub Option<HeapOrStatic>);
 
 impl Display for MaybeHeapOrStatic {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
         match &self.0 {
             None => write!(f, "[internal]"),
             Some(a) => write!(f, "{}", a)

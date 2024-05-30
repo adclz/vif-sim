@@ -3,9 +3,9 @@ use crate::kernel::registry::Kernel;
 use crate::container::broadcast::broadcast::Broadcast;
 use crate::container::error::error::Stop;
 use serde_json::{Map, Value};
-use std::cell::{RefCell, RefMut};
-use std::fmt::{Display, Formatter};
-use std::future::{IntoFuture};
+use core::cell::{RefCell, RefMut};
+use core::fmt::{Display, Formatter};
+use core::future::{IntoFuture};
 
 use crate::kernel::plc::operations::basics::calc::Calc;
 use crate::kernel::plc::operations::basics::compare::Compare;
@@ -40,7 +40,7 @@ use crate::kernel::plc::types::primitives::tod::plc_tod::PlcTod;
 use crate::kernel::arch::local::pointer::LocalPointer;
 use crate::kernel::arch::local::r#type::{LocalType, IntoLocalType};
 use camelpaste::paste;
-use std::ops::Deref;
+use core::ops::Deref;
 use std::rc::{Rc};
 use crate::kernel::plc::operations::unit::block::UnitBlock;
 use crate::kernel::plc::operations::unit::log::UnitLog;
@@ -118,7 +118,7 @@ impl Operation {
 }
 
 impl Display for Operation {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
         match &self.return_ptr {
             None =>  write!(f, "{} -> Void", self.name),
             Some(a) =>  write!(f, "{} -> {}", self.name, a)

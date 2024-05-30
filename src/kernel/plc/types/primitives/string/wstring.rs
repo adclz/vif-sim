@@ -10,10 +10,9 @@ use fixedstr::str256;
 use serde::ser::SerializeStruct;
 use serde::{Serialize, Serializer};
 use serde_json::{Map, Value};
-use smart_default::SmartDefault;
-use std::any::{Any, TypeId};
-use std::fmt::{Display, Formatter};
-use std::str::FromStr;
+use core::any::{Any, TypeId};
+use core::fmt::{Display, Formatter};
+use core::str::FromStr;
 use std::borrow::Cow;
 use crate::kernel::plc::types::primitives::string::_string::plcstr;
 use crate::kernel::registry::Kernel;
@@ -36,7 +35,7 @@ impl_primitive_all!(WString, plcwstr);
 pub struct plcwstr(pub str256);
 
 impl Display for plcwstr {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
         write!(f, "{}", self.0)
     }
 }

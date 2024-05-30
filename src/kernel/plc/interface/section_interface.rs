@@ -1,7 +1,7 @@
 ﻿use std::collections::hash_map::Entry;
 use std::collections::HashMap;
-use std::fmt::{Display, Formatter};
-use std::ops::{Deref, DerefMut};
+use core::fmt::{Display, Formatter};
+use core::ops::{Deref, DerefMut};
 use serde::{Serialize, Serializer};
 use serde::ser::{SerializeMap};
 use crate::kernel::plc::types::complex::instance::public::PublicInstanceTrait;
@@ -43,7 +43,7 @@ impl From<(HashMap<Section, StructInterface>, Option<LocalPointer>)> for Section
 }
 
 impl Display for SectionInterface {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
         if self.0.0.is_empty() && self.0.1.is_none() {
             writeln!(f, "Empty Interface")
         } else {

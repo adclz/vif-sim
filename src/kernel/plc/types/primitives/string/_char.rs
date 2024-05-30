@@ -9,10 +9,9 @@ use crate::{error, impl_primitive_all, impl_primitive_base, impl_primitive_displ
 use serde::ser::SerializeStruct;
 use serde::{Serialize, Serializer};
 use serde_json::{Map, Value};
-use smart_default::SmartDefault;
-use std::any::{Any, TypeId};
-use std::fmt::{Display, Formatter};
-use std::str::FromStr;
+use core::any::{Any, TypeId};
+use core::fmt::{Display, Formatter};
+use core::str::FromStr;
 use std::borrow::Cow;
 use crate::kernel::plc::types::primitives::string::_string::_String;
 use crate::kernel::registry::Kernel;

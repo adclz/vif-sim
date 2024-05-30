@@ -12,7 +12,7 @@ use crate::kernel::registry::{get_or_insert_global_string, Kernel};
 use crate::container::error::error::Stop;
 use crate::{error, key_reader};
 use serde_json::Value;
-use std::cell::RefCell;
+use core::cell::RefCell;
 use std::collections::HashMap;
 use std::rc::Rc;
 use crate::container::broadcast::broadcast::Broadcast;

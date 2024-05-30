@@ -11,7 +11,7 @@ use camelpaste::paste;
 use fixedstr::str256;
 use serde::Serializer;
 use serde_json::{Map, Value};
-use std::str::FromStr;
+use core::str::FromStr;
 
 create_family!(
     #[enum_dispatch(MetaData, SetMetaData, ToggleMonitor)]

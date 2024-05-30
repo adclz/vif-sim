@@ -1,5 +1,5 @@
 ﻿use std::collections::HashMap;
-use std::ops::Deref;
+use core::ops::Deref;
 use std::rc::Rc;
 use crate::{error};
 use crate::parser::body::json_target::JsonTarget;

@@ -1,8 +1,8 @@
-use std::any::TypeId;
+use core::any::TypeId;
 use std::borrow::Cow;
-use std::cell::RefCell;
-use std::fmt::{Display, Formatter};
-use std::ops::DerefMut;
+use core::cell::RefCell;
+use core::fmt::{Display, Formatter};
+use core::ops::DerefMut;
 use std::rc::Rc;
 use camelpaste::paste;
 use serde::{Serialize, Serializer};
@@ -79,7 +79,7 @@ impl RawMut for BitAccess {
 }
 
 impl Display for BitAccess {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
         write!(f, "Bit [{}] of {}", self.at, self.of)
     }
 }

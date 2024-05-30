@@ -14,7 +14,7 @@ use crate::container::error::error::Stop;
 use crate::{create_block_interface, error, insert_section, key_reader};
 use serde_json::{Map, Value};
 use std::collections::HashMap;
-use std::ops::{Deref, DerefMut};
+use core::ops::{Deref, DerefMut};
 use crate::parser::body::body::parse_json_target;
 use crate::container::broadcast::broadcast::Broadcast;
 use crate::kernel::rust::auto_set::box_set_auto;

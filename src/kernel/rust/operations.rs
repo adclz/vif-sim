@@ -1,18 +1,18 @@
 use camelpaste::paste;
 use crate::container::error::error::Stop;
 use crate::error;
-use std::fmt::Display;
+use core::fmt::Display;
 use crate::kernel::plc::types::primitives::traits::primitive_traits::PrimitiveTrait;
 use crate::kernel::plc::operations::operations::{Operation, RunTimeOperation};
 use crate::kernel::plc::types::primitives::traits::primitive_traits::{AsMutPrimitive, Primitive};
 use crate::kernel::arch::local::pointer::LocalPointer;
 use crate::kernel::arch::local::r#type::{IntoLocalType};
-use std::ops::{DerefMut};
+use core::ops::{DerefMut};
 use crate::kernel::registry::Kernel;
 use crate::kernel::plc::types::primitives::traits::meta_data::{MetaData, MaybeHeapOrStatic, HeapOrStatic};
 use crate::kernel::plc::types::primitives::floats::checked_float::CheckedFloat;
 use std::rc::Rc;
-use std::cell::RefCell;
+use core::cell::RefCell;
 
 macro_rules! box_create_checked_operation_primitive {
     ($op_fn: ident, $operator: literal,

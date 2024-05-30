@@ -125,7 +125,7 @@ macro_rules! impl_primitive_raw_mut {
 macro_rules! impl_primitive_display {
     ($primitive: ident, $inner_type: ident) => {
         impl Display for $primitive {
-            fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+            fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
                 write!(f, "{}({}: {:?})", self.get_path(), stringify!($primitive), self.value)
             }
         }
@@ -134,7 +134,7 @@ macro_rules! impl_primitive_display {
             fn raw_display<'a>(&'a self) -> impl Display +'a {
                 struct Raw<'a>(&'a $primitive);
                 impl<'a> Display for Raw<'a> { 
-                    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+                    fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
                         write!(f, "{}", self.0.value)
                     }
                 }

@@ -1,4 +1,4 @@
-use std::time::Duration;
+use core::time::Duration;
 use crate::container::broadcast::broadcast::Broadcast;
 use crate::container::error::error::Stop;
 

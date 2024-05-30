@@ -1,6 +1,6 @@
 ﻿#![allow(non_snake_case)]
 
-use std::cell::RefCell;
+use core::cell::RefCell;
 use crate::container::broadcast::broadcast::Broadcast;
 use crate::container::error::error::Stop;
 use crate::kernel::plc::types::complex::array::PlcArray;
@@ -18,7 +18,7 @@ use crate::kernel::plc::types::primitives::timers::plc_time::PlcTime;
 use crate::kernel::plc::types::primitives::tod::plc_tod::PlcTod;
 use camelpaste::paste;
 
-use std::fmt::{Display, Formatter};
+use core::fmt::{Display, Formatter};
 use std::rc::Rc;
 
 use crate::kernel::plc::types::primitives::boolean::bool::Bool;

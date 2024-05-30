@@ -46,7 +46,7 @@ use crate::kernel::arch::local::pointer::LocalPointer;
 use crate::kernel::arch::local::r#type::LocalType;
 use crate::kernel::registry::{convert_string_path_to_usize, get_or_insert_global_string, GlobalOrLocal, Kernel};
 use serde_json::{Map, Value};
-use std::fmt::{Display, Formatter};
+use core::fmt::{Display, Formatter};
 
 #[derive(Clone)]
 pub enum JsonTarget {
@@ -66,7 +66,7 @@ pub enum JsonTarget {
 }
 
 impl Display for JsonTarget {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
         match self {
             JsonTarget::Local(a) => writeln!(f, "Local -> {:?}", a),
             JsonTarget::LocalOut(a) => writeln!(f, "Local Out -> {:?}", a),

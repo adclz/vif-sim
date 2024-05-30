@@ -132,8 +132,8 @@ macro_rules! impl_local_types {
                 }
             }
 
-            impl std::fmt::Display for LocalType {
-                fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+            impl core::fmt::Display for LocalType {
+                fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
                     match self {
                         $(Self::$simple_family($simple_family) => write!(f, "{}", &$simple_family),)+
                         $(Self::$complex_family($complex_family) => write!(f, "{}", &$complex_family),)+

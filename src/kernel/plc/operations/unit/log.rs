@@ -10,7 +10,7 @@ use crate::kernel::registry::Kernel;
 use crate::container::error::error::Stop;
 use crate::{error, key_reader};
 use serde_json::{Map, Value};
-use std::fmt::{Display, Formatter};
+use core::fmt::{Display, Formatter};
 use crate::parser::body::body::parse_json_target;
 use crate::container::broadcast::broadcast::Broadcast;
 use crate::kernel::plc::operations::unit::test::UnitTestJson;
@@ -30,7 +30,7 @@ enum StringOrRuntimeTarget {
 }
 
 impl Display for StringOrRuntimeTarget {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
         match self {
             StringOrRuntimeTarget::String(string) => write!(f, "{}", string),
             StringOrRuntimeTarget::Global(global) => write!(f, "{}", global),

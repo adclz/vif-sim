@@ -19,8 +19,8 @@ use crate::parser::body::body::parse_json_target;
 use crate::parser::body::json_target::JsonTarget;
 use crate::{error, key_reader};
 use serde_json::{Map, Value};
-use std::cell::RefCell;
-use std::ops::Deref;
+use core::cell::RefCell;
+use core::ops::Deref;
 use std::rc::Rc;
 
 #[derive(Clone)]

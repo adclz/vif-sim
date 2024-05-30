@@ -1,6 +1,6 @@
-﻿use std::fmt::{Display, Formatter};
-use std::num::ParseIntError;
-use std::ops::{Deref, DerefMut};
+﻿use core::fmt::{Display, Formatter};
+use core::num::ParseIntError;
+use core::ops::{Deref, DerefMut};
 use serde::{Serialize, Serializer};
 use serde::ser::SerializeSeq;
 use crate::kernel::plc::types::complex::instance::public::PublicInstanceTrait;
@@ -14,7 +14,7 @@ use crate::kernel::registry::{get_string, Kernel};
 pub struct ArrayInterface(Vec<LocalPointer>);
 
 impl Display for ArrayInterface {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
         let mut i = -1;
         self.0.iter().try_for_each(|member| {
             i += 1;

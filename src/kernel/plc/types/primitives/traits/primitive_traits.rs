@@ -1,6 +1,6 @@
 ﻿use crate::container::broadcast::broadcast::Broadcast;
 use crate::container::error::error::Stop;
-use std::any::TypeId;
+use core::any::TypeId;
 
 use crate::kernel::plc::types::primitives::binaries::plc_binary::PlcBinary;
 use crate::kernel::plc::types::primitives::boolean::plc_bool::PlcBool;
@@ -13,7 +13,7 @@ use crate::kernel::plc::types::primitives::timers::plc_time::PlcTime;
 use crate::kernel::plc::types::primitives::tod::plc_tod::PlcTod;
 use camelpaste::paste;
 
-use std::fmt::{Display, Formatter};
+use core::fmt::{Display, Formatter};
 use std::rc::Rc;
 use wasm_bindgen::JsValue;
 use wasm_bindgen::prelude::wasm_bindgen;

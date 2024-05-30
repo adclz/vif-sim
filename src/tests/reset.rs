@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod tests {
     use std::collections::HashMap;
-    use std::ops::Deref;
+    use core::ops::Deref;
     use serde_json::Value;
     use uuid::Uuid;
     use crate::container::broadcast::broadcast::Broadcast;

@@ -5,8 +5,8 @@ use crate::container::broadcast::broadcast::Broadcast;
 use crate::container::simulation::simulation::Simulation;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::fmt::{Display, Formatter};
-use std::sync::atomic::{AtomicUsize, Ordering};
+use core::fmt::{Display, Formatter};
+use core::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::{Arc, Mutex};
 
 use once_cell::sync::Lazy;
@@ -682,7 +682,7 @@ impl From<u64> for StopOn {
 }
 
 impl Display for StopOn {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
         match self {
             StopOn::Infinite => write!(f, "Infinite"),
             StopOn::UnitTestsPassed => write!(f, "UnitTestsReached")

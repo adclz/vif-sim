@@ -7,8 +7,8 @@ use crate::kernel::registry::{convert_string_path_to_usize, get_full_path, get_s
 use crate::container::error::error::Stop;
 use serde::{Serialize, Serializer};
 use serde_json::{Map, Value};
-use std::fmt::{Display, Formatter};
-use std::ops::{Deref, DerefMut};
+use core::fmt::{Display, Formatter};
+use core::ops::{Deref, DerefMut};
 use crate::parser::body::body::parse_json_target;
 use crate::parser::body::json_target::JsonTarget;
 use crate::kernel::rust::set::box_set_plc_primitive_default_once;
@@ -78,7 +78,7 @@ impl ToggleMonitor for PlcArray {
 }
 
 impl Display for PlcArray {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
         write!(f, "{}", self.interface)
     }
 }

@@ -8,9 +8,8 @@ use crate::{error, impl_primitive_base, impl_primitive_raw_mut, impl_primitive_s
 use serde::ser::SerializeStruct;
 use serde::{Serialize, Serializer};
 use serde_json::{Map, Value};
-use smart_default::SmartDefault;
-use std::any::{Any, TypeId};
-use std::fmt::{Display, Formatter};
+use core::any::{Any, TypeId};
+use core::fmt::{Display, Formatter};
 use std::borrow::Cow;
 use crate::kernel::plc::types::primitives::floats::real::Real;
 use crate::kernel::registry::Kernel;
@@ -78,7 +77,7 @@ pub fn scale(f: f64) -> usize {
 }
 
 impl Display for LReal {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
         write!(f, "{}(LReal: {float:.scale$})", self.get_path(), float = self.value, scale = scale(self.value))
     }
 }
@@ -87,7 +86,7 @@ impl RawDisplay for LReal {
     fn raw_display<'a>(&'a self) -> impl Display +'a {
         struct Raw<'a>(&'a LReal);
         impl<'a> Display for Raw<'a> {
-            fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+            fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
                 write!(f, "{float:.scale$}", float = self.0.value, scale = scale(self.0.value))
             }
         }

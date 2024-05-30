@@ -9,7 +9,7 @@ use crate::kernel::arch::local::pointer::LocalPointer;
 use crate::container::broadcast::broadcast::Broadcast;
 use crate::container::error::error::Stop;
 use camelpaste::paste;
-use std::fmt::{Display, Formatter};
+use core::fmt::{Display, Formatter};
 
 use crate::kernel::plc::types::complex::array::PlcArray;
 use crate::kernel::plc::types::complex::instance::fb_instance::FbInstance;
@@ -24,7 +24,7 @@ use crate::kernel::plc::types::primitives::tod::plc_tod::PlcTod;
 use crate::kernel::plc::types::primitives::traits::family_traits::{IsFamily, WithTypeFamily, WithRefFamily, WithMutFamily};
 use crate::kernel::plc::types::primitives::traits::primitive_traits::{Primitive};
 use crate::kernel::plc::types::primitives::traits::meta_data::{MetaData, HeapOrStatic, MaybeHeapOrStatic};
-use std::ops::Deref;
+use core::ops::Deref;
 use crate::kernel::plc::types::primitives::string::wchar::wchar;
 use std::borrow::Cow;
 use crate::kernel::registry::Kernel;
@@ -39,7 +39,7 @@ pub enum AnyRefType {
 }
 
 impl Display for AnyRefType {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
         match self {
             AnyRefType::Local(a) => write!(f, "{}", a),
             AnyRefType::Constant(a) => write!(f, "{}", a),

@@ -1,6 +1,6 @@
 ﻿use serde::ser::SerializeStruct;
 use serde::{Serialize, Serializer};
-use std::fmt::{Display, Formatter};
+use core::fmt::{Display, Formatter};
 use tsify::Tsify;
 use wasm_bindgen::JsValue;
 use wasm_bindgen::prelude::wasm_bindgen;
@@ -34,7 +34,7 @@ impl Serialize for Stop {
 }
 
 impl Display for Stop {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
         writeln!(f, "\x1B[31mError: {}\x1b[0m", self.error)?;
         writeln!(f, "SimStack")?;
         self.sim_stack

@@ -24,10 +24,10 @@ use camelpaste::paste;
 use fixedstr::str256;
 
 use serde::{Serialize, Serializer};
-use std::cell::{Ref, RefCell, RefMut};
+use core::cell::{Ref, RefCell, RefMut};
 use std::collections::HashMap;
-use std::fmt::{Display, Formatter};
-use std::ops::{Deref, DerefMut};
+use core::fmt::{Display, Formatter};
+use core::ops::{Deref, DerefMut};
 use std::rc::Rc;
 use crate::kernel::plc::types::primitives::string::_string::plcstr;
 use crate::kernel::plc::types::primitives::string::wstring::plcwstr;
@@ -288,7 +288,7 @@ macro_rules! impl_local_pointer {
             }
 
             impl Display for LocalPointer {
-                fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+                fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
                     match self.inner.borrow().deref() {
                         $(LocalType::$simple_family(local) => write!(f, "{}", local),)+
                         $(LocalType::$complex_family(local) => write!(f, "{}", local),)+

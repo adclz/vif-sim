@@ -1,4 +1,4 @@
-﻿use std::ops::Deref;
+﻿use core::ops::Deref;
 use crate::parser::body::json_target::JsonTarget;
 use crate::kernel::plc::interface::section_interface::SectionInterface;
 use crate::kernel::plc::internal::template_impl::TemplateMemory;

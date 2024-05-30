@@ -1,4 +1,4 @@
-﻿use std::fmt::{Display, Formatter};
+﻿use core::fmt::{Display, Formatter};
 
 #[derive(Clone, Copy, PartialEq)]
 pub enum InterfaceStatus {
@@ -8,7 +8,7 @@ pub enum InterfaceStatus {
 }
 
 impl Display for InterfaceStatus {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
         match self {
             InterfaceStatus::Default => write!(f, "Default"),
             InterfaceStatus::Pending => write!(f, "Pending"),
@@ -25,7 +25,7 @@ pub enum BodyStatus {
 }
 
 impl Display for BodyStatus {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
         match self {
             BodyStatus::Default => write!(f, "Default"),
             BodyStatus::Pending => write!(f, "Pending"),

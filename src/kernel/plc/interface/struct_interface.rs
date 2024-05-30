@@ -1,6 +1,6 @@
 ﻿use std::collections::HashMap;
-use std::fmt::{Display, Formatter};
-use std::ops::{Deref, DerefMut};
+use core::fmt::{Display, Formatter};
+use core::ops::{Deref, DerefMut};
 use serde::{Serialize, Serializer};
 use serde::ser::SerializeMap;
 use crate::kernel::plc::types::complex::instance::public::PublicInstanceTrait;
@@ -42,7 +42,7 @@ impl FromIterator<(usize, LocalPointer)> for StructInterface {
 }
 
 impl Display for StructInterface {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
         self.0.iter().try_for_each(|(name, pointer)| {
             writeln!(f, "\t '{}' -> {}", get_string(*name), pointer)
         })

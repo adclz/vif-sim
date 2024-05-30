@@ -4,12 +4,12 @@ use crate::kernel::plc::types::primitives::traits::primitive_traits::{Primitive,
 use crate::kernel::plc::types::primitives::traits::primitive_traits::PrimitiveTrait;
 use crate::container::error::error::Stop;
 use camelpaste::paste;
-use std::fmt::Display;
+use core::fmt::Display;
 use crate::container::broadcast::broadcast::Broadcast;
 use crate::kernel::registry::Kernel;
 use crate::kernel::plc::types::primitives::traits::meta_data::{MetaData, MaybeHeapOrStatic, HeapOrStatic};
 use std::rc::Rc;
-use std::cell::RefCell;
+use core::cell::RefCell;
 
 macro_rules! primitive_links {
     ($({

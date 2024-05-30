@@ -3,8 +3,8 @@ use crate::kernel::plc::types::primitives::traits::primitive_traits::PrimitiveTr
 use crate::container::broadcast::broadcast::Broadcast;
 use crate::container::error::error::Stop;
 use camelpaste::paste;
-use std::cmp::Ordering;
-use std::fmt::Display;
+use core::cmp::Ordering;
+use core::fmt::Display;
 use crate::kernel::plc::types::primitives::traits::primitive_traits::{AsMutPrimitive, Primitive};
 use crate::kernel::registry::Kernel;
 use crate::kernel::plc::types::primitives::traits::meta_data::MetaData;

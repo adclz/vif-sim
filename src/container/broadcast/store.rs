@@ -87,7 +87,7 @@ macro_rules! impl_take {
             impl Store {
             $(#[wasm_bindgen(getter)]
                 pub fn [<get_$field>](&mut self) -> $value {
-                    std::mem::take(&mut self.$field)
+                    core::mem::take(&mut self.$field)
                 }
             )+}
         }
@@ -119,7 +119,6 @@ impl_store!(
     warnings => Option<Vec<String>>,
     error => Option<Stop>,
     monitoring => Vec<Monitoring>,
-    breakpoints => CustomHashSet,
     current_breakpoint => Option<u32>,
     unit_tests => Option<Vec<UnitTest>>,
     unit_tests_statuses => Option<Vec<UnitTestUpdateStatus>>,
@@ -139,7 +138,6 @@ impl_serialize!(
 impl_take!(
     messages => Option<Vec<String>>,
     warnings => Option<Vec<String>>,
-    breakpoints => CustomHashSet,
     monitoring => Vec<Monitoring>,
     current_breakpoint => Option<u32>,
     unit_tests => Option<Vec<UnitTest>>,
@@ -172,7 +170,7 @@ impl Monitoring {
 
     #[wasm_bindgen(getter)]
     pub fn get_value(&mut self) -> JsValue {
-        std::mem::take(&mut self.value)
+        core::mem::take(&mut self.value)
     }
 }
 
@@ -188,11 +186,11 @@ impl Store {
     }
     
     pub fn move_and_reset(&mut self) -> Store {
-        std::mem::take(self)
+        core::mem::take(self)
     }
 
     pub fn reset_store(&mut self) {
-        *self = std::mem::take(&mut Store::default());
+        *self = core::mem::take(&mut Store::default());
     }
 
     pub fn add_message(&mut self, message: &str) {
@@ -206,15 +204,7 @@ impl Store {
     pub fn add_error(&mut self, error: &Stop) {
         self.error = Some(error.clone())
     }
-
-    pub fn add_breakpoint(&mut self, id: u32) {
-        self.breakpoints.0.insert(id);
-    }
-
-    pub fn remove_breakpoint(&mut self, id: u32) {
-        self.breakpoints.0.remove(&id);
-    }
-
+    
     pub fn activate_breakpoint(&mut self, id: u32) {
         self.current_breakpoint = Some(id);
     }

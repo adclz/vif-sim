@@ -9,9 +9,9 @@ use crate::kernel::plc::pou::fc::Fc;
 use crate::kernel::plc::pou::db::db::Db;
 use crate::error;
 use camelpaste::paste;
-use std::cell::{Ref, RefCell, RefMut};
-use std::fmt::{Display, Formatter};
-use std::ops::{Deref};
+use core::cell::{Ref, RefCell, RefMut};
+use core::fmt::{Display, Formatter};
+use core::ops::{Deref};
 use std::rc::Rc;
 use crate::kernel::plc::interface::traits::InterfaceAccessors;
 use crate::kernel::arch::local::pointer::LocalPointer;
@@ -49,7 +49,7 @@ impl GlobalPointer {
 }
 
 impl Display for GlobalPointer {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
         match self.as_ref().borrow().deref() {
             GlobalType::Ob(_) => write!(f, "Ob"),
             GlobalType::Fb(_) => write!(f, "Fb"),

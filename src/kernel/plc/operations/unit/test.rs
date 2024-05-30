@@ -17,8 +17,8 @@ use crate::parser::body::json_target::JsonTarget;
 use ansi_term::Color::Yellow;
 use ansi_term::Colour::{Blue, Green, Red};
 use serde_json::{Map, Value};
-use std::cell::RefCell;
-use std::fmt::{Display, Formatter};
+use core::cell::RefCell;
+use core::fmt::{Display, Formatter};
 use std::rc::Rc;
 use tsify::Tsify;
 use wasm_bindgen::prelude::wasm_bindgen;
@@ -66,7 +66,7 @@ impl UnitTest {
 }
 
 impl Display for UnitTest {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
         write!(
             f,
             "[Unit tests] {} -> {}",

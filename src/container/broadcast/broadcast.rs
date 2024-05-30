@@ -3,9 +3,9 @@ use crate::js::dispatcher::dispatcher::Dispatcher;
 use crate::container::broadcast::stack::Stack;
 use crate::container::error::error::Stop;
 use crate::container::container::{ParseStatus, SimulationStatus};
-use std::cell::RefCell;
+use core::cell::RefCell;
 use std::collections::{HashMap, HashSet};
-use std::ops::{Deref, DerefMut};
+use core::ops::{Deref, DerefMut};
 use std::rc::Rc;
 use js_sys::{Int32Array, SharedArrayBuffer};
 use uuid::Uuid;
@@ -144,7 +144,7 @@ impl Broadcast {
     // Adds a breakpoint (set from outside) 
     pub fn add_breakpoint(&self, id: u32) {
         self.breakpoints.borrow_mut().insert(id);
-        self.store.borrow_mut().add_breakpoint(id);
+        self.store.borrow_mut().activate_breakpoint(id);
     }
     
     pub fn build_monitor(&self, kernel: &Kernel) {
@@ -154,7 +154,7 @@ impl Broadcast {
     /// Removes a breakpoint (set from outside)
     pub fn remove_breakpoint(&self, id: u32) {
         self.breakpoints.borrow_mut().remove(&id);
-        self.store.borrow_mut().remove_breakpoint(id)
+        self.store.borrow_mut().disable_breakpoint()
     }
     
     /// Activate breakpoint

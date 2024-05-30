@@ -44,8 +44,8 @@ macro_rules! create_family {
             }
         }
 
-        impl std::fmt::Display for $family {
-            fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        impl core::fmt::Display for $family {
+            fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
                 match self {
                     $($family::$primitive(a) => write!(f, "{}", &a),)+
                 }

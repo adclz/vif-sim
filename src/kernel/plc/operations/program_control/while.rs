@@ -1,5 +1,5 @@
-﻿use std::cell::RefCell;
-use std::ops::Deref;
+﻿use core::cell::RefCell;
+use core::ops::Deref;
 use std::rc::Rc;
 use crate::parser::body::json_target::JsonTarget;
 use crate::kernel::plc::interface::section_interface::SectionInterface;

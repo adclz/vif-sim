@@ -8,13 +8,13 @@ use crate::kernel::arch::global::r#type::GlobalType;
 use crate::kernel::arch::local::pointer::LocalPointer;
 use crate::kernel::arch::reset::reset::RawPointers;
 use crate::container::error::error::Stop;
-use std::cell::RefCell;
+use core::cell::RefCell;
 use std::collections::hash_map::Entry;
 use std::collections::{HashMap, HashSet};
-use std::ops::{Deref, DerefMut};
+use core::ops::{Deref, DerefMut};
 use std::rc::Rc;
 use std::sync::{Arc, Mutex};
-use std::sync::atomic::Ordering;
+use core::sync::atomic::Ordering;
 use crate::container::broadcast::broadcast::Broadcast;
 use crate::kernel::plc::interface::section::Section;
 use crate::kernel::plc::types::primitives::traits::meta_data::MetaData;
@@ -329,11 +329,11 @@ impl Kernel {
     }
 
     pub fn swap_pointers_collector_to_resources(&mut self) {
-        *self.provider_raw_pointers.borrow_mut().deref_mut() = std::mem::take(&mut self.raw_pointers_collector.borrow_mut())
+        *self.provider_raw_pointers.borrow_mut().deref_mut() = core::mem::take(&mut self.raw_pointers_collector.borrow_mut())
     }
 
     pub fn swap_pointers_collector_to_program(&mut self) {
-        *self.program_raw_pointers.borrow_mut().deref_mut() = std::mem::take(&mut self.raw_pointers_collector.borrow_mut())
+        *self.program_raw_pointers.borrow_mut().deref_mut() = core::mem::take(&mut self.raw_pointers_collector.borrow_mut())
     }
 
     /// Will only work if Db

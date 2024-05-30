@@ -20,7 +20,7 @@ use camelpaste::paste;
 
 use serde::{Serialize, Serializer};
 use std::collections::HashMap;
-use std::fmt::{Display, Formatter};
+use core::fmt::{Display, Formatter};
 use crate::kernel::plc::types::primitives::string::_string::plcstr;
 use crate::kernel::plc::types::primitives::traits::meta_data::{MaybeHeapOrStatic, MetaData, SetMetaData};
 use crate::kernel::plc::types::primitives::traits::primitive_traits::{AsMutPrimitive, Primitive};
@@ -116,7 +116,7 @@ impl ToggleMonitor for FbInstance {
 }
 
 impl Display for FbInstance {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
         write!(f, "{}", self.interface)
     }
 }

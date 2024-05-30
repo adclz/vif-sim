@@ -1,4 +1,4 @@
-﻿use std::fmt::{Display, Formatter};
+﻿use core::fmt::{Display, Formatter};
 
 #[derive(Eq, Hash, PartialEq, Clone, Copy)]
 pub enum Section {
@@ -13,7 +13,7 @@ pub enum Section {
 }
 
 impl Display for Section {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
         match self {
             Section::Input => write!(f, "Input"),
             Section::Output => write!(f, "Output"),

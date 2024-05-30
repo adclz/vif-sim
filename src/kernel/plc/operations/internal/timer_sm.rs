@@ -16,10 +16,10 @@ use crate::kernel::plc::types::primitives::traits::primitive_traits::PrimitiveTr
 use crate::kernel::plc::types::primitives::timers::traits::TimeDuration;
 use crate::kernel::registry::Kernel;
 use serde_json::{Map, Value};
-use std::cell::RefCell;
-use std::ops::{Deref, DerefMut};
+use core::cell::RefCell;
+use core::ops::{Deref, DerefMut};
 use std::rc::Rc;
-use std::time::Duration;
+use core::time::Duration;
 use web_time::Instant;
 use crate::kernel::plc::operations::unit::test::UnitTestJson;
 

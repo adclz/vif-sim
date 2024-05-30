@@ -1,5 +1,5 @@
 ﻿#![allow(non_snake_case)]
-use std::fmt::{Display, Formatter};
+use core::fmt::{Display, Formatter};
 use camelpaste::paste;
 use crate::{error};
 use crate::kernel::plc::types::primitives::binaries::plc_binary::PlcBinary;
@@ -101,7 +101,7 @@ macro_rules! impl_constant_type {
             }
             
             impl Display for ConstantType {
-                fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+                fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
                     match self {
                         $(Self::$family(local) => write!(f, "{}", local),)+
                     }
